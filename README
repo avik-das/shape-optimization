@@ -1,0 +1,24 @@
+Shape Optimization of Gridded Surfaces
+
+Advisor:
+Carlo Séquin
+
+Programmed by:
+Avik Das
+Victor Huang
+
+~~ ABOUT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TODO
+
+~~ EXTERNAL DEPENDENCIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following libraries are used, along with the package that provides them on
+Ubuntu (and possibly other Debian-based systems, including Debian itself).
+
+* Eigen 2 (libeigen2-dev)
+  - http://eigen.tuxfamily.org/index.php?title=Main_Page
+* libpng 1.2 (libpng12-dev)
+* OpenGL + GLUT (freeglut3-dev)
+
+Additionally, issue tracking is done via ditz.
