@@ -11,7 +11,11 @@ extern const float F_INF; // Positive infinity
  * Useful viewport properties in a single class
  */
 class Viewport {
-  public: int w, h; // width and height
+  public:
+    int w, h; // width and height
+    float rotx, rotz; // rotation of the camera, in degrees, around the
+                      // positive x and z axes respectively
+    float tx, tz; // translation of the object along the x and z axes
 };
 
 /**
