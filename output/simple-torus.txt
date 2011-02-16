@@ -1,0 +1,15 @@
+Iterated. Energy: 2155.01, Radius: 1.9
+Iterated. Energy: 2083.2, Radius: 1.8
+Iterated. Energy: 2012.32, Radius: 1.7
+Iterated. Energy: 1942.53, Radius: 1.6
+Iterated. Energy: 1874, Radius: 1.5
+Iterated. Energy: 1806.97, Radius: 1.4
+Iterated. Energy: 1741.73, Radius: 1.3
+Iterated. Energy: 1678.66, Radius: 1.2
+Iterated. Energy: 1618.25, Radius: 1.1
+Iterated. Energy: 1561.16, Radius: 1
+Iterated. Energy: 1508.32, Radius: 0.9
+Iterated. Energy: 1461.03, Radius: 0.8
+Iterated. Energy: 1421.23, Radius: 0.7
+Iterated. Energy: 1391.98, Radius: 0.6
+Iterated. Energy: 1378.35, Radius: 0.5
