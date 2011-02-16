@@ -22,7 +22,6 @@ public:
 
 private:
     SimpleTorus *simple_torus;
-    const int ARM_RESOLUTION;
 
     double compute_integrand(int v, int a);
 

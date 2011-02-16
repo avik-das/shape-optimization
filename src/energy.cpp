@@ -6,15 +6,15 @@
 #include <math.h>
 
 SimpleTorusEnergy::SimpleTorusEnergy(SimpleTorus *simple_torus) :
-    simple_torus(simple_torus), ARM_RESOLUTION(10) {}
+    simple_torus(simple_torus) {}
 
 float SimpleTorusEnergy::calc_energy() {
     // The surface energy of a simple torus is the integral of the sum of the
     // squares of the principal curvatures over the entire surface.
     double energy = 0.0;
 
-    for (int a = 0; a < ARM_RESOLUTION; a++) {
-        for (int v = 0; v < simple_torus->num_vert; v++) {
+    for (int a = 0; a < simple_torus->arm_vert; a++) {
+        for (int v = 0; v < simple_torus->ring_vert; v++) {
             energy += compute_integrand(v, a);
         }
     }
@@ -73,8 +73,8 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
 }
 
 Vector3f SimpleTorusEnergy::get_point(int v, int a) {
-    float r_ang = 2 * PI / simple_torus->num_vert;
-    float a_ang = 2 * PI / ARM_RESOLUTION;
+    float r_ang = 2 * PI / simple_torus->ring_vert;
+    float a_ang = 2 * PI / simple_torus->arm_vert;
 
     float d1 = simple_torus->ring_radius + 0.5 * (1 - cos(a * a_ang));
     return Vector3f(d1 * cos(v * r_ang), d1 * sin(v * r_ang), sin(a * a_ang));

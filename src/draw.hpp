@@ -28,9 +28,6 @@ public:
 
 private:
     SimpleTorus *simple_torus;
-    const int ARM_RESOLUTION;
-
-    void set_normal(float t_angle, float a_angle);
 };
 
 #endif
