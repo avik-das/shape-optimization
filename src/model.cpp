@@ -1,4 +1,4 @@
 #include "model.hpp"
 
-SimpleTorus::SimpleTorus(int num_vert) :
-    ring_radius(2.0f), num_vert(num_vert) {}
+SimpleTorus::SimpleTorus(float ring_radius, int num_vert) :
+    ring_radius(ring_radius), num_vert(num_vert) {}

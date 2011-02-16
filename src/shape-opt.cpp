@@ -49,7 +49,7 @@ void reshape_window(int w, int h) {
 
 void init_lights() {
     glEnable(GL_LIGHTING);
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
     
     GLfloat light_ambient [] = {0.2, 0.2 , 0.2, 1.0};
     GLfloat light_diffuse [] = {1.0, 0.95, 0.9, 1.0};
@@ -95,7 +95,7 @@ void move_frame() {
     Sleep(10);
 #endif
     glutPostRedisplay();
-    // energy->iterate();
+    energy->iterate();
 }
 
 void handle_keyboard(unsigned char key, int x, int y) {
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
     glutCreateWindow(TITLE);
 
     init_scene();
-    SimpleTorus *st = new SimpleTorus(10);
+    SimpleTorus *st = new SimpleTorus(2.0f, 10);
     drawer = new SimpleTorusDrawer(st);
     energy = new SimpleTorusEnergy(st);
 

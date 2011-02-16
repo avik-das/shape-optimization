@@ -9,7 +9,7 @@
  */
 class SimpleTorus {
 public:
-    SimpleTorus(int num_vert);
+    SimpleTorus(float ring_radius, int num_vert);
 
     float ring_radius;
     int num_vert;

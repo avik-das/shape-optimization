@@ -1,39 +1,83 @@
 #include "energy.hpp"
 
 #include "util.hpp"
+
+#include <Eigen/Geometry>
 #include <math.h>
 
 SimpleTorusEnergy::SimpleTorusEnergy(SimpleTorus *simple_torus) :
-    simple_torus(simple_torus) {}
+    simple_torus(simple_torus), ARM_RESOLUTION(10) {}
 
 float SimpleTorusEnergy::calc_energy() {
-    // The surface energy of a simple torus is the integral of the square of
-    // the principal curvatures over the entire surface.
-    //
-    // TODO: precise terms
-    // Firstly, at each point of the torus, the principal curvatures are the
-    // curvature around two circles: the one around the "hole" and the one
-    // around the "arm".
-    //
-    // Secondly, the integral is approximated by summing over only a subset of
-    // the points on the torus, namely the vertices around the toroidal ring,
-    // multiplied by the circumference of the toroidal ring.
-    //
-    // Because the torus is so simple, every vertex to be considered is
-    // identical. The vertex is on the inside of the toroidal ring. The
-    // principal curvatures at that vertex are the multiplicative inverse of the
-    // radius of the toroidal ring, and the multiplicative inverse of the radius
-    // of the arm. The latter radius is simply 1.0, while the the former radius
-    // is stored with the torus.
-    //
-    // There are as many vertices as specified in the torus, but each one is
-    // weighted by the inverse of the number of vertices, so it is sufficient to
-    // calculate only the energy at one vertex.
-    float r = simple_torus->ring_radius;
+    // The surface energy of a simple torus is the integral of the sum of the
+    // squares of the principal curvatures over the entire surface.
+    double energy = 0.0;
 
-    float pc = 1.0f / r;
-    float circ = PI * r * r;
-    return (1 + pc * pc) * circ;
+    for (int a = 0; a < ARM_RESOLUTION; a++) {
+        for (int v = 0; v < simple_torus->num_vert; v++) {
+            energy += compute_integrand(v, a);
+        }
+    }
+
+    return (float) energy;
+}
+
+double SimpleTorusEnergy::compute_integrand(int v, int a) {
+    // This function does quite a bit, but that's because all of the
+    // computations below make use of the same data over and over again. Thus,
+    // it's better to just calculate it once.
+
+    // We consider five points: the vertex itself, and the four vertices around
+    // it that are found by varying either v or a (but not both) by plus or
+    // minus 1.
+    //
+    // The principal curvature in one direction is approximated by the bending
+    // angle between the two struts formed by the three points with the same
+    // a, and the principal curvature in the other direction by the struts
+    // formed by the three points with the same v. Each time, the angle is
+    // divided by the averaged lengths of the two struts in question.
+
+    // First with the same a.
+    Vector3f av1 = get_point(v - 1, a),
+             av2 = get_point(v    , a),
+             av3 = get_point(v + 1, a);
+    Vector3f as1 = av1 - av2,
+             as2 = av3 - av2;
+    double aa = acos(as1.dot(as2) / (as1.norm() * as2.norm()));
+    double al = 0.5 * (as1.norm() + as2.norm());
+    double k1 = aa / al;
+
+    // Then with the same v.
+    Vector3f vv1 = get_point(v, a - 1),
+             vv2 = av2,
+             vv3 = get_point(v, a + 1);
+    Vector3f vs1 = vv1 - vv2,
+             vs2 = vv3 - vv2;
+    double va = acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
+    double vl = 0.5 * (vs1.norm() + vs2.norm());
+    double k2 = va / vl;
+
+    // With the principal curvatures computed, we need to compute the integrand
+    // itself, then integrate over the local area. The former is simply the sum
+    // of the squares of the principal curvatures. To approximate integration
+    // over the surface, we compute the averaged area of the four quads that
+    // meet at the central point in question and multiply the integration term
+    // by that value.
+    
+    double qa1 = as1.cross(vs1).norm(),
+           qa2 = vs1.cross(as2).norm(),
+           qa3 = as2.cross(vs2).norm(),
+           qa4 = vs2.cross(as1).norm();
+
+    return (k1*k1 + k2*k2) * (qa1 + qa2 + qa3 + qa4) / 4;
+}
+
+Vector3f SimpleTorusEnergy::get_point(int v, int a) {
+    float r_ang = 2 * PI / simple_torus->num_vert;
+    float a_ang = 2 * PI / ARM_RESOLUTION;
+
+    float d1 = simple_torus->ring_radius + 0.5 * (1 - cos(a * a_ang));
+    return Vector3f(d1 * cos(v * r_ang), d1 * sin(v * r_ang), sin(a * a_ang));
 }
 
 #include <iostream>

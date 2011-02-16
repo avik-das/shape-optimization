@@ -3,6 +3,9 @@
 
 #include "model.hpp"
 
+#include <Eigen/Core>
+USING_PART_OF_NAMESPACE_EIGEN
+
 /* TODO: document properly */
 
 class Energy {
@@ -19,6 +22,11 @@ public:
 
 private:
     SimpleTorus *simple_torus;
+    const int ARM_RESOLUTION;
+
+    double compute_integrand(int v, int a);
+
+    Vector3f get_point(int v, int a);
 };
 
 #endif
