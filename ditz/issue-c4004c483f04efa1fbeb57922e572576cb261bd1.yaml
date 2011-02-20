@@ -1,0 +1,22 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: Create new energy function that captures actual curvatures
+desc: |-
+  The current energy function captures bending energy more generally than we want
+  just yet (though we want the general case later). Create an additional energy
+  function that looks at the normal to the surface at a point, and how far the
+  struts bend away from the tangential plane at the point.
+type: :feature
+component: shape-opt
+release: 
+reporter: Avik Das <avik.das@berkeley.edu>
+status: :unstarted
+disposition: 
+creation_time: 2011-02-20 03:22:27.180689 Z
+references: []
+
+id: c4004c483f04efa1fbeb57922e572576cb261bd1
+log_events: 
+- - 2011-02-20 03:22:33.538849 Z
+  - Avik Das <avik.das@berkeley.edu>
+  - created
+  - ""
