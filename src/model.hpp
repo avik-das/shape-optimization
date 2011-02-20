@@ -12,6 +12,7 @@ public:
     SimpleTorus(float ring_radius, int resolution);
 
     float ring_radius;
+    const float ARM_RADIUS;
     int ring_vert;
     int arm_vert;
 };

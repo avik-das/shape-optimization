@@ -76,7 +76,8 @@ Vector3f SimpleTorusEnergy::get_point(int v, int a) {
     float r_ang = 2 * PI / simple_torus->ring_vert;
     float a_ang = 2 * PI / simple_torus->arm_vert;
 
-    float d1 = simple_torus->ring_radius + 0.5 * (1 - cos(a * a_ang));
+    float d1 = simple_torus->ring_radius -
+        simple_torus->ARM_RADIUS * cos(a * a_ang);
     return Vector3f(d1 * cos(v * r_ang), d1 * sin(v * r_ang), sin(a * a_ang));
 }
 
