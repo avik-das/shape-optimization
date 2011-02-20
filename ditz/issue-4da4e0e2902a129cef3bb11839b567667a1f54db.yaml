@@ -8,8 +8,8 @@ type: :feature
 component: shape-opt
 release: 
 reporter: Avik Das <avik.das@berkeley.edu>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2011-02-20 03:19:00.351471 Z
 references: []
 
@@ -19,3 +19,7 @@ log_events:
   - Avik Das <avik.das@berkeley.edu>
   - created
   - ""
+- - 2011-02-20 09:50:56.748904 Z
+  - Avik Das <avik.das@berkeley.edu>
+  - closed with disposition fixed
+  - Radius now corresponds to distance from center of torus to center of tube.
