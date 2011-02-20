@@ -33,6 +33,8 @@ Viewport viewport;
 Drawer *drawer = NULL;
 Energy *energy = NULL;
 
+bool done = false;
+
 void reshape_window(int w, int h) {
     viewport.w = w;
     viewport.h = h;
@@ -95,7 +97,7 @@ void move_frame() {
     Sleep(10);
 #endif
     glutPostRedisplay();
-    energy->iterate();
+    if (!done) { done = energy->iterate(); }
 }
 
 void handle_keyboard(unsigned char key, int x, int y) {

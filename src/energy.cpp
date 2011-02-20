@@ -5,8 +5,16 @@
 #include <Eigen/Geometry>
 #include <math.h>
 
+const float ENERGY_THRESHOLD = 0.001f;
+
+inline bool is_improvement(float orig, float changed) {
+    return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
+}
+
 SimpleTorusEnergy::SimpleTorusEnergy(SimpleTorus *simple_torus) :
-    simple_torus(simple_torus) {}
+    simple_torus(simple_torus),
+    START_STEP_SIZE(0.1f), END_STEP_SIZE(0.00001f),
+    step_size(START_STEP_SIZE) {}
 
 float SimpleTorusEnergy::calc_energy() {
     // The surface energy of a simple torus is the integral of the sum of the
@@ -83,23 +91,32 @@ Vector3f SimpleTorusEnergy::get_point(int v, int a) {
 
 #include <iostream>
 
-void SimpleTorusEnergy::iterate() {
-    const float STEP_SIZE = 0.1f;
-    if (simple_torus->ring_radius <= STEP_SIZE) { return; }
+bool SimpleTorusEnergy::iterate() {
+    while (simple_torus->ring_radius <= step_size) {
+        if (step_size > END_STEP_SIZE) { step_size /= 2; }
+        else { return true; }
+    }
 
     float energy_now = calc_energy();
 
-    simple_torus->ring_radius += STEP_SIZE;
+    simple_torus->ring_radius += step_size;
     float energy_large = calc_energy();
 
-    simple_torus->ring_radius -= STEP_SIZE * 2;
+    simple_torus->ring_radius -= step_size * 2;
     float energy_small = calc_energy();
 
-    simple_torus->ring_radius += STEP_SIZE;
-    if (energy_now < energy_large && energy_now < energy_small) { return; }
+    simple_torus->ring_radius += step_size;
+    if (!is_improvement(energy_now, energy_large) &&
+        !is_improvement(energy_now, energy_small)) {
+        if (step_size > END_STEP_SIZE) { step_size /= 2; }
+        else { return true; }
+        return false;
+    }
     simple_torus->ring_radius +=
-        energy_large > energy_small ? -STEP_SIZE : +STEP_SIZE;
+        energy_large > energy_small ? -step_size : +step_size;
 
     float e = calc_energy();
-    std::cout << "Iterated. Energy: " << e << ", Radius: " << simple_torus->ring_radius << std::endl;
+    std::cout << "Iterated. Energy: " << e << ", Radius: " << simple_torus->ring_radius << " (step_size = " << step_size << ")" << std::endl;
+
+    return false;
 }
