@@ -48,9 +48,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // configuration, not the actual angle between th struts themselves.
 
     // First with the same a.
-    Vector3f av1 = get_point(v - 1, a),
-             av2 = get_point(v    , a),
-             av3 = get_point(v + 1, a);
+    Vector3f av1 = simple_torus->get_point(v - 1, a),
+             av2 = simple_torus->get_point(v    , a),
+             av3 = simple_torus->get_point(v + 1, a);
     Vector3f as1 = av1 - av2,
              as2 = av3 - av2;
     double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
@@ -58,9 +58,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     double k1 = aa / al;
 
     // Then with the same v.
-    Vector3f vv1 = get_point(v, a - 1),
+    Vector3f vv1 = simple_torus->get_point(v, a - 1),
              vv2 = av2,
-             vv3 = get_point(v, a + 1);
+             vv3 = simple_torus->get_point(v, a + 1);
     Vector3f vs1 = vv1 - vv2,
              vs2 = vv3 - vv2;
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
@@ -80,15 +80,6 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
            qa4 = vs2.cross(as1).norm();
 
     return (k1*k1 + k2*k2) * (qa1 + qa2 + qa3 + qa4) / 4;
-}
-
-Vector3f SimpleTorusEnergy::get_point(int v, int a) {
-    float r_ang = 2 * PI / simple_torus->ring_vert;
-    float a_ang = 2 * PI / simple_torus->arm_vert;
-
-    float d1 = simple_torus->ring_radius -
-        simple_torus->ARM_RADIUS * cos(a * a_ang);
-    return Vector3f(d1 * cos(v * r_ang), d1 * sin(v * r_ang), sin(a * a_ang));
 }
 
 #include <iostream>

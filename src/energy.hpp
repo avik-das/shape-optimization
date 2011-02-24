@@ -29,8 +29,6 @@ private:
     const float   END_STEP_SIZE;
     float step_size;
     double compute_integrand(int v, int a);
-
-    Vector3f get_point(int v, int a);
 };
 
 #endif

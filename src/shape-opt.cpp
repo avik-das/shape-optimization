@@ -44,7 +44,7 @@ void reshape_window(int w, int h) {
     glLoadIdentity();
 
     float scale = min(w, h);
-    glOrtho(-w / scale, w / scale, -h / scale, h / scale, -1, 1);
+    glOrtho(-w / scale, w / scale, -h / scale, h / scale, -5, 5);
 
     glScalef(0.25f, 0.25f, 0.25f);
 }

@@ -1,6 +1,11 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include "util.hpp"
+
+#include <Eigen/Core>
+USING_PART_OF_NAMESPACE_EIGEN
+
 /* TODO: document properly */
 
 /**
@@ -15,6 +20,8 @@ public:
     const float ARM_RADIUS;
     int ring_vert;
     int arm_vert;
+
+    Vector3f get_point(int v, int a);
 };
 
 #endif
