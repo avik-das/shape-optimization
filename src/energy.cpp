@@ -43,7 +43,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // angle between the two struts formed by the three points with the same
     // a, and the principal curvature in the other direction by the struts
     // formed by the three points with the same v. Each time, the angle is
-    // divided by the averaged lengths of the two struts in question.
+    // divided by the averaged lengths of the two struts in question. Note that
+    // in computing the angle, we want to measure the deviation from the planar
+    // configuration, not the actual angle between th struts themselves.
 
     // First with the same a.
     Vector3f av1 = get_point(v - 1, a),
@@ -51,7 +53,7 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
              av3 = get_point(v + 1, a);
     Vector3f as1 = av1 - av2,
              as2 = av3 - av2;
-    double aa = acos(as1.dot(as2) / (as1.norm() * as2.norm()));
+    double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
     double al = 0.5 * (as1.norm() + as2.norm());
     double k1 = aa / al;
 
@@ -61,7 +63,7 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
              vv3 = get_point(v, a + 1);
     Vector3f vs1 = vv1 - vv2,
              vs2 = vv3 - vv2;
-    double va = acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
+    double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
     double vl = 0.5 * (vs1.norm() + vs2.norm());
     double k2 = va / vl;
 
