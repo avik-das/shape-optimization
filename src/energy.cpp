@@ -48,9 +48,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // configuration, not the actual angle between th struts themselves.
 
     // First with the same a.
-    Vector3f av1 = simple_torus->get_point(v - 1, a),
-             av2 = simple_torus->get_point(v    , a),
-             av3 = simple_torus->get_point(v + 1, a);
+    Vector3f av1 = *simple_torus->get_point(v - 1, a)->point,
+             av2 = *simple_torus->get_point(v    , a)->point,
+             av3 = *simple_torus->get_point(v + 1, a)->point;
     Vector3f as1 = av1 - av2,
              as2 = av3 - av2;
     double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
@@ -58,9 +58,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     double k1 = aa / al;
 
     // Then with the same v.
-    Vector3f vv1 = simple_torus->get_point(v, a - 1),
+    Vector3f vv1 = *simple_torus->get_point(v, a - 1)->point,
              vv2 = av2,
-             vv3 = simple_torus->get_point(v, a + 1);
+             vv3 = *simple_torus->get_point(v, a + 1)->point;
     Vector3f vs1 = vv1 - vv2,
              vs2 = vv3 - vv2;
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));

@@ -74,6 +74,7 @@ void init_scene(){
     // glDepthMask(GL_TRUE);
     glPolygonMode(GL_FRONT, GL_FILL);
     glPolygonMode(GL_BACK , GL_FILL);
+    glEnable(GL_CULL_FACE);
 
     reshape_window(viewport.w, viewport.h);
 }
@@ -85,6 +86,7 @@ void draw_scene() {
     glLoadIdentity();
     glRotatef(viewport.rotx, 1.0f, 0.0f, 0.0f);
     glRotatef(viewport.rotz, 0.0f, 0.0f, 1.0f);
+    glTranslatef(viewport.tx, 0.0f, viewport.tz);
 
     drawer->draw();
 
