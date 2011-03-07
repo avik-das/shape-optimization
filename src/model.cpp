@@ -20,7 +20,9 @@ PointNormal *SimpleTorus::get_point(int v, int a) {
 
     float d1 = ring_radius - ARM_RADIUS * cos(a * a_ang);
     Vector3f *p =
-        new Vector3f(d1 * cos(v * r_ang), d1 * sin(v * r_ang), sin(a * a_ang));
+        new Vector3f(d1 * cos(v * r_ang),
+                     d1 * sin(v * r_ang),
+                     ARM_RADIUS * sin(a * a_ang));
 
     Vector3f radial =
         ring_radius * Vector3f(cos(v * r_ang), sin(v * r_ang), 0.0f);

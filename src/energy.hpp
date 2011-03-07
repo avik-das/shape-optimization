@@ -6,6 +6,8 @@
 #include <Eigen/Core>
 USING_PART_OF_NAMESPACE_EIGEN
 
+#include <cstdarg>
+
 /* TODO: document properly */
 
 /**
@@ -29,7 +31,18 @@ extern const float ENERGY_THRESHOLD;
 class Energy {
 public:
     virtual float calc_energy() = 0;
-    virtual bool iterate() = 0;
+    virtual bool iterate();
+
+protected:
+    Energy(int nparams, ...);
+    virtual void apply_change(VectorXf *chg) = 0;
+    virtual VectorXf *update_step_size(VectorXf *old, VectorXf *end) = 0;
+
+    virtual void log_iteration(VectorXf *step_size) = 0;
+
+private:
+    VectorXf *step_size;
+    VectorXf *step_size_end;
 };
 
 /**
@@ -39,14 +52,16 @@ class SimpleTorusEnergy : public Energy {
 public:
     SimpleTorusEnergy(SimpleTorus *simple_torus);
     float calc_energy();
-    bool iterate();
+
+protected:
+    void apply_change(VectorXf *chg);
+    VectorXf *update_step_size(VectorXf *old, VectorXf *end);
+
+    void log_iteration(VectorXf *step_size);
 
 private:
     SimpleTorus *simple_torus;
 
-    const float START_STEP_SIZE;
-    const float   END_STEP_SIZE;
-    float step_size;
     double compute_integrand(int v, int a);
 };
 
