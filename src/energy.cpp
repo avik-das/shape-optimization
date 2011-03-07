@@ -134,9 +134,7 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // angle between the two struts formed by the three points with the same
     // a, and the principal curvature in the other direction by the struts
     // formed by the three points with the same v. Each time, the angle is
-    // divided by the averaged lengths of the two struts in question. Note that
-    // in computing the angle, we want to measure the deviation from the planar
-    // configuration, not the actual angle between th struts themselves.
+    // divided by the averaged lengths of the two struts in question.
 
     // First with the same a.
     Vector3f av1 = *simple_torus->get_point(v - 1, a)->point,
@@ -157,6 +155,62 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
     double vl = 0.5 * (vs1.norm() + vs2.norm());
     double k2 = va / vl;
+
+    // With the principal curvatures computed, we need to compute the integrand
+    // itself, then integrate over the local area. The former is simply the sum
+    // of the squares of the principal curvatures. To approximate integration
+    // over the surface, we compute the averaged area of the four quads that
+    // meet at the central point in question and multiply the integration term
+    // by that value.
+    
+    double qa1 = as1.cross(vs1).norm(),
+           qa2 = vs1.cross(as2).norm(),
+           qa3 = as2.cross(vs2).norm(),
+           qa4 = vs2.cross(as1).norm();
+
+    return (k1*k1 + k2*k2) * (qa1 + qa2 + qa3 + qa4) / 4;
+}
+
+SimpleTorusEnergyStd::SimpleTorusEnergyStd(SimpleTorus *simple_torus) :
+    SimpleTorusEnergy(simple_torus) {}
+
+double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
+    // This calculation is conceptually very similar to the corresponding
+    // SimpleTorusEnergy calculation, with the only difference being in the way
+    // the bending angles are calculated. Instead of calculating the angle
+    // between two opposite struts as the angle relative to each other, the
+    // angle of deviation away from the tangential plane is calculated.
+
+    // First with the same a.
+    PointNormal *av1pn = simple_torus->get_point(v - 1, a),
+                *av2pn = simple_torus->get_point(v    , a),
+                *av3pn = simple_torus->get_point(v + 1, a);
+    Vector3f av1p = *av1pn->point,
+             av2p = *av2pn->point,
+             av3p = *av3pn->point;
+    Vector3f an = *av2pn->normal;
+    Vector3f as1 = av1p - av2p,
+             as2 = av3p - av2p;
+    
+    double aa1 = acos(as1.dot(an) / as1.norm()) - PI / 2;
+    double aa2 = acos(as2.dot(an) / as1.norm()) - PI / 2;
+    double al = 0.5 * (as1.norm() + as2.norm());
+    double k1 = (aa1 + aa2) / al;
+
+    // Then with the same v.
+    PointNormal *vv1pn = simple_torus->get_point(v, a - 1),
+                *vv3pn = simple_torus->get_point(v, a + 1);
+    Vector3f vv1p = *vv1pn->point,
+             vv2p = av2p,
+             vv3p = *vv3pn->point;
+    Vector3f vn = an;
+    Vector3f vs1 = vv1p - vv2p,
+             vs2 = vv3p - vv2p;
+
+    double va1 = acos(vs1.dot(vn) / vs1.norm()) - PI / 2;
+    double va2 = acos(vs2.dot(vn) / vs1.norm()) - PI / 2;
+    double vl = 0.5 * (vs1.norm() + vs2.norm());
+    double k2 = (va1 + va2) / vl;
 
     // With the principal curvatures computed, we need to compute the integrand
     // itself, then integrate over the local area. The former is simply the sum

@@ -59,9 +59,15 @@ protected:
 
     void log_iteration(VectorXf *step_size);
 
-private:
     SimpleTorus *simple_torus;
+    virtual double compute_integrand(int v, int a);
+};
 
+class SimpleTorusEnergyStd : public SimpleTorusEnergy {
+public:
+    SimpleTorusEnergyStd(SimpleTorus *simple_torus);
+
+protected:
     double compute_integrand(int v, int a);
 };
 
