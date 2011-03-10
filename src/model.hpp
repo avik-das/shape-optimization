@@ -30,7 +30,8 @@ public:
     int ring_vert;
     int arm_vert;
 
-    PointNormal *get_point(int v, int a);
+    PointNormal *get_point_normal(int v, int a);
+    Vector3f *get_point(int v, int a);
 };
 
 #endif

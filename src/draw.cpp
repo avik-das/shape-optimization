@@ -14,14 +14,14 @@ void SimpleTorusDrawer::draw() {
             // we loop num_vert + 1 times, the last time being to finish off
             // the quad strip
             for (int i = 0; i <= simple_torus->ring_vert; i++) {
-                PointNormal *pn1 = simple_torus->get_point(i, a);
+                PointNormal *pn1 = simple_torus->get_point_normal(i, a);
                 Vector3f *n1 = pn1->normal;
                 Vector3f *p1 = pn1->point ;
 
                 glNormal3f(n1->x(), n1->y(), n1->z());
                 glVertex3f(p1->x(), p1->y(), p1->z());
 
-                PointNormal *pn2 = simple_torus->get_point(i, a + 1);
+                PointNormal *pn2 = simple_torus->get_point_normal(i, a + 1);
                 Vector3f *n2 = pn2->normal;
                 Vector3f *p2 = pn2->point ;
 

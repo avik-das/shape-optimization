@@ -137,9 +137,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // divided by the averaged lengths of the two struts in question.
 
     // First with the same a.
-    Vector3f av1 = *simple_torus->get_point(v - 1, a)->point,
-             av2 = *simple_torus->get_point(v    , a)->point,
-             av3 = *simple_torus->get_point(v + 1, a)->point;
+    Vector3f av1 = *simple_torus->get_point(v - 1, a),
+             av2 = *simple_torus->get_point(v    , a),
+             av3 = *simple_torus->get_point(v + 1, a);
     Vector3f as1 = av1 - av2,
              as2 = av3 - av2;
     double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
@@ -147,9 +147,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     double k1 = aa / al;
 
     // Then with the same v.
-    Vector3f vv1 = *simple_torus->get_point(v, a - 1)->point,
+    Vector3f vv1 = *simple_torus->get_point(v, a - 1),
              vv2 = av2,
-             vv3 = *simple_torus->get_point(v, a + 1)->point;
+             vv3 = *simple_torus->get_point(v, a + 1);
     Vector3f vs1 = vv1 - vv2,
              vs2 = vv3 - vv2;
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
@@ -182,9 +182,9 @@ double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
     // angle of deviation away from the tangential plane is calculated.
 
     // First with the same a.
-    PointNormal *av1pn = simple_torus->get_point(v - 1, a),
-                *av2pn = simple_torus->get_point(v    , a),
-                *av3pn = simple_torus->get_point(v + 1, a);
+    PointNormal *av1pn = simple_torus->get_point_normal(v - 1, a),
+                *av2pn = simple_torus->get_point_normal(v    , a),
+                *av3pn = simple_torus->get_point_normal(v + 1, a);
     Vector3f av1p = *av1pn->point,
              av2p = *av2pn->point,
              av3p = *av3pn->point;
@@ -198,8 +198,8 @@ double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
     double k1 = (aa1 + aa2) / al;
 
     // Then with the same v.
-    PointNormal *vv1pn = simple_torus->get_point(v, a - 1),
-                *vv3pn = simple_torus->get_point(v, a + 1);
+    PointNormal *vv1pn = simple_torus->get_point_normal(v, a - 1),
+                *vv3pn = simple_torus->get_point_normal(v, a + 1);
     Vector3f vv1p = *vv1pn->point,
              vv2p = av2p,
              vv3p = *vv3pn->point;
