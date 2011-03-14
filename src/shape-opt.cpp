@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
     glutCreateWindow(TITLE);
 
     init_scene();
-    SimpleTorus *st = new SimpleTorus(2.0f, 10);
+    SimpleTorus *st = new SimpleTorus(2.0f, 20);
     drawer = new SimpleTorusDrawer(st);
     energy = new SimpleTorusEnergyStd(st);
 

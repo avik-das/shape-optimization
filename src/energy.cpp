@@ -13,75 +13,75 @@ inline bool is_improvement(float orig, float changed) {
     return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
 }
 
-Energy::Energy(int nargs, ...) :
-    step_size    (new VectorXf(nargs / 2)),
-    step_size_end(new VectorXf(nargs / 2)) {
-    va_list args;
-    va_start(args, nargs);
-
-    for (int r = 0; r < nargs / 2; r++) {
-        double ssstart = va_arg(args, double);
-        double ssend   = va_arg(args, double);
-        std::cout << r << ": [" << ssstart << ", " << ssend << "]" << std::endl;
-        (*step_size    )[r] = ssstart;
-        (*step_size_end)[r] = ssend  ;
-    }
-}
+Energy::Energy(float step_size_start, float step_size_end, int numparams) :
+    step_size    (step_size_start),
+    step_size_end(step_size_end  ),
+    numparams(numparams) {}
 
 bool Energy::iterate() {
-    if (!step_size) { return true; }
+    if (step_size <= step_size_end) { return true; }
 
     step_size = update_step_size(step_size, step_size_end);
-    if (!step_size) { return true; }
+    if (step_size <= step_size_end) { return true; }
+
+    // every coordinate of a vector will all equal coordinates and a norm of
+    // step_size has the following value:
+    float dparam = step_size / sqrt(numparams);
 
     float energy_now = calc_energy();
 
-    VectorXf *diff = new VectorXf(step_size->size());
-    VectorXf *chg  = new VectorXf(step_size->size());
+    VectorXf *diff = new VectorXf(numparams);
+    VectorXf *chg  = new VectorXf(numparams);
 
-    bool *done = new bool[step_size->size()];
+    bool *done = new bool[numparams];
 
-    for (int np = 0; np < step_size->size(); np++) {
+    for (int np = 0; np < numparams; np++) {
         (*chg )[np] = 0;
         (*diff)[np] = 0;
         done[np] = false;
 
-        (*diff)[np] = (*step_size)[np];
+        (*diff)[np] = dparam;
         apply_change(diff);
         float energy_large = calc_energy();
 
-        (*diff)[np] = -2 * (*step_size)[np];
+        (*diff)[np] = -2 * dparam;
         apply_change(diff);
         float energy_small = calc_energy();
 
-        (*diff)[np] = (*step_size)[np];
+        (*diff)[np] = dparam;
         apply_change(diff);
 
         (*diff)[np] = 0;
 
         if (!is_improvement(energy_now, energy_large) &&
             !is_improvement(energy_now, energy_small)) {
-            if ((*step_size)[np] > (*step_size_end)[np]) {
-                (*step_size)[np] /= 2;
-            }
-            else { done[np] = true; }
+            if (step_size <= step_size_end) { done[np] = true; }
             continue;
         }
-        if (energy_large > energy_small) { (*chg)[np] = -(*step_size)[np]; }
-        else                             { (*chg)[np] =  (*step_size)[np]; }
+
+        if (energy_large > energy_small) { (*chg)[np] = -dparam; }
+        else                             { (*chg)[np] =  dparam; }
     }
 
     apply_change(chg);
+    float energy_new = calc_energy();
     log_iteration(step_size);
 
-    for (int np = 0; np < step_size->size(); np++) {
-        if (!done[np]) { return false; }
+    if (!is_improvement(energy_now, energy_new) &&
+        step_size > step_size_end) { step_size /= 2; }
+    
+    delete chg ;
+    delete diff;
+
+    for (int np = 0; np < numparams; np++) {
+        if (!done[np]) { delete done; return false; }
     }
+    delete done;
     return true;
 }
 
 SimpleTorusEnergy::SimpleTorusEnergy(SimpleTorus *simple_torus) :
-    Energy(2, 0.1f, 0.00001f),
+    Energy(0.1f, 0.00001f, 1 + simple_torus->ring_vert),
     simple_torus(simple_torus) {}
 
 float SimpleTorusEnergy::calc_energy() {
@@ -100,25 +100,25 @@ float SimpleTorusEnergy::calc_energy() {
 
 void SimpleTorusEnergy::apply_change(VectorXf *chg) {
     simple_torus->ring_radius += (*chg)[0];
+
+    for (int oi = 0; oi < simple_torus->ring_vert; oi++) {
+        simple_torus->set_radial_offset(
+            oi, simple_torus->get_radial_offset(oi) + (*chg)[oi + 1]);
+    }
 }
 
-VectorXf *SimpleTorusEnergy::update_step_size(VectorXf *old, VectorXf *end) {
-    float ss = (*old)[0];
-    const float END_STEP_SIZE = (*end)[0];
-
-    while (simple_torus->ring_radius <= ss) {
-        if (ss > END_STEP_SIZE) { ss /= 2; }
-        else { return NULL; }
+float SimpleTorusEnergy::update_step_size(float old, float end) {
+    while (simple_torus->ring_radius <= old) {
+        if (old > end) { old /= 2; }
+        else { return -1.0f; }
     }
 
-    VectorXf *v = new VectorXf(1);
-    (*v)[0] = ss;
-    return v;
+    return old;
 }
 
-void SimpleTorusEnergy::log_iteration(VectorXf *step_size) {
+void SimpleTorusEnergy::log_iteration(float step_size) {
     float e = calc_energy();
-    std::cout << "Iterated. Energy: " << e << ", Radius: " << simple_torus->ring_radius << " (step_size = " << (*step_size)[0] << ")" << std::endl;
+    std::cout << "Iterated. Energy: " << e << ", Radius: " << simple_torus->ring_radius << " (step_size = " << step_size << ")" << std::endl;
 }
 
 double SimpleTorusEnergy::compute_integrand(int v, int a) {
@@ -137,24 +137,31 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // divided by the averaged lengths of the two struts in question.
 
     // First with the same a.
-    Vector3f av1 = *simple_torus->get_point(v - 1, a),
-             av2 = *simple_torus->get_point(v    , a),
-             av3 = *simple_torus->get_point(v + 1, a);
-    Vector3f as1 = av1 - av2,
-             as2 = av3 - av2;
+    Vector3f *av1 = simple_torus->get_point(v - 1, a),
+             *av2 = simple_torus->get_point(v    , a),
+             *av3 = simple_torus->get_point(v + 1, a);
+    Vector3f as1 = *av1 - *av2,
+             as2 = *av3 - *av2;
     double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
     double al = 0.5 * (as1.norm() + as2.norm());
     double k1 = aa / al;
 
     // Then with the same v.
-    Vector3f vv1 = *simple_torus->get_point(v, a - 1),
-             vv2 = av2,
-             vv3 = *simple_torus->get_point(v, a + 1);
-    Vector3f vs1 = vv1 - vv2,
-             vs2 = vv3 - vv2;
+    Vector3f *vv1 = simple_torus->get_point(v, a - 1),
+             *vv2 = av2,
+             *vv3 = simple_torus->get_point(v, a + 1);
+    Vector3f vs1 = *vv1 - *vv2,
+             vs2 = *vv3 - *vv2;
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
     double vl = 0.5 * (vs1.norm() + vs2.norm());
     double k2 = va / vl;
+
+    delete av1;
+    delete av2;
+    delete av3;
+    delete vv1;
+    delete vv2;
+    delete vv3;
 
     // With the principal curvatures computed, we need to compute the integrand
     // itself, then integrate over the local area. The former is simply the sum
@@ -211,6 +218,12 @@ double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
     double va2 = acos(vs2.dot(vn) / vs1.norm()) - PI / 2;
     double vl = 0.5 * (vs1.norm() + vs2.norm());
     double k2 = (va1 + va2) / vl;
+
+    delete av1pn;
+    delete av2pn;
+    delete av3pn;
+    delete vv1pn;
+    delete vv3pn;
 
     // With the principal curvatures computed, we need to compute the integrand
     // itself, then integrate over the local area. The former is simply the sum

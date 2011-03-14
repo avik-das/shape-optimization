@@ -2,6 +2,7 @@
 #define MODEL_HPP
 
 #include "util.hpp"
+#include <vector>
 
 #include <Eigen/Core>
 USING_PART_OF_NAMESPACE_EIGEN
@@ -32,6 +33,12 @@ public:
 
     PointNormal *get_point_normal(int v, int a);
     Vector3f *get_point(int v, int a);
+
+    float get_radial_offset(int v);
+    void  set_radial_offset(int v, float val);
+
+private:
+    std::vector<float> *radial_offsets;
 };
 
 #endif

@@ -34,15 +34,16 @@ public:
     virtual bool iterate();
 
 protected:
-    Energy(int nparams, ...);
+    Energy(float step_size_start, float step_size_end, int numparams);
     virtual void apply_change(VectorXf *chg) = 0;
-    virtual VectorXf *update_step_size(VectorXf *old, VectorXf *end) = 0;
+    virtual float update_step_size(float old, float end) = 0;
 
-    virtual void log_iteration(VectorXf *step_size) = 0;
+    virtual void log_iteration(float step_size) = 0;
 
 private:
-    VectorXf *step_size;
-    VectorXf *step_size_end;
+    float step_size;
+    float step_size_end;
+    int numparams;
 };
 
 /**
@@ -55,9 +56,9 @@ public:
 
 protected:
     void apply_change(VectorXf *chg);
-    VectorXf *update_step_size(VectorXf *old, VectorXf *end);
+    float update_step_size(float old, float end);
 
-    void log_iteration(VectorXf *step_size);
+    void log_iteration(float step_size);
 
     SimpleTorus *simple_torus;
     virtual double compute_integrand(int v, int a);
