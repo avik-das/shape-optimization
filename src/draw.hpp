@@ -21,13 +21,13 @@ public:
     virtual void draw() = 0;
 };
 
-class SimpleTorusDrawer : public Drawer {
+class ParameterizedTorusDrawer : public Drawer {
 public:
-    SimpleTorusDrawer(SimpleTorus *simple_torus);
+    ParameterizedTorusDrawer(ParameterizedTorus *torus);
     void draw();
 
 private:
-    SimpleTorus *simple_torus;
+    ParameterizedTorus *torus;
 };
 
 #endif

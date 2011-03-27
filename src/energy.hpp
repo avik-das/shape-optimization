@@ -46,12 +46,9 @@ private:
     int numparams;
 };
 
-/**
- * The bending surface energy of a <code>SimpleTorus</code>.
- */
-class SimpleTorusEnergy : public Energy {
+class ParameterizedTorusEnergy : public Energy {
 public:
-    SimpleTorusEnergy(SimpleTorus *simple_torus);
+    ParameterizedTorusEnergy(ParameterizedTorus *torus);
     float calc_energy();
 
 protected:
@@ -60,13 +57,13 @@ protected:
 
     void log_iteration(float step_size);
 
-    SimpleTorus *simple_torus;
+    ParameterizedTorus *torus;
     virtual double compute_integrand(int v, int a);
 };
 
-class SimpleTorusEnergyStd : public SimpleTorusEnergy {
+class ParameterizedTorusEnergyStd : public ParameterizedTorusEnergy {
 public:
-    SimpleTorusEnergyStd(SimpleTorus *simple_torus);
+    ParameterizedTorusEnergyStd(ParameterizedTorus *torus);
 
 protected:
     double compute_integrand(int v, int a);

@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-const float ENERGY_THRESHOLD = 0.001f;
+const float ENERGY_THRESHOLD = 0.0001f;
 
 inline bool is_improvement(float orig, float changed) {
     return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
@@ -33,11 +33,14 @@ bool Energy::iterate() {
     VectorXf *diff = new VectorXf(numparams);
     VectorXf *chg  = new VectorXf(numparams);
 
+    for (int np = 0; np < numparams; np++) {
+        (*diff)[np] = 0;
+    }
+
     bool *done = new bool[numparams];
 
     for (int np = 0; np < numparams; np++) {
         (*chg )[np] = 0;
-        (*diff)[np] = 0;
         done[np] = false;
 
         (*diff)[np] = dparam;
@@ -59,16 +62,24 @@ bool Energy::iterate() {
             continue;
         }
 
-        if (energy_large > energy_small) { (*chg)[np] = -dparam; }
-        else                             { (*chg)[np] =  dparam; }
+        // if (energy_large > energy_small) { (*chg)[np] = -dparam; }
+        // else                             { (*chg)[np] =  dparam; }
+        (*chg)[np] = energy_small - energy_large;
     }
 
+    chg->normalize();
+    (*chg) *= step_size;
     apply_change(chg);
     float energy_new = calc_energy();
-    log_iteration(step_size);
 
     if (!is_improvement(energy_now, energy_new) &&
-        step_size > step_size_end) { step_size /= 2; }
+        step_size > step_size_end) {
+        (*chg) *= -1;
+        apply_change(chg);
+        step_size /= 2;
+    }
+
+    log_iteration(step_size);
     
     delete chg ;
     delete diff;
@@ -80,17 +91,26 @@ bool Energy::iterate() {
     return true;
 }
 
-SimpleTorusEnergy::SimpleTorusEnergy(SimpleTorus *simple_torus) :
-    Energy(0.1f, 0.00001f, 1 + simple_torus->ring_vert),
-    simple_torus(simple_torus) {}
+ParameterizedTorusEnergy::ParameterizedTorusEnergy(
+    ParameterizedTorus *torus) :
+    Energy(0.1f, 0.00001f, torus->numparams()),
+    torus(torus) {}
 
-float SimpleTorusEnergy::calc_energy() {
+void ParameterizedTorusEnergy::apply_change(VectorXf *chg) {
+    torus->apply_change(chg);
+}
+
+float ParameterizedTorusEnergy::update_step_size(float old, float end) {
+    return torus->update_step_size(old, end);
+}
+
+float ParameterizedTorusEnergy::calc_energy() {
     // The surface energy of a simple torus is the integral of the sum of the
     // squares of the principal curvatures over the entire surface.
     double energy = 0.0;
 
-    for (int a = 0; a < simple_torus->arm_vert; a++) {
-        for (int v = 0; v < simple_torus->ring_vert; v++) {
+    for (int a = 0; a < torus->arm_vert; a++) {
+        for (int v = 0; v < torus->ring_vert; v++) {
             energy += compute_integrand(v, a);
         }
     }
@@ -98,30 +118,12 @@ float SimpleTorusEnergy::calc_energy() {
     return (float) energy;
 }
 
-void SimpleTorusEnergy::apply_change(VectorXf *chg) {
-    simple_torus->ring_radius += (*chg)[0];
-
-    for (int oi = 0; oi < simple_torus->ring_vert; oi++) {
-        simple_torus->set_radial_offset(
-            oi, simple_torus->get_radial_offset(oi) + (*chg)[oi + 1]);
-    }
-}
-
-float SimpleTorusEnergy::update_step_size(float old, float end) {
-    while (simple_torus->ring_radius <= old) {
-        if (old > end) { old /= 2; }
-        else { return -1.0f; }
-    }
-
-    return old;
-}
-
-void SimpleTorusEnergy::log_iteration(float step_size) {
+void ParameterizedTorusEnergy::log_iteration(float step_size) {
     float e = calc_energy();
-    std::cout << "Iterated. Energy: " << e << ", Radius: " << simple_torus->ring_radius << " (step_size = " << step_size << ")" << std::endl;
+    std::cout << "Iterated. Energy: " << e << ", Torus: [" << torus->str() << "], (step_size = " << step_size << ")" << std::endl;
 }
 
-double SimpleTorusEnergy::compute_integrand(int v, int a) {
+double ParameterizedTorusEnergy::compute_integrand(int v, int a) {
     // This function does quite a bit, but that's because all of the
     // computations below make use of the same data over and over again. Thus,
     // it's better to just calculate it once.
@@ -137,9 +139,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     // divided by the averaged lengths of the two struts in question.
 
     // First with the same a.
-    Vector3f *av1 = simple_torus->get_point(v - 1, a),
-             *av2 = simple_torus->get_point(v    , a),
-             *av3 = simple_torus->get_point(v + 1, a);
+    Vector3f *av1 = torus->get_point(v - 1, a),
+             *av2 = torus->get_point(v    , a),
+             *av3 = torus->get_point(v + 1, a);
     Vector3f as1 = *av1 - *av2,
              as2 = *av3 - *av2;
     double aa = PI - acos(as1.dot(as2) / (as1.norm() * as2.norm()));
@@ -147,9 +149,9 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     double k1 = aa / al;
 
     // Then with the same v.
-    Vector3f *vv1 = simple_torus->get_point(v, a - 1),
+    Vector3f *vv1 = torus->get_point(v, a - 1),
              *vv2 = av2,
-             *vv3 = simple_torus->get_point(v, a + 1);
+             *vv3 = torus->get_point(v, a + 1);
     Vector3f vs1 = *vv1 - *vv2,
              vs2 = *vv3 - *vv2;
     double va = PI - acos(vs1.dot(vs2) / (vs1.norm() * vs2.norm()));
@@ -178,20 +180,21 @@ double SimpleTorusEnergy::compute_integrand(int v, int a) {
     return (k1*k1 + k2*k2) * (qa1 + qa2 + qa3 + qa4) / 4;
 }
 
-SimpleTorusEnergyStd::SimpleTorusEnergyStd(SimpleTorus *simple_torus) :
-    SimpleTorusEnergy(simple_torus) {}
+ParameterizedTorusEnergyStd::ParameterizedTorusEnergyStd(
+    ParameterizedTorus *torus) :
+    ParameterizedTorusEnergy(torus) {}
 
-double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
+double ParameterizedTorusEnergyStd::compute_integrand(int v, int a) {
     // This calculation is conceptually very similar to the corresponding
-    // SimpleTorusEnergy calculation, with the only difference being in the way
-    // the bending angles are calculated. Instead of calculating the angle
-    // between two opposite struts as the angle relative to each other, the
-    // angle of deviation away from the tangential plane is calculated.
+    // ParameterizedTorusEnergy calculation, with the only difference being in
+    // the way the bending angles are calculated. Instead of calculating the
+    // angle between two opposite struts as the angle relative to each other,
+    // the angle of deviation away from the tangential plane is calculated.
 
     // First with the same a.
-    PointNormal *av1pn = simple_torus->get_point_normal(v - 1, a),
-                *av2pn = simple_torus->get_point_normal(v    , a),
-                *av3pn = simple_torus->get_point_normal(v + 1, a);
+    PointNormal *av1pn = torus->get_point_normal(v - 1, a),
+                *av2pn = torus->get_point_normal(v    , a),
+                *av3pn = torus->get_point_normal(v + 1, a);
     Vector3f av1p = *av1pn->point,
              av2p = *av2pn->point,
              av3p = *av3pn->point;
@@ -205,8 +208,8 @@ double SimpleTorusEnergyStd::compute_integrand(int v, int a) {
     double k1 = (aa1 + aa2) / al;
 
     // Then with the same v.
-    PointNormal *vv1pn = simple_torus->get_point_normal(v, a - 1),
-                *vv3pn = simple_torus->get_point_normal(v, a + 1);
+    PointNormal *vv1pn = torus->get_point_normal(v, a - 1),
+                *vv3pn = torus->get_point_normal(v, a + 1);
     Vector3f vv1p = *vv1pn->point,
              vv2p = av2p,
              vv3p = *vv3pn->point;

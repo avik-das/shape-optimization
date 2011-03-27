@@ -51,7 +51,7 @@ void reshape_window(int w, int h) {
 
 void init_lights() {
     glEnable(GL_LIGHTING);
-    glShadeModel(GL_SMOOTH);
+    glShadeModel(GL_FLAT);
     
     GLfloat light_ambient [] = {0.2, 0.2 , 0.2, 1.0};
     GLfloat light_diffuse [] = {1.0, 0.95, 0.9, 1.0};
@@ -70,10 +70,10 @@ void init_scene(){
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     init_lights();
 
-    // glEnable(GL_DEPTH_TEST);
-    // glDepthMask(GL_TRUE);
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glPolygonMode(GL_BACK , GL_FILL);
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthMask(GL_TRUE);
+    glPolygonMode(GL_FRONT, GL_LINE);
+    glPolygonMode(GL_BACK , GL_LINE);
     glEnable(GL_CULL_FACE);
 
     reshape_window(viewport.w, viewport.h);
@@ -185,9 +185,9 @@ int main(int argc, char *argv[]) {
     glutCreateWindow(TITLE);
 
     init_scene();
-    SimpleTorus *st = new SimpleTorus(2.0f, 20);
-    drawer = new SimpleTorusDrawer(st);
-    energy = new SimpleTorusEnergyStd(st);
+    ParameterizedTorus *pt = new RadialTorus(2.0f, 10);
+    drawer = new ParameterizedTorusDrawer(pt);
+    energy = new ParameterizedTorusEnergyStd(pt);
 
     glutDisplayFunc (draw_scene     );
     glutReshapeFunc (reshape_window );
