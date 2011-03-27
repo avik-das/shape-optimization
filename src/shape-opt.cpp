@@ -98,6 +98,7 @@ void move_frame() {
 #ifdef _WIN32
     Sleep(10);
 #endif
+    usleep(100000);
     glutPostRedisplay();
     if (!done) { done = energy->iterate(); }
 }
@@ -187,7 +188,7 @@ int main(int argc, char *argv[]) {
     init_scene();
     ParameterizedTorus *pt = new RadialTorus(2.0f, 10);
     drawer = new ParameterizedTorusDrawer(pt);
-    energy = new ParameterizedTorusEnergyStd(pt);
+    energy = new ParameterizedLineEnergy(pt);
 
     glutDisplayFunc (draw_scene     );
     glutReshapeFunc (reshape_window );
