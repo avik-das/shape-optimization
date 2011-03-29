@@ -186,7 +186,18 @@ int main(int argc, char *argv[]) {
     glutCreateWindow(TITLE);
 
     init_scene();
-    ParameterizedTorus *pt = new RadialTorus(2.0f, 10);
+
+    v3fvector *verts = new v3fvector();
+    const unsigned int numverts = 10;
+    const float v_ang = 2 * PI / numverts;
+    const float radius = 2.0f;
+    for (unsigned int vi = 0; vi < numverts; ++vi) {
+        verts->push_back(new Vector3f(radius * cos(v_ang * vi),
+                                      radius * sin(v_ang * vi),
+                                      0.0f));
+    }
+
+    ParameterizedTorus *pt = new PolylineTorus(verts);
     drawer = new ParameterizedTorusDrawer(pt);
     energy = new ParameterizedLineEnergy(pt);
 

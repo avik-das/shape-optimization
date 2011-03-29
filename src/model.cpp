@@ -108,3 +108,69 @@ std::string RadialTorus::str() {
     ss << "Radius: " << ring_radius << ", (radial offsets omitted)";
     return ss.str();
 }
+
+PolylineTorus::PolylineTorus(v3fvector *verts) :
+    ParameterizedTorus(verts->size()),
+    vertices(verts) {}
+
+Vector3f *PolylineTorus::get_vertex(int v) {
+    return (*vertices)[v % vertices->size()];
+}
+
+Vector3f *PolylineTorus::get_point(int v, int a) {
+    float a_ang = 2 * PI / arm_vert;
+
+    // The center of the circular cross-section we will work with falls on the
+    // midpoint between two vertices. Then, we determine the orientation of the
+    // circle based on the direction in between the vertices and the up vector.
+    // With this orientation, we traverse "a_ang" radians along circular
+    // cross-section, yielding the desired point.
+
+    // the two adjacent vertices
+    Vector3f *v1 = get_vertex(v    ),
+             *v2 = get_vertex(v + 1);
+
+    // the direction vector between two adjacent vertices
+    Vector3f vd = *v2 - *v1;
+    
+    // center of the circular cross-section
+    Vector3f vc = *v1 + vd / 2;
+
+    // the direction from the center of the cross-section pointing "outward"
+    // along the orientation of the cross-section, corresponding to "a" = 0.
+    Vector3f vo = vd.cross(*up);
+    vo.normalize();
+    vo *= ARM_RADIUS;
+
+    Vector3f vp = vc + (vo * cos(a * a_ang) + (*up) * sin(a * a_ang));
+
+    return new Vector3f(vp);
+}
+
+void PolylineTorus::apply_change(VectorXf *chg) {
+    float dx, dy, dz;
+    Vector3f *v;
+    for (unsigned int vi = 0; vi < vertices->size(); vi++) {
+        dx = (*chg)[3 * vi    ];
+        dy = (*chg)[3 * vi + 1];
+        dz = (*chg)[3 * vi + 2];
+        v = (*vertices)[vi];
+        (*v)[0] += dx;
+        (*v)[1] += dy;
+        (*v)[2] += dz;
+    }
+}
+
+float PolylineTorus::update_step_size(float old, float end) {
+    return old;
+}
+
+int PolylineTorus::numparams() {
+    return vertices->size() * 3; // X, Y and Z for each vertex
+}
+
+std::string PolylineTorus::str() {
+    return std::string("Polyline Torus");
+}
+
+const Vector3f *PolylineTorus::up = new Vector3f(0.0f, 0.0f, 1.0f);

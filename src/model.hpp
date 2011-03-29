@@ -10,6 +10,8 @@ USING_PART_OF_NAMESPACE_EIGEN
 
 /* TODO: document properly */
 
+typedef std::vector<Vector3f*> v3fvector;
+
 /**
  * A 3D point as well as the surface normal vector at that point.
  */
@@ -168,6 +170,40 @@ private:
      * TODO
      */
     std::vector<float> *radial_offsets;
+};
+
+/**
+ * A torus that explicitly states the 3D coordinates of each of the vertices.
+ */
+class PolylineTorus : public ParameterizedTorus {
+public:
+    /**
+     * Construct a new PolylineTorus.
+     *
+     * @param verts  the 3D locations of the vertices
+     */
+    PolylineTorus(v3fvector *verts);
+
+    // implementations of virtual methods
+    Vector3f *get_point(int v, int a);
+    void apply_change(VectorXf *chg);
+    float update_step_size(float old, float end);
+    int numparams();
+    std::string str();
+
+private:
+    Vector3f *get_vertex(int v);
+
+    /**
+     * All the vertices of this torus.
+     */
+    v3fvector *vertices;
+
+    /**
+     * The vector that points "up". Used to orient the arm cross-sections in
+     * 3D space. Typically normalized.
+     */
+    static const Vector3f *up;
 };
 
 #endif
