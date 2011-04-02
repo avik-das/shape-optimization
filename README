@@ -11,14 +11,10 @@ Victor Huang
 
 TODO
 
-~~ EXTERNAL DEPENDENCIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~ HOW TO BUILD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following libraries are used, along with the package that provides them on
-Ubuntu (and possibly other Debian-based systems, including Debian itself).
+TODO
 
-* Eigen 2 (libeigen2-dev)
-  - http://eigen.tuxfamily.org/index.php?title=Main_Page
-* libpng 1.2 (libpng12-dev)
-* OpenGL + GLUT (freeglut3-dev)
+~~ HOW TO RUN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally, issue tracking is done via ditz.
+./coaster <track-file-name>

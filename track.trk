@@ -1,0 +1,21 @@
+# basic roller coaster track
+
+# global azimuth of 45 degrees everywhere - as a starting base for further modifications.
+azimuth 45
+# global twist 20 degrees - i.e., a linearly increasing azimuth, starting at 0 degrees and ending at 20 degrees.
+twist 20
+
+# a rectangular cross section
+p -2 -1
+p 2 -1
+p 2 -3
+p -2 -3
+
+# a short wavy loop.
+# local azimuths of 80 degrees are specified at the three low points of the track, where the speed is highest.
+v    10.0    20.0  0.0
+v     5.0    -5.0   8.6   -80.0
+v    -5.0   20.0   8.6
+v   -10.0   -5.0  0.0   -80.0
+v    -5.0  20.0  -8.6
+v     5.0   -5.0  -8.6   -80.0
