@@ -1,4 +1,5 @@
 #include "main.h"
+#include "energy.hpp"
 
 using namespace std;
 
@@ -24,6 +25,8 @@ SplineCoaster *coaster;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
 
+Energy* energy;
+bool done = false;
 
 // A simple helper function to load a mat4 into opengl
 void applyMat4(mat4 &m) {
@@ -84,6 +87,13 @@ void reshape(int w, int h) {
 	glLoadIdentity();
 }
 
+void myIdleFunc() {
+	if (!done) {
+		cout << "Iterating..." << endl;
+		done = energy->iterate();
+		glutPostRedisplay();
+	}
+}
 
 //-------------------------------------------------------------------------------
 /// Called to handle keyboard events.
@@ -103,6 +113,9 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
         case '+':
              coaster->incrGlobalTwist(10.0);
              break;
+		case '=':
+			 coaster->incrGlobalTwist(10.0);
+			 break;
         case '-':
              coaster->incrGlobalTwist(-10.0);
              break;
@@ -173,6 +186,8 @@ int main(int argc,char** argv) {
         }
     }
 
+	energy = new LineEnergy(coaster);
+
 	//Initialize the screen capture class to save BMP captures
 	//in the current directory, with the prefix "coaster"
 	imgSaver = new UCB::ImageSaver("./", "coaster");
@@ -183,6 +198,8 @@ int main(int argc,char** argv) {
 	glutCreateWindow("CS184 Framework");
 
 	//Register event handlers with OpenGL.
+	glutIdleFunc(myIdleFunc);
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(myKeyboardFunc);

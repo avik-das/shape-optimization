@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs184", "cs184.vcproj", "{50D74BAD-8FC9-4AEA-BB62-D2D28C58EB9E}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs184", "cs184.vcxproj", "{50D74BAD-8FC9-4AEA-BB62-D2D28C58EB9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

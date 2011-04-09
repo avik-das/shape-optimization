@@ -79,6 +79,10 @@ public:
     // increase the global azimuthal rotation 
     void incrGlobalAzimuth(double daz);
 
+	/*Returns number of parameters **ENERGY-RELATED** */
+	int getNumControlPoints();
+	void changePoint(int index, double dx, double dy, double dz, double da);
+
 private:
     vector<SplinePoint*> bsplinePts; // control points for the bspline
     double globalTwist; // twists the whole frame

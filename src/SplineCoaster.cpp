@@ -362,3 +362,21 @@ void SplineCoaster::incrGlobalAzimuth(double daz) {
     globalAzimuth += daz;
     clearDisplayList();
 }
+
+/* Returns number of control points **ENERGY-RELATED** */
+int SplineCoaster::getNumControlPoints() {
+	return bsplinePts.size();
+}
+
+void SplineCoaster::changePoint(int index, double dx, double dy, double dz, double da) {
+	SplinePoint* point = bsplinePts[index];
+	vec3 pvec = point->point;
+
+	pvec[0] += dx;
+	pvec[1] += dy;
+	pvec[2] += dz;
+
+	point->azimuth += da;
+
+	clearDisplayList();
+}
