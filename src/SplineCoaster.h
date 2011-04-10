@@ -81,7 +81,7 @@ public:
 
 	/*Returns number of parameters **ENERGY-RELATED** */
 	int getNumControlPoints();
-	void changePoint(int index, double dx, double dy, double dz, double da);
+	void changePoint(int index, double dx, double dy, double dz);
 
 private:
     vector<SplinePoint*> bsplinePts; // control points for the bspline

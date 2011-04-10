@@ -89,7 +89,6 @@ void reshape(int w, int h) {
 
 void myIdleFunc() {
 	if (!done) {
-		cout << "Iterating..." << endl;
 		done = energy->iterate();
 		glutPostRedisplay();
 	}

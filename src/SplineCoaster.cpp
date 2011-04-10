@@ -368,15 +368,12 @@ int SplineCoaster::getNumControlPoints() {
 	return bsplinePts.size();
 }
 
-void SplineCoaster::changePoint(int index, double dx, double dy, double dz, double da) {
+void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
 	SplinePoint* point = bsplinePts[index];
-	vec3 pvec = point->point;
 
-	pvec[0] += dx;
-	pvec[1] += dy;
-	pvec[2] += dz;
-
-	point->azimuth += da;
+	point->point[0] += dx;
+	point->point[1] += dy;
+	point->point[2] += dz;
 
 	clearDisplayList();
 }

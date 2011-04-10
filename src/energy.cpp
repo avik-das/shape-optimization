@@ -7,8 +7,6 @@
 
 #include <iostream>
 
-using boost::math::isnan;
-
 const float ENERGY_THRESHOLD = 0.0001f;
 const float ZERO_THRESHOLD   = 0.000000000001f;
 const double PI = boost::math::constants::pi<double>();
@@ -24,7 +22,6 @@ Energy::Energy(float step_size_start, float step_size_end, int numparams) :
     numparams(numparams) {}
 
 bool Energy::iterate() {
-	cout << "Energy::iterate() being called" << endl;
     if (step_size <= step_size_end) { return true; }
 
     step_size = update_step_size(step_size, step_size_end);
@@ -62,7 +59,8 @@ bool Energy::iterate() {
 
         (*diff)[np] = 0;
 
-        if (!isnan(energy_small) && !isnan(energy_large)) {
+        if (!boost::math::isnan(energy_small) &&
+            !boost::math::isnan(energy_large)) {
             if (!is_improvement(energy_now, energy_large) &&
                 !is_improvement(energy_now, energy_small)) {
                 if (step_size <= step_size_end) { done[np] = true; }
@@ -115,23 +113,16 @@ bool Energy::iterate() {
 
 LineEnergy::LineEnergy(
     SplineCoaster *torus) :
-    Energy(0.1f, 0.00001f, torus->getNumControlPoints() * 4 + 2), //multiply by 4 for vec3 and azimuth; added 2 for globalTwist and globalAzimuth
+    Energy(0.1f, 0.00001f, torus->getNumControlPoints() * 3), //multiply by 3 for vec3
     torus(torus) {}
 
 void LineEnergy::apply_change(VectorXf *chg) {
-	double dGlobalTwist = (*chg)[0];
-	torus->incrGlobalTwist(dGlobalTwist);
-
-	double dGlobalAzimuth = (*chg)[1];
-	torus->incrGlobalAzimuth(dGlobalAzimuth);
-
-	for (int pi = 2; pi < chg->size(); pi += 4) {
+	for (int pi = 0; pi < chg->size(); pi += 3) {
 		double dx = (*chg)[pi];
 		double dy = (*chg)[pi+1];
 		double dz = (*chg)[pi+2];
-		double da = (*chg)[pi+3];
 
-		torus->changePoint((pi-2)/4, dx, dy, dz, da);
+		torus->changePoint(pi/3, dx, dy, dz);
 	}
 }
 

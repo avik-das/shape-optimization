@@ -16,8 +16,25 @@ TODO
 
 ~~ HOW TO BUILD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+Ensure that all external dependencies have been satisified. Then, the following
+command will build the application on *nix:
+
+  make
+
+TODO Windows build steps
 
 ~~ HOW TO RUN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ./coaster <track-file-name>
+
+~~ EXTERNAL DEPENDENCIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following libraries are used, along with the package that provides them on
+Ubuntu (and possibly other Debian-based systems, including Debian itself).
+
+* Eigen 2 (libeigen2-dev)
+  - http://eigen.tuxfamily.org/index.php?title=Main_Page
+* Libbost Math 1.40 (libboost-math1.40-dev)
+  - http://www.boost.org/doc/libs/1_40_0/libs/math/doc/html/index.html
+* libpng 1.2 (libpng12-dev)
+* OpenGL + GLUT (freeglut3-dev)
