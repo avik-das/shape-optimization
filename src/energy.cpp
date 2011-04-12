@@ -11,6 +11,9 @@ const float ENERGY_THRESHOLD = 0.0001f;
 const float ZERO_THRESHOLD   = 0.000000000001f;
 const double PI = boost::math::constants::pi<double>();
 
+const double ELASTICITY = 0.1;
+const double SPRING_REST_LENGTH = 1.0;
+
 inline bool is_improvement(float orig, float changed) {
     return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
 }
@@ -142,10 +145,11 @@ float LineEnergy::calc_energy() {
 }
 
 double LineEnergy::compute_integrand(double t, double dt) {
-    // This calculation is exactly the same as the corresponding one in
-    // ParameterizedTorusEnergy, but it only computes along the length of the
-    // arm. This makes this integral a path integral instead of a surface
-    // integral.
+    // We calculate the line integral of the bending energy of the curve as
+    // follows. First, the deviation from PI radians of the bending angle
+    // between two adjacent structs is computed. Dividing this by the average
+    // length of the two struts yields the curvature at the given point, since
+    // curvate is bending per unit length.
 
 	SplinePoint point1 = torus->sample(t-dt);
 	SplinePoint point2 = torus->sample(t);
@@ -157,10 +161,25 @@ double LineEnergy::compute_integrand(double t, double dt) {
 
 	vec3 strut1 = pv1 - pv2;
 	vec3 strut2 = pv3 - pv2;
+    double strut1l = strut1.length();
+    double strut2l = strut2.length();
 
-	double bending = PI - acos(strut1 * strut2 / (strut1.length() * strut2.length()));
-	double al = 0.5 * (strut1.length() + strut2.length());
+	double bending = PI - acos(strut1 * strut2 / (strut1l * strut2l));
+	double al = 0.5 * (strut1l + strut2l);
     double k1 = bending / al;
+
+    // Next, the energy due to stretching or squashing the struts away from
+    // their rest lengths is computed. The energies of the two adjacent struts
+    // is averaged. This penalizes deviation from the rest length, which in
+    // turn prevents unbounded growth or shrinkage.
+    //
+    // Note that this formulation comes directly from Hooke's law.
+    
+    double stretch1 = SPRING_REST_LENGTH - strut1l;
+    double stretch2 = SPRING_REST_LENGTH - strut2l;
+    double springpe1 = 0.5 * ELASTICITY * stretch1 * stretch1;
+    double springpe2 = 0.5 * ELASTICITY * stretch2 * stretch2;
+    double avgpe = (springpe1 + springpe2) / 2.0;
 
     // With the principal curvature around the arm computed, we need to compute
     // the integrand itself, then integrate over the local length. The former
@@ -168,8 +187,11 @@ double LineEnergy::compute_integrand(double t, double dt) {
     // integration over the path, we compute the averaged length of the four
     // struts that meet at the central point in question and multiply the
     // integration term by that value.
+    //
+    // We also add in the square potential energy of the stretched or squashed
+    // struts to prevent unbounded growth.
     
-    return (k1*k1) * al;
+    return (k1*k1) * al + avgpe * avgpe;
 }
 
 void LineEnergy::log_iteration(float step_size) {
@@ -178,5 +200,7 @@ void LineEnergy::log_iteration(float step_size) {
 }
 
 float LineEnergy::update_step_size(float old, float end) {
+    // Let the optimization loop deal with the step size; we don't need to
+    // enforce additional constraints.
 	return old;
 }

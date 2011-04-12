@@ -21,6 +21,17 @@ extern const float ENERGY_THRESHOLD;
 extern const float ZERO_THRESHOLD;
 
 /**
+ * The spring constant used to determine how energetic a stretched strut is.
+ */
+extern const double ELASTICITY;
+
+/**
+ * The ideal, rest length of the struts. This corresponds to a potential energy
+ * of zero due to stretching or squashing the struts.
+ */
+extern const double SPRING_REST_LENGTH;
+
+/**
  * The base class for all surface energy-based simulators. Typically, an
  * implementation of this class will hold onto a geometric structure, and will
  * perform calculations on that structure in order to calculate the surface
