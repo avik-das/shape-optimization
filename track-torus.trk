@@ -1,10 +1,10 @@
 # basic roller coaster track
 
 # a rectangular cross section
-p -2 -1
-p 2 -1
-p 2 -3
-p -2 -3
+p  1  1
+p  1 -1
+p -1 -1
+p -1  1
 
 # a short wavy loop.
 # local azimuths of 80 degrees are specified at the three low points of the track, where the speed is highest.
