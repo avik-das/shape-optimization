@@ -250,6 +250,7 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
     vec3 * newSlice = new vec3[crossSection.size()];
     vec3 * oldSlice = new vec3[crossSection.size()];
     vec3 oldDir(0.0), right(0.0);
+    vec3 up(0.0);
     bool firstDir = true;
     for (int i = 1; i < size-1; i++) {
         double percent = double(i % size) / (double(size-3));
@@ -264,7 +265,6 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
             dir = pts[2]->point - pts[1]->point;
 		dir.normalize();
         
-        vec3 up;
         if (firstDir) { // first time around use a special routine to find the up dir
             up = getFirstUp();
             firstDir = false;
