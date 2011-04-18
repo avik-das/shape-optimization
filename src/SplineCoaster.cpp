@@ -7,6 +7,8 @@
 #define EPSILON (.00000000001)
 #define FULL_ROTATION (360.0)
 
+#define TWIST_JUMP (20.0)
+
 namespace {
     // Used to advance the rotation minimizing frame forward
     // formula from [wang et al. 07]
@@ -76,7 +78,7 @@ SplinePoint SplinePoint::sampleBSpline(vector<SplinePoint*>& cps, double t, bool
     return result;
 }
 
-SplineCoaster::SplineCoaster(string filename) : globalTwist(0), globalAzimuth(0), hasDL(false) {
+SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), hasDL(false) {
     ifstream f(filename.c_str());
     if (!f) {
         UCBPrint("SplineCoaster", "Couldn't load file " << filename);
@@ -108,6 +110,7 @@ SplineCoaster::SplineCoaster(string filename) : globalTwist(0), globalAzimuth(0)
             linestream >> globalAzimuth;
         }
     }
+    initialGlobalTwist = globalTwist;
 }
 
 // clean up memory (helper for the big render function)
@@ -345,6 +348,9 @@ void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int suppo
 
     //renderSupports(supportsPerPt, supportSize, groundY);
 
+    // TODO: move out of here, because we don't want this compensation tied to
+    //       the rendering
+    compensateTwist();
     renderSweep(polyline, crossSectionScale);
 
     freePolyline(polyline);
@@ -376,4 +382,53 @@ void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
 	point->point[2] += dz;
 
 	clearDisplayList();
+}
+
+void SplineCoaster::compensateTwist() {
+    double oldTwist = globalTwist;
+    globalTwist = initialGlobalTwist;
+
+    vec3 firstUp = sampleUp(0.0);
+    vec3  lastUp = sampleUp(1.0-EPSILON);
+    double angle =
+        acos(firstUp*lastUp / (firstUp.length()*lastUp.length())) *
+        180 / acos(-1.0);
+
+    // The first check to make is whether or not the correct angle is greater
+    // than or less than 180 degrees. This is because the range of acos is 0 to
+    // 180, not 0 to 360.
+    // 
+    // To perform this check, we check the cross product of the last up vector
+    // with the first up vector against the forward vector at the starting
+    // point. They should point in same direction if the actual mismatch is
+    // within 180 degrees.
+    vec3 compForward = lastUp ^ firstUp;
+    vec3 realForward = sampleForward(1.0-EPSILON);
+    double normdot =
+        compForward*realForward / (compForward.length()*realForward.length());
+    double forwardAngle = acos(CLAMP(normdot,-1.0,1.0)) * 180 / acos(-1.0);
+
+    // Technically, the angle will be either 0 or 180 degrees, but due to
+    // precision issues, it may be slighly off. For simplicity, we can just
+    // check on which side of 90 degrees the angle is.
+    if (forwardAngle > 90.0) { angle *= -1; }
+
+    // Now that the angle is in the -180 to 180 degree range, we need to make
+    // sure we're compensating for the twist.
+    angle = -angle;
+    cout << angle << ", " << oldTwist << endl;
+
+    // Finally, we have to ensure that there are no sudden jumps when moving
+    // from an angle just under 360 degrees to an angle just over 360 degrees
+    // (or vice versa, and of course, across any multiple of 360 degrees). We
+    // don't know if the total twist is decreasing or increasing since the
+    // previous iteration, so we just make sure don't cause a huge difference.
+    if (oldTwist < 0) {
+        while (abs(oldTwist - angle) >= TWIST_JUMP) angle -= FULL_ROTATION;
+    }
+    else if (oldTwist > 0) {
+        while (abs(oldTwist - angle) >= TWIST_JUMP) angle += FULL_ROTATION;
+    }
+
+    globalTwist = angle;
 }

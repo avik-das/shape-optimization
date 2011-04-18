@@ -83,9 +83,13 @@ public:
 	int getNumControlPoints();
 	void changePoint(int index, double dx, double dy, double dz);
 
+    // --- compensate for the inherent twist by updating the global twist
+    void compensateTwist();
+
 private:
     vector<SplinePoint*> bsplinePts; // control points for the bspline
     double globalTwist; // twists the whole frame
+    double initialGlobalTwist; // the configured value (as opposed to the compensated one)
     double globalAzimuth; // global azimuth rotates the whole frame
     vector<vec2> profile; // the cross section to be swept
 
