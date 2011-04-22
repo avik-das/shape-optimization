@@ -1,0 +1,27 @@
+# A figure eight.
+
+# a rectangular cross section
+p -1  1
+p  1  1
+p  1 -1
+p -1 -1
+
+# a short wavy loop.
+# local azimuths of 80 degrees are specified at the three low points of the track, where the speed is highest.
+v     2.0     2.0     0.0
+v     4.0     0.0     0.0
+v     2.0    -2.0     0.0
+v     0.0     0.0     1.0
+v    -2.0     2.0     0.0
+v    -4.0     0.0     0.0
+v    -2.0    -2.0     0.0
+v     0.0     0.0     0.0
+
+#v  3   1   1
+#v  1   1   1
+#v -1  -1   0
+#v -3  -1   0
+#v -3   1   0
+#v -1   1   0
+#v  1  -1   0
+#v  3  -1   0

@@ -1,0 +1,19 @@
+# A planar circle with a built-in twist. Few points, performs well with large
+# initial twist.
+
+twist 2520
+
+# a rectangular cross section
+p  1  1
+p  1 -1
+p -1 -1
+p -1  1
+
+v     0.0       1.0       0.1
+v     0.7071    0.7071    0.0
+v     1.0       0.0       0.0
+v     0.7071   -0.7071    0.0
+v     0.0      -1.0       0.0
+v    -0.7071   -0.7071    0.0
+v    -1.0       0.0       0.0
+v    -0.7071    0.7071    0.0

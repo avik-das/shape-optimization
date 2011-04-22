@@ -1,0 +1,19 @@
+# A planar figure eight with a built-in twist. Unbends itself (removing its
+# twist).
+
+twist 360
+
+# a rectangular cross section
+p  1  1
+p  1 -1
+p -1 -1
+p -1  1
+
+v     1.0     1.0     0.0
+v     2.0     0.0     1.0
+v     1.0    -1.0     0.0
+v     0.0     0.0     0.01
+v    -1.0     1.0     1.0
+v    -2.0     0.0     0.0
+v    -1.0    -1.0     1.0
+v     0.0     0.0     0.0

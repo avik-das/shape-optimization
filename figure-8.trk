@@ -1,4 +1,5 @@
-# A planar figure eight
+# A planar figure eight. Unbends itself (building up twist) if the twist
+# penalty is sufficiently low.
 
 # a rectangular cross section
 p  1  1
