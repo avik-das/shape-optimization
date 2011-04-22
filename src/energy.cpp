@@ -170,7 +170,8 @@ double LineEnergy::compute_integrand(double t, double dt) {
     double strut1l = strut1.length();
     double strut2l = strut2.length();
 
-	double bending = PI - acos(strut1 * strut2 / (strut1l * strut2l));
+    double normdot = strut1 * strut2 / (strut1l * strut2l);
+	double bending = PI - acos(CLAMP(normdot, -1.0, 1.0));
 	double al = 0.5 * (strut1l + strut2l);
     double k1 = bending / al;
 
