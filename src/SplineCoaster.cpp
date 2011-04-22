@@ -111,6 +111,7 @@ SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwi
         }
     }
     initialGlobalTwist = globalTwist;
+    compensateTwist();
 }
 
 // clean up memory (helper for the big render function)
@@ -348,9 +349,6 @@ void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int suppo
 
     //renderSupports(supportsPerPt, supportSize, groundY);
 
-    // TODO: move out of here, because we don't want this compensation tied to
-    //       the rendering
-    compensateTwist();
     renderSweep(polyline, crossSectionScale);
 
     freePolyline(polyline);
@@ -385,14 +383,20 @@ void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
 }
 
 void SplineCoaster::compensateTwist() {
-    double oldTwist = globalTwist;
-    globalTwist = initialGlobalTwist;
-
     vec3 firstUp = sampleUp(0.0);
     vec3  lastUp = sampleUp(1.0-EPSILON);
-    double angle =
-        acos(firstUp*lastUp / (firstUp.length()*lastUp.length())) *
-        180 / acos(-1.0);
+    
+    // Rotate the up vector so by the initial global twist, which accounts for
+    // the fact that the two up vectors may be mismatched by that amount and
+    // still be considered matched. This is important for twists that are not
+    // multiples of 360 degrees, such as 180 degrees. In such a case, the ends
+    // will only match up (though the colors will not) if the cross sections
+    // are a specific shape, such as a rectangle.
+    vec3 lastForward = sampleForward(1.0-EPSILON);
+    lastUp = rotation3D(lastForward, initialGlobalTwist) * lastUp;
+
+    double normdot = firstUp*lastUp / (firstUp.length()*lastUp.length());
+    double angle = acos(CLAMP(normdot, -1.0, 1.0)) * 180 / acos(-1.0);
 
     // The first check to make is whether or not the correct angle is greater
     // than or less than 180 degrees. This is because the range of acos is 0 to
@@ -404,31 +408,11 @@ void SplineCoaster::compensateTwist() {
     // within 180 degrees.
     vec3 compForward = lastUp ^ firstUp;
     vec3 realForward = sampleForward(1.0-EPSILON);
-    double normdot =
-        compForward*realForward / (compForward.length()*realForward.length());
-    double forwardAngle = acos(CLAMP(normdot,-1.0,1.0)) * 180 / acos(-1.0);
+    if (compForward * realForward >= 0.0) { angle *= -1; }
 
-    // Technically, the angle will be either 0 or 180 degrees, but due to
-    // precision issues, it may be slighly off. For simplicity, we can just
-    // check on which side of 90 degrees the angle is.
-    if (forwardAngle > 90.0) { angle *= -1; }
+    globalTwist += angle;
+}
 
-    // Now that the angle is in the -180 to 180 degree range, we need to make
-    // sure we're compensating for the twist.
-    angle = -angle;
-    cout << angle << ", " << oldTwist << endl;
-
-    // Finally, we have to ensure that there are no sudden jumps when moving
-    // from an angle just under 360 degrees to an angle just over 360 degrees
-    // (or vice versa, and of course, across any multiple of 360 degrees). We
-    // don't know if the total twist is decreasing or increasing since the
-    // previous iteration, so we just make sure don't cause a huge difference.
-    if (oldTwist < 0) {
-        while (abs(oldTwist - angle) >= TWIST_JUMP) angle -= FULL_ROTATION;
-    }
-    else if (oldTwist > 0) {
-        while (abs(oldTwist - angle) >= TWIST_JUMP) angle += FULL_ROTATION;
-    }
-
-    globalTwist = angle;
+double SplineCoaster::getGlobalTwist() {
+    return globalTwist;
 }

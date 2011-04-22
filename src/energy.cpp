@@ -14,6 +14,8 @@ const double PI = boost::math::constants::pi<double>();
 const double ELASTICITY = 0.1;
 const double SPRING_REST_LENGTH = 1.0;
 
+extern const double TWIST_WEIGHT = 0.5;
+
 inline bool is_improvement(float orig, float changed) {
     return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
 }
@@ -127,6 +129,7 @@ void LineEnergy::apply_change(VectorXf *chg) {
 
 		torus->changePoint(pi/3, dx, dy, dz);
 	}
+    torus->compensateTwist();
 }
 
 float LineEnergy::calc_energy() {
@@ -140,6 +143,9 @@ float LineEnergy::calc_energy() {
     for (int v = 0; v < numPoints; v++) {
         energy += compute_integrand(((double) v)/numPoints, dt);
     }
+
+    double twist = torus->getGlobalTwist() * PI / 180;
+    energy += TWIST_WEIGHT * (twist*twist);
 
     return (float) energy;
 }
@@ -191,7 +197,7 @@ double LineEnergy::compute_integrand(double t, double dt) {
     // We also add in the square potential energy of the stretched or squashed
     // struts to prevent unbounded growth.
     
-    return (k1*k1) * al + avgpe * avgpe;
+    return (1-TWIST_WEIGHT) * (k1*k1) * al + avgpe * avgpe;
 }
 
 void LineEnergy::log_iteration(float step_size) {

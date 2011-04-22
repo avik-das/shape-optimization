@@ -32,6 +32,13 @@ extern const double ELASTICITY;
 extern const double SPRING_REST_LENGTH;
 
 /**
+ * The contribution of the twist penalty relative to bending energy penalty.
+ * Must be between 0.0 and 1.0, and the bending energy penalty is then one
+ * minus this value.
+ */
+extern const double TWIST_WEIGHT;
+
+/**
  * The base class for all surface energy-based simulators. Typically, an
  * implementation of this class will hold onto a geometric structure, and will
  * perform calculations on that structure in order to calculate the surface
