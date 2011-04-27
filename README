@@ -38,3 +38,12 @@ Ubuntu (and possibly other Debian-based systems, including Debian itself).
   - http://www.boost.org/doc/libs/1_40_0/libs/math/doc/html/index.html
 * libpng 1.2 (libpng12-dev)
 * OpenGL + GLUT (freeglut3-dev)
+
+The following libraries are also used, but required more involved setup:
+
+* AntTweakBar
+  - http://www.antisphere.com/Wiki/tools:anttweakbar
+  - This has been tested by building the library as a static library (see
+    general technique at http://www.alecjacobson.com/weblog/?p=1370), and
+    storing libAntTweakBar.a in ./lib/. It should work if the library is
+    installed system-wide as a dynamically loaded library.
