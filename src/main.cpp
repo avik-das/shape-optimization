@@ -65,6 +65,9 @@ void display() {
     }
     coaster->renderWithDisplayList(100,.3,3,.2,0);
 
+    //Draw the AntTweakBar
+    TwDraw();
+
 	//Now that we've drawn on the buffer, swap the drawing buffer and the displaying buffer.
 	glutSwapBuffers();
 
@@ -85,6 +88,9 @@ void reshape(int w, int h) {
 
     glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+    //Send the new window size to AntTweakBar
+    TwWindowSize(w, h);
 }
 
 void myIdleFunc() {
@@ -119,6 +125,9 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
              coaster->incrGlobalTwist(-10.0);
              break;
 	}
+
+    //Let AntTweakBar handle keyboard events
+    TwEventKeyboardGLUT(key, x, y);
 }
 
 //-------------------------------------------------------------------------------
@@ -137,6 +146,9 @@ void myActiveMotionFunc(int x, int y) {
     //Record the mouse location for drawing crosshairs
     viewport.mousePos = newMouse;
 
+    //Let AntTweakBar handle mouse motion
+    TwEventMouseMotionGLUT(x, y);
+
     //Force a redraw of the window.
     glutPostRedisplay();
 }
@@ -147,6 +159,9 @@ void myActiveMotionFunc(int x, int y) {
 void myPassiveMotionFunc(int x, int y) {
     //Record the mouse location for drawing crosshairs
     viewport.mousePos = vec2((double)x / glutGet(GLUT_WINDOW_WIDTH),(double)y / glutGet(GLUT_WINDOW_HEIGHT));
+
+    //Let AntTweakBar handle mouse motion
+    TwEventMouseMotionGLUT(x, y);
 
     //Force a redraw of the window.
     glutPostRedisplay();
@@ -161,6 +176,22 @@ void frameTimer(int value) {
 }
 
 
+//-------------------------------------------------------------------------------
+/// Called right before the application exits
+void app_terminate() {
+    TwTerminate();
+}
+
+//-------------------------------------------------------------------------------
+/// Initialize AntTweakBar and set up all the configuration items.
+void setup_anttweakbar() {
+    TwInit(TW_OPENGL, NULL);
+    // Send 'glutGetModifers' function pointer to AntTweakBar; required because
+    // the GLUT key event functions do not report key modifiers states.
+    TwGLUTModifiersFunc(glutGetModifiers);
+
+    TwBar *bar = TwNewBar("Optimization Parameters");
+}
 
 //-------------------------------------------------------------------------------
 /// Initialize the environment
@@ -206,6 +237,12 @@ int main(int argc,char** argv) {
 	glutPassiveMotionFunc(myPassiveMotionFunc);
     frameTimer(0);
 
+    atexit(app_terminate);
+
+    //Any event not handled by our code can be handled directly by AntTweakBar
+    glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
+    glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
+
     glClearColor(.4,.2,1,0);
 
     // set some lights
@@ -231,6 +268,9 @@ int main(int argc,char** argv) {
     glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
+
+    // set up the AntTweakBar
+    setup_anttweakbar();
 
 
 	//And Go!

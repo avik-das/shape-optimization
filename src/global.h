@@ -30,5 +30,7 @@
 #include <algebra3.h>
 //Include our Image Saving library.
 #include "UCB/ImageSaver.h"
+//Include AntTweakBar
+#include <AntTweakBar.h>
 
 #endif /* GLOBAL_H_ */

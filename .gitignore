@@ -2,3 +2,4 @@ coaster
 src/*.o
 src/*/*.o
 *.swp
+lib/*.a
