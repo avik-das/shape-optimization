@@ -1,8 +1,12 @@
 #include "main.h"
 #include "energy.hpp"
+#include <algorithm>
 
 using namespace std;
 
+#include <boost/filesystem.hpp>
+
+using namespace boost::filesystem;
 
 //****************************************************
 // Some Classes
@@ -21,12 +25,28 @@ public:
 Viewport viewport;
 UCB::ImageSaver * imgSaver;
 int frameCount = 0;
-SplineCoaster *coaster;
+SplineCoaster *coaster = NULL;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
 
-Energy* energy;
-bool done = false;
+TwBar* tbar = NULL;
+
+vector<string> tracks;
+int currTrack = 0;
+
+Energy* energy = NULL;
+double twist_weight = 0.5;
+bool running = false;
+bool paused  = true ;
+double speed = 1.0;
+
+//****************************************************
+// Forward Declarations (not exhaustive)
+//****************************************************
+void setup_anttweakbar();
+void setup_anttweakbar_tracks();
+void find_tracks();
+void load_curr_track();
 
 // A simple helper function to load a mat4 into opengl
 void applyMat4(mat4 &m) {
@@ -60,10 +80,12 @@ void display() {
 
 
     if (viewMode == VIEW_THIRDPERSON) {
-        glTranslatef(0,-5,-30);
+        glTranslatef(0,-2,-30);
         applyMat4(viewport.orientation);
     }
-    coaster->renderWithDisplayList(100,.3,3,.2,0);
+    if (coaster) {
+        coaster->renderWithDisplayList(100,.3,3,.2,0);
+    }
 
     //Draw the AntTweakBar
     TwDraw();
@@ -94,8 +116,8 @@ void reshape(int w, int h) {
 }
 
 void myIdleFunc() {
-	if (!done) {
-		done = energy->iterate();
+	if (running && !paused) {
+		running = !energy->iterate();
 		glutPostRedisplay();
 	}
 }
@@ -103,6 +125,9 @@ void myIdleFunc() {
 //-------------------------------------------------------------------------------
 /// Called to handle keyboard events.
 void myKeyboardFunc (unsigned char key, int x, int y) {
+    if (TwEventKeyboardGLUT(key, x, y))
+        return;
+
 	switch (key) {
 		case 27:			// Escape key
 			exit(0);
@@ -125,14 +150,15 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
              coaster->incrGlobalTwist(-10.0);
              break;
 	}
-
-    //Let AntTweakBar handle keyboard events
-    TwEventKeyboardGLUT(key, x, y);
 }
 
 //-------------------------------------------------------------------------------
 /// Called whenever the mouse moves while a button is pressed
 void myActiveMotionFunc(int x, int y) {
+    if (TwEventMouseMotionGLUT(x, y)) {
+        glutPostRedisplay();
+        return;
+    }
 
     // Rotate viewport orientation proportional to mouse motion
     vec2 newMouse = vec2((double)x / glutGet(GLUT_WINDOW_WIDTH),(double)y / glutGet(GLUT_WINDOW_HEIGHT));
@@ -146,9 +172,6 @@ void myActiveMotionFunc(int x, int y) {
     //Record the mouse location for drawing crosshairs
     viewport.mousePos = newMouse;
 
-    //Let AntTweakBar handle mouse motion
-    TwEventMouseMotionGLUT(x, y);
-
     //Force a redraw of the window.
     glutPostRedisplay();
 }
@@ -157,11 +180,11 @@ void myActiveMotionFunc(int x, int y) {
 //-------------------------------------------------------------------------------
 /// Called whenever the mouse moves without any buttons pressed.
 void myPassiveMotionFunc(int x, int y) {
+    if (TwEventMouseMotionGLUT(x, y))
+        return;
+    
     //Record the mouse location for drawing crosshairs
     viewport.mousePos = vec2((double)x / glutGet(GLUT_WINDOW_WIDTH),(double)y / glutGet(GLUT_WINDOW_HEIGHT));
-
-    //Let AntTweakBar handle mouse motion
-    TwEventMouseMotionGLUT(x, y);
 
     //Force a redraw of the window.
     glutPostRedisplay();
@@ -182,6 +205,54 @@ void app_terminate() {
     TwTerminate();
 }
 
+//****************************************************
+// AntTweakBar configuration
+//****************************************************
+
+void TW_CALL atb_run_optimization (void*) {
+    cout << "Running Optimization" << endl;
+
+    load_curr_track();
+    running = true ;
+    paused  = false;
+
+    TwDefine("'Optimization Parameters'/pause_opt_button visible=true ");
+}
+
+void TW_CALL atb_pause_optimization (void*) {
+    if (!running) { return; }
+
+    paused = !paused;
+
+    if (paused) {
+        TwSetParam(tbar, "pause_opt_button", "label", TW_PARAM_CSTRING, 1,
+            "CONTINUE");
+    }
+    else {
+        TwSetParam(tbar, "pause_opt_button", "label", TW_PARAM_CSTRING, 1,
+            "PAUSE");
+    }
+}
+
+void TW_CALL atb_set_track(const void *value, void *clientData) { 
+    currTrack = *(const int *)value;
+    load_curr_track();
+    glutPostRedisplay();
+}
+
+void TW_CALL atb_get_track(void *value, void *clientData) { 
+    *(int *)value = currTrack;
+}
+
+void TW_CALL atb_set_speed(const void *value, void *clientData) { 
+    speed = *(const double *)value;
+    if (energy) { energy->set_speed(speed); }
+}
+
+void TW_CALL atb_get_speed(void *value, void *clientData) { 
+    *(double *)value = speed;
+}
+
 //-------------------------------------------------------------------------------
 /// Initialize AntTweakBar and set up all the configuration items.
 void setup_anttweakbar() {
@@ -190,7 +261,114 @@ void setup_anttweakbar() {
     // the GLUT key event functions do not report key modifiers states.
     TwGLUTModifiersFunc(glutGetModifiers);
 
-    TwBar *bar = TwNewBar("Optimization Parameters");
+    tbar = TwNewBar("Optimization Parameters");
+
+    TwDefine(" 'Optimization Parameters' size='500 150' "
+                                    "position=' 50  25' "
+                                 "valueswidth=300       ");
+
+    TwAddVarRW(tbar, "twist_weight_field", TW_TYPE_DOUBLE, &twist_weight,
+        "label='Twist Penalty Weight' "
+        "help='What percentage of the total penalty is derived from the twist "
+        "penalty' "
+        "min=0 max=1 step=0.001 precision=10");
+
+    TwAddVarCB(tbar, "opt_speed", TW_TYPE_DOUBLE,
+        atb_set_speed, atb_get_speed, NULL,
+        "label='Optimization Speed' "
+        "help='How fast the optimization runs' "
+        "min=0.3 max=2 step=0.1 precision=1");
+
+    setup_anttweakbar_tracks();
+
+    TwAddButton(tbar, "run_opt_button", atb_run_optimization, NULL,
+        "label='RUN' "
+        "help='Restart the optimization with the configured parameters'");
+    
+    TwAddButton(tbar, "pause_opt_button", atb_pause_optimization, NULL,
+        "label='PAUSE' "
+        "help='Pause or continue the current optimization'");
+}
+
+void setup_anttweakbar_tracks() {
+    tracks.clear();
+    find_tracks();
+
+    TwEnumVal *trackEV =
+        (TwEnumVal*) malloc(tracks.size() * sizeof(TwEnumVal));
+
+    int ti = 0;
+    for (vector<string>::iterator it = tracks.begin();
+         it < tracks.end(); it++) {
+        trackEV[ti] = (TwEnumVal) {ti, it->c_str()};
+        ti++;
+    }
+    
+    TwType trackType = TwDefineEnum("TrackType", trackEV, tracks.size());
+
+    TwAddVarCB(tbar, "Track", trackType, atb_set_track, atb_get_track, NULL,
+        "label='Track' "
+        "help='Change the track that will be optimized.' ");
+    
+}
+
+//-------------------------------------------------------------------------------
+/// Find all the tracks in the current directory
+void find_tracks() {
+    path dir(".");
+    if (!exists(dir)) { return; }
+
+    directory_iterator end_itr;
+    for (directory_iterator itr(dir); itr != end_itr; itr++) {
+        if (is_directory(itr->status())) { continue; }
+
+        string name = itr->path().filename();
+
+        if (name.rfind(".trk") == name.size() - 4)
+            tracks.push_back (name);
+    }
+
+    sort(tracks.begin(), tracks.end());
+}
+
+//-------------------------------------------------------------------------------
+/// Set the current track index based on the user-given track name
+void find_curr_track(char* track) {
+    path trackpath(track);
+
+    int i = 0;
+    for (vector<string>::iterator ti = tracks.begin();
+         ti < tracks.end(); ti++) {
+        path tipath(*ti);
+        if (equivalent(tipath, trackpath)) {
+            currTrack = i;
+            break;
+        }
+        i++;
+    }
+}
+
+//-------------------------------------------------------------------------------
+/// Changes the current track based on the index in currTrack. Stops the
+/// current optimization, then deletes the current track and the current
+/// iterator. Loads the new track and the new iterator.
+void load_curr_track() {
+    running = false;
+
+    TwDefine("'Optimization Parameters'/pause_opt_button visible=false ");
+
+    if (coaster) { delete coaster; }
+    if (energy ) { delete energy ; }
+
+    coaster = new SplineCoaster(tracks[currTrack].c_str());
+    if (coaster->bad()) {
+        cout << "Coaster file appears to not have a proper coaster in it"
+             << endl;
+        return;
+    }
+
+	energy = new LineEnergy(coaster, twist_weight);
+    energy->set_speed(speed);
 }
 
 //-------------------------------------------------------------------------------
@@ -203,20 +381,6 @@ int main(int argc,char** argv) {
 	//Set up global variables
 	viewport.w = 600;
 	viewport.h = 600;
-
-	if (argc < 2) {
-	    cout << "USAGE: coaster coaster.trk" << endl;
-	    return -1;
-    } else {
-        // Create the coaster
-        coaster = new SplineCoaster(argv[1]);
-        if (coaster->bad()) {
-            cout << "Coaster file appears to not have a proper coaster in it" << endl;
-            return -1;
-        }
-    }
-
-	energy = new LineEnergy(coaster);
 
 	//Initialize the screen capture class to save BMP captures
 	//in the current directory, with the prefix "coaster"
@@ -271,6 +435,12 @@ int main(int argc,char** argv) {
 
     // set up the AntTweakBar
     setup_anttweakbar();
+    if (argc > 1) { find_curr_track(argv[1]); }
+    load_curr_track();
+
+
+    // make sure the initial window shape is set
+    reshape(viewport.w, viewport.h);
 
 
 	//And Go!

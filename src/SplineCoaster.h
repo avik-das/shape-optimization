@@ -15,6 +15,12 @@
 #include "algebra3.h"
 #include "main.h"
 
+/**
+ * The ideal, rest length of the struts. This corresponds to a potential energy
+ * of zero due to stretching or squashing the struts. Defined in energy.cpp.
+ */
+extern const double STRUT_REST_LENGTH;
+
 using namespace std;
 
 // control point for the sweep defining the track
@@ -83,6 +89,9 @@ public:
 	int getNumControlPoints();
 	void changePoint(int index, double dx, double dy, double dz);
 
+    // --- normalize the individual struts so that the entire track is at some
+    //     decent size, while leaving the overall shape the same
+    void normalizeStruts();
     // --- compensate for the inherent twist by updating the global twist
     void compensateTwist();
     // --- get the current global twist
