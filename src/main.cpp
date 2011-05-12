@@ -38,6 +38,7 @@ Energy* energy = NULL;
 double twist_weight = 0.5;
 bool running = false;
 bool paused  = true ;
+double speed = 1.0;
 
 //****************************************************
 // Forward Declarations (not exhaustive)
@@ -243,6 +244,15 @@ void TW_CALL atb_get_track(void *value, void *clientData) {
     *(int *)value = currTrack;
 }
 
+void TW_CALL atb_set_speed(const void *value, void *clientData) { 
+    speed = *(const double *)value;
+    if (energy) { energy->set_speed(speed); }
+}
+
+void TW_CALL atb_get_speed(void *value, void *clientData) { 
+    *(double *)value = speed;
+}
+
 //-------------------------------------------------------------------------------
 /// Initialize AntTweakBar and set up all the configuration items.
 void setup_anttweakbar() {
@@ -253,7 +263,7 @@ void setup_anttweakbar() {
 
     tbar = TwNewBar("Optimization Parameters");
 
-    TwDefine(" 'Optimization Parameters' size='500 100' "
+    TwDefine(" 'Optimization Parameters' size='500 150' "
                                     "position=' 50  25' "
                                  "valueswidth=300       ");
 
@@ -262,13 +272,19 @@ void setup_anttweakbar() {
         "help='What percentage of the total penalty is derived from the twist "
         "penalty' "
         "min=0 max=1 step=0.001 precision=10");
-    
+
+    TwAddVarCB(tbar, "opt_speed", TW_TYPE_DOUBLE,
+        atb_set_speed, atb_get_speed, NULL,
+        "label='Optimization Speed' "
+        "help='How fast the optimization runs' "
+        "min=0.3 max=2 step=0.1 precision=1");
+
     setup_anttweakbar_tracks();
 
     TwAddButton(tbar, "run_opt_button", atb_run_optimization, NULL,
         "label='RUN' "
         "help='Restart the optimization with the configured parameters'");
-
+    
     TwAddButton(tbar, "pause_opt_button", atb_pause_optimization, NULL,
         "label='PAUSE' "
         "help='Pause or continue the current optimization'");
@@ -352,6 +368,7 @@ void load_curr_track() {
     }
 
 	energy = new LineEnergy(coaster, twist_weight);
+    energy->set_speed(speed);
 }
 
 //-------------------------------------------------------------------------------

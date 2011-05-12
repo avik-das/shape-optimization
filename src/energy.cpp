@@ -22,7 +22,8 @@ inline bool is_improvement(float orig, float changed) {
 Energy::Energy(float step_size_start, float step_size_end, int numparams) :
     step_size    (step_size_start),
     step_size_end(step_size_end  ),
-    numparams(numparams) {}
+    numparams(numparams),
+    speed(1.0) {}
 
 bool Energy::iterate() {
     if (step_size <= step_size_end) { return true; }
@@ -84,7 +85,7 @@ bool Energy::iterate() {
 
     if (!chg_all_zeros) {
         chg->normalize();
-        (*chg) *= step_size;
+        (*chg) *= step_size * speed;
         apply_change(chg);
 
         float energy_new = calc_energy();
@@ -112,6 +113,14 @@ bool Energy::iterate() {
     }
     delete done;
     return true;
+}
+
+void Energy::set_speed(double speed) {
+    this->speed = speed;
+}
+
+double Energy::get_speed() {
+    return speed;
 }
 
 /* LINE ENERGY ===============================================*/

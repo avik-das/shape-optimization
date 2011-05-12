@@ -41,6 +41,9 @@ public:
     virtual float calc_energy() = 0;
     virtual bool iterate();
 
+    void   set_speed(double speed);
+    double get_speed();
+
 protected:
     Energy(float step_size_start, float step_size_end, int numparams);
     virtual void apply_change(VectorXf *chg) = 0;
@@ -53,6 +56,8 @@ private:
     float step_size;
     float step_size_end;
     int numparams;
+
+    double speed;
 };
 
 class LineEnergy : public Energy {
