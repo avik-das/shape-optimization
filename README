@@ -25,7 +25,36 @@ TODO Windows build steps
 
 ~~ HOW TO RUN ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-./coaster <track-file-name>
+  ./coaster [track-file-name]
+
+If a track name is not specified, you may choose a track through the GUI. After
+a track has been chosen and its parameters set, click RUN to start the
+optimization. The speed can be adjusted anytime, while the twist penalty weight
+is only applied when a new optimization starts.
+
+~~ VIDEOS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A number of videos are available of optimizations using available tracks:
+
+Figure 8
+  - figure-8-3.trk
+  - http://www.youtube.com/watch?v=LJDDK7KmojI
+
+Twisted Circle
+  - twisted-circle-2.trk
+  - http://www.youtube.com/watch?v=uV50lRR-AXc
+
+Twisted Double Circle
+  - twisted-circle-3.trk
+  - http://www.youtube.com/watch?v=maLrhkQjMkw
+
+Slightly Twisted Double Circle
+  - double-circle-1.trk
+  - http://www.youtube.com/watch?v=q3mw6VaoTko
+
+Double Circle
+  - double-circle-2.trk
+  - http://www.youtube.com/watch?v=lTN48PvzrMs
 
 ~~ EXTERNAL DEPENDENCIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
