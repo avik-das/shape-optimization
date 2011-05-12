@@ -29,6 +29,7 @@ else
 		-I/usr/include/eigen2
 	LIBRARY := -L./lib/ -L/usr/X11R6/lib -L/sw/lib -L/usr/sww/lib \
 		-L/usr/sww/bin -L/usr/sww/pkg/Mesa/lib -lglut -lGLU -lGL -lX11 \
+		-lboost_filesystem \
 		-lAntTweakBar
 	FRAMEWORK := 
 	MACROS := 

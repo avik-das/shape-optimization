@@ -11,10 +11,8 @@ const float ENERGY_THRESHOLD = 0.0001f;
 const float ZERO_THRESHOLD   = 0.000000000001f;
 const double PI = boost::math::constants::pi<double>();
 
-const double ELASTICITY = 0.1;
-const double SPRING_REST_LENGTH = 1.0;
-
-extern const double TWIST_WEIGHT = 0.5;
+const double ELASTICITY = 10.0;
+const double STRUT_REST_LENGTH = 2.5;
 
 inline bool is_improvement(float orig, float changed) {
     return orig > changed && abs(orig - changed) > ENERGY_THRESHOLD;
@@ -34,7 +32,7 @@ bool Energy::iterate() {
 
     // every coordinate of a vector will all equal coordinates and a norm of
     // step_size has the following value:
-    float dparam = step_size / sqrt((float) numparams);
+    float dparam = step_size;
 
     float energy_now = calc_energy();
 
@@ -103,6 +101,8 @@ bool Energy::iterate() {
     else if (step_size > step_size_end) {
         step_size /= 2;
     }
+
+    log_energies();
     
     delete chg ;
     delete diff;
@@ -117,9 +117,10 @@ bool Energy::iterate() {
 /* LINE ENERGY ===============================================*/
 
 LineEnergy::LineEnergy(
-    SplineCoaster *torus) :
+    SplineCoaster *torus, double twist_weight) :
     Energy(0.1f, 0.00001f, torus->getNumControlPoints() * 3), //multiply by 3 for vec3
-    torus(torus) {}
+    torus(torus),
+    twist_weight(twist_weight) {}
 
 void LineEnergy::apply_change(VectorXf *chg) {
 	for (int pi = 0; pi < chg->size(); pi += 3) {
@@ -145,7 +146,7 @@ float LineEnergy::calc_energy() {
     }
 
     double twist = torus->getGlobalTwist() * PI / 180;
-    energy += TWIST_WEIGHT * (twist*twist);
+    energy += twist_weight * (twist*twist);
 
     return (float) energy;
 }
@@ -171,9 +172,7 @@ double LineEnergy::compute_integrand(double t, double dt) {
     double strut2l = strut2.length();
 
     double normdot = strut1 * strut2 / (strut1l * strut2l);
-	double bending = PI - acos(CLAMP(normdot, -1.0, 1.0));
-	double al = 0.5 * (strut1l + strut2l);
-    double k1 = bending / al;
+	double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
 
     // Next, the energy due to stretching or squashing the struts away from
     // their rest lengths is computed. The energies of the two adjacent struts
@@ -182,8 +181,8 @@ double LineEnergy::compute_integrand(double t, double dt) {
     //
     // Note that this formulation comes directly from Hooke's law.
     
-    double stretch1 = SPRING_REST_LENGTH - strut1l;
-    double stretch2 = SPRING_REST_LENGTH - strut2l;
+    double stretch1 = STRUT_REST_LENGTH - strut1l;
+    double stretch2 = STRUT_REST_LENGTH - strut2l;
     double springpe1 = 0.5 * ELASTICITY * stretch1 * stretch1;
     double springpe2 = 0.5 * ELASTICITY * stretch2 * stretch2;
     double avgpe = (springpe1 + springpe2) / 2.0;
@@ -197,13 +196,60 @@ double LineEnergy::compute_integrand(double t, double dt) {
     //
     // We also add in the square potential energy of the stretched or squashed
     // struts to prevent unbounded growth.
-    
-    return (1-TWIST_WEIGHT) * (k1*k1) * al + avgpe * avgpe;
+
+    double bending = (1-twist_weight) * (k1*k1);
+    double stretch = avgpe * avgpe;
+
+    return bending + stretch;
 }
 
 void LineEnergy::log_iteration(float step_size) {
     float e = calc_energy();
     std::cout << "Iterated. Energy: " << e << ", step_size = " << step_size << std::endl;
+}
+
+void LineEnergy::log_energies() {
+	int numPoints = torus->getNumControlPoints();
+	double dt = 1.0/numPoints;
+
+    double t;
+    double bending = 0.0;
+    double stretch = 0.0;
+    for (int v = 0; v < numPoints; v++) {
+        t = ((double) v)/numPoints;
+
+        SplinePoint point1 = torus->sample(t-dt);
+        SplinePoint point2 = torus->sample(t);
+        SplinePoint point3 = torus->sample(t+dt);
+
+        vec3 pv1 = point1.point;
+        vec3 pv2 = point2.point;
+        vec3 pv3 = point3.point;
+
+        vec3 strut1 = pv1 - pv2;
+        vec3 strut2 = pv3 - pv2;
+        double strut1l = strut1.length();
+        double strut2l = strut2.length();
+
+        double normdot = strut1 * strut2 / (strut1l * strut2l);
+        double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
+
+        double stretch1 = STRUT_REST_LENGTH - strut1l;
+        double stretch2 = STRUT_REST_LENGTH - strut2l;
+        double springpe1 = 0.5 * ELASTICITY * stretch1 * stretch1;
+        double springpe2 = 0.5 * ELASTICITY * stretch2 * stretch2;
+        double avgpe = (springpe1 + springpe2) / 2.0;
+
+        bending += (1-twist_weight) * (k1*k1);
+        stretch += avgpe * avgpe;
+    }
+
+    double twist = torus->getGlobalTwist() * PI / 180;
+    double tenergy = twist_weight * (twist*twist);
+
+    cout << "B: " << bending <<
+          ", T: " << tenergy <<
+          ", S: " << stretch << endl;
 }
 
 float LineEnergy::update_step_size(float old, float end) {

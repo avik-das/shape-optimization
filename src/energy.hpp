@@ -26,19 +26,6 @@ extern const float ZERO_THRESHOLD;
 extern const double ELASTICITY;
 
 /**
- * The ideal, rest length of the struts. This corresponds to a potential energy
- * of zero due to stretching or squashing the struts.
- */
-extern const double SPRING_REST_LENGTH;
-
-/**
- * The contribution of the twist penalty relative to bending energy penalty.
- * Must be between 0.0 and 1.0, and the bending energy penalty is then one
- * minus this value.
- */
-extern const double TWIST_WEIGHT;
-
-/**
  * The base class for all surface energy-based simulators. Typically, an
  * implementation of this class will hold onto a geometric structure, and will
  * perform calculations on that structure in order to calculate the surface
@@ -60,6 +47,7 @@ protected:
     virtual float update_step_size(float old, float end) = 0;
 
     virtual void log_iteration(float step_size) = 0;
+    virtual void log_energies() = 0;
 
 private:
     float step_size;
@@ -69,7 +57,7 @@ private:
 
 class LineEnergy : public Energy {
 public:
-    LineEnergy(SplineCoaster *torus);
+    LineEnergy(SplineCoaster *torus, double twist_weight);
     float calc_energy();
 
 protected:
@@ -77,8 +65,11 @@ protected:
     float update_step_size(float old, float end);
 
     void log_iteration(float step_size);
+    void log_energies();
 
     SplineCoaster *torus;
     double compute_integrand(double t, double dt);
+
+    double twist_weight;
 };
 #endif

@@ -111,6 +111,7 @@ SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwi
         }
     }
     initialGlobalTwist = globalTwist;
+    normalizeStruts();
     compensateTwist();
 }
 
@@ -380,6 +381,28 @@ void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
 	point->point[2] += dz;
 
 	clearDisplayList();
+}
+
+void SplineCoaster::normalizeStruts() {
+    // First, calculate the actual average strut length
+    int numpoints = getNumControlPoints();
+
+    double avglen = 0.0;
+    for (int pi = 0; pi < numpoints; pi++) {
+        SplinePoint* p1 = bsplinePts[ pi      % numpoints];
+        SplinePoint* p2 = bsplinePts[(pi + 1) % numpoints];
+        avglen += (p1->point - p2->point).length();
+    }
+    avglen /= numpoints;
+
+    double ratio = STRUT_REST_LENGTH / avglen;
+
+    for (int pi = 0; pi < numpoints; pi++) {
+        SplinePoint* p = bsplinePts[pi];
+        p->point[0] *= ratio;
+        p->point[1] *= ratio;
+        p->point[2] *= ratio;
+    }
 }
 
 void SplineCoaster::compensateTwist() {
