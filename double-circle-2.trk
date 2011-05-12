@@ -1,7 +1,6 @@
-# A planar double-circle with a built-in twist. Few points, performs well with
-# large initial twist.
-
-twist 360
+# A planar double-circle with no built-in twist, but with a perturbation that
+# causes it to unfold in to a twisted single-circle if the twist penalty is low
+# enough.
 
 # a rectangular cross section
 p  1  1
@@ -11,7 +10,7 @@ p -1  1
 
 # first loop
 
-v     0.0       1.0       0.1
+v     0.0       1.0       1.0
 v     0.7071    0.7071    0.0
 v     1.0       0.0       0.0
 v     0.7071   -0.7071    0.0
