@@ -1,0 +1,956 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Optimization of B-Spline--based Genus-1 Objects
+\end_layout
+
+\begin_layout Author
+Avik Das, Victor Huang
+\begin_inset Newline newline
+\end_inset
+
+Adviser: Carlo Séquin
+\end_layout
+
+\begin_layout Abstract
+We adapt the problem of minimizing the surface bending energy of a three-dimensi
+onal shape to genus-1 objects represented as B-Splines in order to incorporate
+ the concept of twisting.
+ Using a standard gradient descent algorithm, we investigate smooth deformations
+ of these objects, with the goal of a minimizing a weighted linear combination
+ of the bending energy and the twisting energy.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+
+\emph on
+key words
+\emph default
+: torus, bending, twisting energy, gradient descent
+\end_layout
+
+\begin_layout Section
+Background
+\end_layout
+
+\begin_layout Standard
+Topologically, an object may undergo a smooth deformation, or more generally,
+ a homeomorphism, in which the object may warp and stretch without creating
+ any creases or sharp bends.
+ In doing so, the object may pass through itself.
+ The objects, before and after the transformation, are considered topologically
+ equivalent to one another.
+\end_layout
+
+\begin_layout Standard
+We consider the class of objects that can be modelled using a closed space
+ curve, such as some variation on a torus.
+ In rendering such a shape, the cross-section is be oriented along an orthonorma
+l frame attached to the curve, the orientation of which is computed as a
+ rotation minimizing frame (RMF) as described in Wang et al.
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang"
+
+\end_inset
+
+ However, it is not guaranteed that the orientation of the cross-section
+ at the start of the curve will match the orientation of the cross-section
+ at the end of the curve.
+ In the case of a planar curve, there will be no mismatch, as the RMF will
+ not change orientation at any point.
+ Curves exhibiting symmetry may also have no mismatch, as the accumulated
+ rotation of the RMF will cancel out to zero.
+ However, other curves will demonstrate a mismatch.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename untwisted-circle-1-smooth.png
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename wavy-1.png
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename twisty-1.png
+	width 1.5in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Various space curves with and without cross-sectional mismatch
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This cross-sectional mismatch is modelled as a twist, in which the difference
+ in orientation between the two cross-sections is compensated for by applying
+ an additional rotation to the RMF along the curve gradually.
+ In the case of a smooth deformation, the cross-sectional mismatch may change
+ as the shape modelled by the curve warps through space, such as when a
+ planar torus, modelled by a circle, smoothly transitions in to one of the
+ other shapes in Figure 1.
+ However, a special case arises when compensating rotation, or the twist,
+ nears 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+.
+ To maintain the continuity of the transformation, it must be ensured that
+ the twist not transition from just under 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ to just over 
+\begin_inset Formula $0^{\circ}$
+\end_inset
+
+, even if a small twist is sufficent to align the cross-sections.
+ This applies to twists surrounding all multiples of a full rotation.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename twisty-1.png
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename twisty-1-compensated.png
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Cross-sectional mismatch compensated by a twist
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features>
+<column alignment="center" valignment="middle" width="0">
+<column alignment="center" valignment="middle" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename figure-8-no-twist.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename unfolding-figure-8-1.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename unfolding-figure-8-2.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename twisted-circle.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Continuous deformation of an untwisted near-planar figure eight into a twisted
+ planar circle
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this way, we say that during certain continuous deformations, the twist
+ of an object accumulates.
+ As seen in Figure 3, a near-planar figure eight with minimal twist can
+ be continuously deformed into a planar circle with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+, even though all planar curves can be rendered with matching starting and
+ ending RMF's, that is with no twist.
+ For this reason, an untwisted planar figure eight is not topologically
+ equivalent to an untwisted planar circle, and indeed, no homeomorphism
+ exists between the two, despite the fact that both are genus-1 objects.
+\end_layout
+
+\begin_layout Section
+Energy Functionals
+\end_layout
+
+\begin_layout Standard
+The energy functional developed for this project is composed of three parts,
+ all dictated by the chosen representation.
+ This energy functional is then minimized for a given input shape while
+ ensuring all transformations are homeomorphic, that is they are continuous
+ and preserve topological equivalence.
+\end_layout
+
+\begin_layout Subsection
+Representation
+\end_layout
+
+\begin_layout Standard
+A B-Spline was used to represent all objects being optimized.
+ This simplifies calculation of twist when considering topological equivalence
+ classes at the cost of restricting the scope of the representation to genus-1
+ objects, assuming all curves are closed.
+ In this representation, a curve consists of a number of control points,
+ which through sampling and interpolation can be rendered as a smooth curve.
+ Calculation of the energy functional is performed solely on the control
+ polygon, with the control points as the vertices.
+ The edges between two neighboring vertices is a strut, with the 
+\begin_inset Formula $i$
+\end_inset
+
+th strut denoted as the vector 
+\begin_inset Formula $S_{i}$
+\end_inset
+
+ in the following calculations.
+\end_layout
+
+\begin_layout Subsection
+Spring Energy
+\end_layout
+
+\begin_layout Standard
+For aesthetic and practical purposes, the size of the curve was restricted
+ by imposing a penalty on all deviation of strut lengths from a predefined
+ rest length.
+ The penalty is calculated by modelling the struts as springs, then using
+ Hooke's Law, summed over all the struts:
+\begin_inset Formula \[
+\sum_{i}\frac{1}{2}\cdot k\cdot(\left\Vert S_{i}\right\Vert -R)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $k$
+\end_inset
+
+ is a constant denoting the rigidity of the springs and 
+\begin_inset Formula $R$
+\end_inset
+
+ is the predefined rest length.
+\end_layout
+
+\begin_layout Subsection
+Bending Energy
+\end_layout
+
+\begin_layout Standard
+Common approaches to measuring bending energy typically consider the curvature
+ of the surface at each point integrated over the entire surface, including
+ those evaluated and compared by Joshi and Séquin
+\begin_inset CommandInset citation
+LatexCommand cite
+key "joshi"
+
+\end_inset
+
+.
+ Due to our B-Spline--based representation, we need only consider bending
+ along one direction.
+ Secondly, the integration of curvature across a surface is commonly used
+ in order to prevent unbounded growth despite the decrease in curvature
+ as a shape grows, while the spring model constituting one part of our functiona
+l already prevents such growth.
+ Thus, the bending energy calculation in our functional considers only the
+ deviation from colinearity between three neighboring vertices:
+\begin_inset Formula \[
+\sum_{i}\left(180^{\circ}-\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert }\right)\right)^{2}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The calculation of the inverse cosine of the normalized dot product is the
+ standard calculation of the angle between two vectors, with the assumption
+ that both vectors have their tail at a common point.
+ In our case, this means that both struts have their tail in the middle
+ of three neighboring vertices and point toward the other two.
+ This angle is then substracted from the optimal 
+\begin_inset Formula $180^{\circ}$
+\end_inset
+
+, which would be angle between the two struts if all three vertices were
+ colinear.
+ Finally, the square of this deviation is summed across the curve.
+\end_layout
+
+\begin_layout Standard
+This formulation of the bending energy suffices because the shape of the
+ cross-section of the object in question is constant, and thus only the
+ sweep of the curve itself is used to compare two objects with respect to
+ their energies.
+ Note that this implies a Clifford torus need not be achieved if a topologically
+ equivalent shape is optimized, and in fact the optimal in that case is
+ the unit circle, regardless of the cross-section used to render the shape.
+\end_layout
+
+\begin_layout Subsection
+Twist Energy
+\end_layout
+
+\begin_layout Standard
+Our energy functional penalizes heavily twisted objects by adding a third
+ component to the energy functional based on the magnitude of the twist
+ present in the shape.
+ This requires calculating the additional rotation needed to compensate
+ for the cross-sectional mismatch due to the sweep of the curve.
+\end_layout
+
+\begin_layout Standard
+The framework used to render the B-Spline using rotation minimizing frames
+ is able to apply an additional global twist to any curve.
+ This twist is distributed among all sampled cross-sections, so with 
+\begin_inset Formula $n$
+\end_inset
+
+ sampled cross-sections and a global twist of 
+\begin_inset Formula $t$
+\end_inset
+
+, the local twist of the 
+\begin_inset Formula $i$
+\end_inset
+
+th sampled cross-section is 
+\begin_inset Formula $\frac{i}{n}\cdot t$
+\end_inset
+
+.
+ Note that the cross section at 
+\begin_inset Formula $i=0$
+\end_inset
+
+ is sampled again at the very end, with 
+\begin_inset Formula $i=n$
+\end_inset
+
+.
+ Then, when the 
+\begin_inset Formula $i$
+\end_inset
+
+th RMF is calculated as per Wang et al.
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang"
+
+\end_inset
+
+, the RMF is further rotated around the tangent to the curve by the local
+ twist.
+\end_layout
+
+\begin_layout Standard
+Despite the fact that both the starting and ending cross-sections are sampled
+ at the same point on the curve, the combination of the rotation minimizing
+ sweep and the global twist may result in a mismatch between the two cross-secti
+ons.
+ The normal vector to the curve within each cross-section is then compared
+ to each other, and the angle between these two vectors is the mismatch
+ between the two cross-sections.
+ Adding this amount to the global twist will then cause the two cross-sections
+ to align by distributing the corrective factor along the entire curve.
+\end_layout
+
+\begin_layout Standard
+If the global twist is kept updated after each change to the shape, and
+ each change is incremental, the twist will also change gradually, satisfying
+ the accumulation of twist described above.
+ This is because the cross-sectional mismatch is calculated with the previous
+ global twist applied, and the mismatch is added to the previous global
+ twist.
+ Even if the cross-sectional mismatch without any global twist applied were
+ to transition from just under 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ to just over 
+\begin_inset Formula $0^{\circ}$
+\end_inset
+
+, the mismatch with the previous global twist applied will only be a few
+ degrees, and adding this to the previous twist will ensure the new global
+ twist is over 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The twist energy is simply the square of the current global twist needed
+ to compensate for the cross-sectional mismatch.
+\end_layout
+
+\begin_layout Subsection
+The Combined Functional
+\end_layout
+
+\begin_layout Standard
+For the purposes of investigating the effect of penalizing twist, the amount
+ of penalty incurred by the twist is controllable by the user.
+ Then, given a spring energy 
+\begin_inset Formula $S$
+\end_inset
+
+, a bending energy 
+\begin_inset Formula $B$
+\end_inset
+
+ and a twist energy 
+\begin_inset Formula $T$
+\end_inset
+
+, the final energy of the shape is
+\begin_inset Formula \[
+E=S+(1-\alpha)\cdot B+\alpha\cdot T\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is the user-controlled parameter, known as the twist penalty weight.
+\end_layout
+
+\begin_layout Section
+Optimization
+\end_layout
+
+\begin_layout Subsection
+Gradient Descent
+\end_layout
+
+\begin_layout Standard
+A standard gradient descent algorithm is used to optimize an input shape
+ by minimizing the energy of the shape.
+ While an analytic approach to solving a set of linear equations using gradient
+ is possible, this type of analytic approach does not apply to minimizing
+ our energy functional.
+ Firstly, the spring and bending energy components difficult to analyze
+ in closed form.
+ Secondly, the twist energy is determined by the numerical method of approximati
+ng the RMF using a sequence of frames sampled along the curve, and the accumulat
+ion of twist is calculating by updating a parameter that is used in the
+ calculation of the change in twist in the subsequent iteration.
+ Thus, we take the approach of varying each parameter of the optimization
+ independently by a small amount and recalculating the energy after each
+ change.
+ The gradient is then the vector that points in the direction of the greatest
+ decrease in energy with respect to each of these parameters.
+\end_layout
+
+\begin_layout Standard
+Formally, we consider an independent parameter for each of the three components
+ of the position of space of each control point, for a total of 
+\begin_inset Formula $3n$
+\end_inset
+
+ parameters given 
+\begin_inset Formula $n$
+\end_inset
+
+ control points.
+ Each parameter 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ is separately varied by an amount 
+\begin_inset Formula $\Delta p$
+\end_inset
+
+, the step size, then by 
+\begin_inset Formula $-\Delta p$
+\end_inset
+
+.
+ After each change, the energy of the resulting shape is calculated, denoting
+ the first energy as 
+\begin_inset Formula $E^{+}$
+\end_inset
+
+ and the second as 
+\begin_inset Formula $E^{-}$
+\end_inset
+
+.
+ Then, the 
+\begin_inset Formula $i$
+\end_inset
+
+th component of the gradient is 
+\begin_inset Formula \[
+\Delta E_{i}=\begin{cases}
+E^{-}-E^{+} & E^{-}>E^{0}\text{ and }E^{+}>E^{0}\\
+0 & \text{otherwise}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $E^{0}$
+\end_inset
+
+ is the energy of the shape before the parameter is varied.
+ In this way, the gradient, 
+\begin_inset Formula $\Delta E=<\Delta E_{0},\ldots,\Delta E_{3n}>$
+\end_inset
+
+, will point in the direction of the largest decrease in energy, with the
+ components weighted by the magnitude of the decrease.
+ The gradient is then normalized so its magnitude is the step size, 
+\begin_inset Formula $\Delta p$
+\end_inset
+
+, and this change is applied to the parameters to produce the result of
+ the current iteration.
+\end_layout
+
+\begin_layout Subsection
+Step Size
+\end_layout
+
+\begin_layout Standard
+The amount to vary each parameter, as well as the distance to travel in
+ each iteration, is crucial to accurate optimization.
+ Additionally, aesthetic considerations must be taken into account, as the
+ optimization should proceed at a pace conducive to understanding the way
+ in which a shape may be continuously deformed to produce an optimized variation.
+\end_layout
+
+\begin_layout Standard
+For the purposes of this project, an initial and ending step size were chosen
+ empirically.
+ At each iteration, if no improvement could be achieved using that step
+ size, that is the gradient using that step size was calculated to be the
+ zero vector, the step size was halved, and the next iteration attempted
+ to decrease the energy using the new step size.
+ When the step size dropped below the predefined ending step size, the optimizat
+ion was halted, and the shape was said to be in the optimal configuration.
+\end_layout
+
+\begin_layout Standard
+The step size affects the result of the optimization, both based on the
+ energy functional chosen, and the input shape itself.
+ Too large a step size may result in travelling past one local minimum into
+ a valley containing a potentially higher local minimum.
+ Too small a step size may result in converging to an undesirably high local
+ minimum, or an unacceptably large convergence time.
+\end_layout
+
+\begin_layout Standard
+One approach is to use a line search algorithm, in which the direction of
+ the gradient is searched to determine which distance results in the largest
+ decrease in energy along that direction, but for simplicity, this algorithm
+ was not implemented.
+ Additionally, such an implementation would cause large discontinuities
+ in the progress of the optimization, a trait undesirable when attempting
+ to view the optimization process in order to understand the resulting transform
+ation.
+\end_layout
+
+\begin_layout Subsection
+Limitations
+\end_layout
+
+\begin_layout Standard
+Undesirable behavior when optimizing shapes is the result of two sources
+ of error.
+\end_layout
+
+\begin_layout Standard
+First, the analytical properties of the energy functional determines how
+ the optimization convergences, and to which point it converges.
+ In particular, the non-linearity, and in particular the higher-order nature,
+ of the functional is a major issue, as the presence of local minima may
+ cause the optimization to progress toward a configuration that decreases
+ the energy of the shape without resulting in the desired final configuration.
+\end_layout
+
+\begin_layout Standard
+The second source of error is in how well the energy functional approximates
+ the intentions of the authors.
+ For example, it was discovered that the use of the global twist to calculate
+ the twist energy, while accurately modelling the undesirability of the
+ twist in many common scenarios, did not account for the case in which a
+ large amount of twisting cancelled itself out due to the symmetry of a
+ particular curve.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename lim-twisted-circle-1.png
+	lyxscale 75
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename lim-twisted-circle-2.png
+	lyxscale 75
+	width 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename lim-twisted-circle-3.png
+	lyxscale 75
+	width 1.5in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename lim-twisted-circle-4.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A planar circle with an intial twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ bends inwards to minimize its twist.
+ Optimization performed using 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+These limitations are apparent when a planar circular torus with an initial
+ twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ is optimized, as seen in Figure 4.
+ Instead of folding itself into a figure eight, the planar twisted circle
+ bends inwards.
+ As expected, this does increase the bending energy significantly, in this
+ particular case by more than five-fold.
+ However, the twisting energy decreases by thirty-six times! This is related
+ to the symmetry of the final shape, combined with the non-planar configuration,
+ in which a great deal of the twist cancels out from one end of the curve
+ to the other.
+ At this point, the optimization cannot proceed further, due to the presence
+ of a local minimum.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Discuss how perturbing one of the points produces the correct result, albeit
+ in a strange way
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Itemize
+Figure 8 -> Twisted Circle
+\end_layout
+
+\begin_layout Itemize
+changing 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ -> in between state in some cases (as expected)
+\end_layout
+
+\begin_layout Itemize
+sensitivity in 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ in other cases
+\end_layout
+
+\begin_layout Itemize
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "references"
+options "plain"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
