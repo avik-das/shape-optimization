@@ -50,6 +50,16 @@ Avik Das, Victor Huang
 \end_inset
 
 Adviser: Carlo Séquin
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\emph on
+CS Division, University of California, Berkeley
 \end_layout
 
 \begin_layout Abstract
@@ -776,6 +786,19 @@ First, the analytical properties of the energy functional determines how
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Discuss how global parameters can be incorporated when possible
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The second source of error is in how well the energy functional approximates
  the intentions of the authors.
  For example, it was discovered that the use of the global twist to calculate
@@ -932,13 +955,19 @@ sensitivity in
  in other cases
 \end_layout
 
-\begin_layout Itemize
-
-\end_layout
-
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Acknowledgements
+\end_layout
+
+\begin_layout Standard
+We would like to thank Satish Rao and Umesh Vazirani for providing valuable
+ insight regarding gradient descent, and Carlo Séquin, without whose advice
+ and guidance, this project would not have been possible.
 \end_layout
 
 \begin_layout Standard
