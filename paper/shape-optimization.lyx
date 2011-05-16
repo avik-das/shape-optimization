@@ -3,6 +3,10 @@
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\usepackage{color}
+\usepackage{graphicx}
+\end_preamble
 \use_default_options true
 \language english
 \inputencoding auto
@@ -17,6 +21,7 @@
 
 \graphics default
 \paperfontsize default
+\spacing single
 \use_hyperref false
 \papersize default
 \use_geometry false
@@ -35,6 +40,7 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
+\author "" 
 \author "" 
 \end_header
 
@@ -344,7 +350,9 @@ status open
 
 \begin_layout Plain Layout
 Continuous deformation of an untwisted near-planar figure eight into a twisted
- planar circle
+ planar circle.
+ The shape is rendered so that the individual control points are easily
+ visible, highlighting the movement of these points during the transformation.
 \end_layout
 
 \end_inset
@@ -786,19 +794,6 @@ First, the analytical properties of the energy functional determines how
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Discuss how global parameters can be incorporated when possible
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 The second source of error is in how well the energy functional approximates
  the intentions of the authors.
  For example, it was discovered that the use of the global twist to calculate
@@ -815,6 +810,21 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-1.png
 	lyxscale 75
@@ -823,10 +833,14 @@ status open
 \end_inset
 
 
-\begin_inset space \hfill{}
+\end_layout
+
 \end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
 
-
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-2.png
 	lyxscale 75
@@ -835,10 +849,14 @@ status open
 \end_inset
 
 
-\begin_inset space \hfill{}
+\end_layout
+
 \end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
 
-
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-3.png
 	lyxscale 75
@@ -849,15 +867,46 @@ status open
 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset space \hfill{}
 \end_inset
+</cell>
+</row>
+<row>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
 
-
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-4.png
 	lyxscale 75
 	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
 
 \end_inset
 
@@ -895,6 +944,41 @@ A planar circle with an intial twist of
 \end_layout
 
 \begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "lim-twisted-circle.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Energy Components for Figure 4 by Iteration
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 These limitations are apparent when a planar circular torus with an initial
  twist of 
 \begin_inset Formula $360^{\circ}$
@@ -911,20 +995,8 @@ These limitations are apparent when a planar circular torus with an initial
  to the other.
  At this point, the optimization cannot proceed further, due to the presence
  of a local minimum.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Discuss how perturbing one of the points produces the correct result, albeit
- in a strange way
-\end_layout
-
-\end_inset
-
-
+ A plot of each component of the energy as the optimizing progresses is
+ shown in Figure 5.
 \end_layout
 
 \begin_layout Section
@@ -932,27 +1004,705 @@ Results
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+The most fundamental benchmark for this project is the unfolding of a planar,
+ untwisted figure eight into a planar circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+.
+ This is shown in Figure 3, with the control points clearly visible.
+ It must be noted that the input shape has one of the center points perturbed
+ off the plane in which the rest of the points lie; this is to hint to the
+ optimization which direction to start proceeding.
+ Without perturbing one point, the energy will not decrease when any individual
+ parameter is varied independently of the other parameters.
+ The optimization is performed using 
+\begin_inset Formula $\alpha=0.0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The result of the optimization of this input is highly sensitive to the
+ value of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ Empirically, it was determined that values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ below 
+\begin_inset Formula $0.048324$
+\end_inset
+
+ resulted in the shape unfolding into a twisted circle, whereas any value
+ of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ larger than this particular number resulted in very little change from
+ the initial configuration.
+\end_layout
+
+\begin_layout Standard
+Intermediate configurations between a planar, untwisted figure eight and
+ a planar, twisted circle were achievable when the input shape contained
+ fewer control points.
+ With the correct values for this optimization parameter, the shape attempted
+ to balance both the bending energy, which is minimized by a circular configurat
+ion, and the twisting energy, which is minimized by the figure eight.
+ The result was an intermediate state of unfolding.
+ These results are summarized in Figure 6.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
-\begin_layout Itemize
-Figure 8 -> Twisted Circle
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
 \end_layout
 
-\begin_layout Itemize
-changing 
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features>
+<column alignment="center" valignment="middle" width="0">
+<column alignment="center" valignment="middle" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-1.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Input figure.
+ Note the low number of control points
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-2.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $\alpha=0.1$
+\end_inset
+
+, enough to cause the figure to unfold completely
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-3.png
+	width 2in
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $\alpha=0.15$
+\end_inset
+
+, resulting in an intermediate state
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-4.png
+	width 2in
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Formula $\alpha=0.2$
+\end_inset
+
+, enough to prevent any unfolding
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Intermediate states of unfolding in order to balance bending and twisting
+ energy for different vaues of 
 \begin_inset Formula $\alpha$
 \end_inset
 
- -> in between state in some cases (as expected)
+.
 \end_layout
 
-\begin_layout Itemize
-sensitivity in 
-\begin_inset Formula $\alpha$
 \end_inset
 
- in other cases
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+While a planar circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ demonstrated the limitations of our system, the same shape with a slight
+ perturbation of one of the control points off the plane in which the other
+ points lie is indeed correctly optimized, albeit in an undesirable manner.
+ The perturbation effectively signals to the optimization that some form
+ of folding out of the plane should occur, but the optimization proceeds
+ locally before producing the desired planar, untwisted figure eight.
+ This result is summarized in Figure 7.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-1.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-2.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="0.5cm" bottomspace="0.5cm">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-3.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-4.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="default">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-5.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A nearly-planar circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ folds itself into a figure eight.
+ The optimization proceeds locally before balancing all the components of
+ the shape.
+ This optimization was performed with 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally, testing with a doubly-looped circle, both with and without an initial
+ twist, demonstrate successful optimization.
+ A doubly-looped circle with an initial twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ successfully unfolds itself into a planar, untwisted, single-looped when
+ optimized with 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+, while an untwisted doubly-looped circle successfully unfolds into a planar
+ single-looped circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ when optimized with 
+\begin_inset Formula $\alpha=0$
+\end_inset
+
+.
+ These results are summarized in Figures 8 and 9.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-1.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-2.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="0.5cm" bottomspace="0.5cm">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-3.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-4.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A double-looped circle with an initial twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ unfolds into a planar, untwisted circle, with 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
+ The camera orientation differs in each capture to highlight the prominent
+ features in the intermediate configurations.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-5.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-6.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topspace="0.5cm" bottomspace="0.5cm">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-7.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename double-circle-8.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A double-looped circle with no initial twist unfolds into a planar, twisted
+ circle, with 
+\begin_inset Formula $\alpha=0$
+\end_inset
+
+.
+ The camera orientation differs in each capture to highlight the prominent
+ features in the intermediate configurations.
+ The second half of the optimization is omitted, as it does not differ from
+ Figure 3.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
