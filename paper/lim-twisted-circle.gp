@@ -4,6 +4,8 @@ set term epslatex color
 set output "lim-twisted-circle.tex"
 
 set xrange [0:204]
+set xlabel "Iteration"
+set ylabel "Energy"
 
 set style line 1 linetype 1 linewidth 4 linecolor rgb "blue"
 set style line 2 linetype 1 linewidth 4 linecolor rgb "green"

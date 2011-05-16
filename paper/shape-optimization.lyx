@@ -219,6 +219,7 @@ status open
 
 \begin_inset Graphics
 	filename twisty-1.png
+	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -226,6 +227,7 @@ status open
 
 \begin_inset Graphics
 	filename twisty-1-compensated.png
+	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -277,6 +279,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename figure-8-no-twist.png
+	lyxscale 50
 	width 2in
 
 \end_inset
@@ -292,6 +295,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename unfolding-figure-8-1.png
+	lyxscale 50
 	width 2in
 
 \end_inset
@@ -309,6 +313,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename unfolding-figure-8-2.png
+	lyxscale 50
 	width 2in
 
 \end_inset
@@ -324,6 +329,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename twisted-circle.png
+	lyxscale 50
 	width 2in
 
 \end_inset
@@ -369,7 +375,7 @@ Continuous deformation of an untwisted near-planar figure eight into a twisted
 In this way, we say that during certain continuous deformations, the twist
  of an object accumulates.
  As seen in Figure 3, a near-planar figure eight with minimal twist can
- be continuously deformed into a planar circle with 
+ be continuously deformed into a planar circle with a twist of 
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
@@ -399,8 +405,8 @@ Representation
 \begin_layout Standard
 A B-Spline was used to represent all objects being optimized.
  This simplifies calculation of twist when considering topological equivalence
- classes at the cost of restricting the scope of the representation to genus-1
- objects, assuming all curves are closed.
+ classes, at the cost of restricting the scope of the representation to
+ genus-1 objects, assuming all curves are closed.
  In this representation, a curve consists of a number of control points,
  which through sampling and interpolation can be rendered as a smooth curve.
  Calculation of the energy functional is performed solely on the control
@@ -470,7 +476,7 @@ l already prevents such growth.
  Thus, the bending energy calculation in our functional considers only the
  deviation from colinearity between three neighboring vertices:
 \begin_inset Formula \[
-\sum_{i}\left(180^{\circ}-\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert }\right)\right)^{2}\]
+\sum_{i}\left(\pi-\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert }\right)\right)^{2}\]
 
 \end_inset
 
@@ -596,8 +602,8 @@ If the global twist is kept updated after each change to the shape, and
 \end_layout
 
 \begin_layout Standard
-The twist energy is simply the square of the current global twist needed
- to compensate for the cross-sectional mismatch.
+The twist energy is simply the square of the current global twist, in radians,
+ needed to compensate for the cross-sectional mismatch.
 \end_layout
 
 \begin_layout Subsection
@@ -648,9 +654,9 @@ Gradient Descent
 A standard gradient descent algorithm is used to optimize an input shape
  by minimizing the energy of the shape.
  While an analytic approach to solving a set of linear equations using gradient
- is possible, this type of analytic approach does not apply to minimizing
- our energy functional.
- Firstly, the spring and bending energy components difficult to analyze
+ descent is possible, this type of analytic approach does not apply to minimizin
+g our energy functional.
+ Firstly, the spring and bending energy components are difficult to analyze
  in closed form.
  Secondly, the twist energy is determined by the numerical method of approximati
 ng the RMF using a sequence of frames sampled along the curve, and the accumulat
@@ -665,7 +671,7 @@ ion of twist is calculating by updating a parameter that is used in the
 
 \begin_layout Standard
 Formally, we consider an independent parameter for each of the three components
- of the position of space of each control point, for a total of 
+ of the position in space of each control point, for a total of 
 \begin_inset Formula $3n$
 \end_inset
 
@@ -704,7 +710,7 @@ Formally, we consider an independent parameter for each of the three components
 th component of the gradient is 
 \begin_inset Formula \[
 \Delta E_{i}=\begin{cases}
-E^{-}-E^{+} & E^{-}>E^{0}\text{ and }E^{+}>E^{0}\\
+E^{-}-E^{+} & E^{-}<E^{0}\text{ or }E^{+}<E^{0}\\
 0 & \text{otherwise}\end{cases}\]
 
 \end_inset
@@ -723,7 +729,7 @@ where
 \end_inset
 
 , will point in the direction of the largest decrease in energy, with the
- components weighted by the magnitude of the decrease.
+ components weighted by the magnitude of the decrease due to each parameter.
  The gradient is then normalized so its magnitude is the step size, 
 \begin_inset Formula $\Delta p$
 \end_inset
@@ -787,9 +793,9 @@ Undesirable behavior when optimizing shapes is the result of two sources
 \begin_layout Standard
 First, the analytical properties of the energy functional determines how
  the optimization convergences, and to which point it converges.
- In particular, the non-linearity, and in particular the higher-order nature,
- of the functional is a major issue, as the presence of local minima may
- cause the optimization to progress toward a configuration that decreases
+ In particular, the non-linearity, and more specifically the higher-order
+ nature, of the functional is a major issue, as the presence of local minima
+ may cause the optimization to progress toward a configuration that decreases
  the energy of the shape without resulting in the desired final configuration.
 \end_layout
 
@@ -827,7 +833,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-1.png
-	lyxscale 75
+	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -843,7 +849,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-2.png
-	lyxscale 75
+	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -859,7 +865,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename lim-twisted-circle-3.png
-	lyxscale 75
+	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -1017,7 +1023,7 @@ The most fundamental benchmark for this project is the unfolding of a planar,
  Without perturbing one point, the energy will not decrease when any individual
  parameter is varied independently of the other parameters.
  The optimization is performed using 
-\begin_inset Formula $\alpha=0.0$
+\begin_inset Formula $\alpha=0$
 \end_inset
 
 .
@@ -1449,8 +1455,8 @@ Finally, testing with a doubly-looped circle, both with and without an initial
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
- successfully unfolds itself into a planar, untwisted, single-looped when
- optimized with 
+ successfully unfolds itself into a planar, untwisted, single-looped circle
+ when optimized with 
 \begin_inset Formula $\alpha=0.5$
 \end_inset
 
@@ -1464,7 +1470,7 @@ Finally, testing with a doubly-looped circle, both with and without an initial
 \end_inset
 
 .
- These results are summarized in Figures 8 and 9.
+ These results are summarized in Figures 8 and 9 respectively.
 \end_layout
 
 \begin_layout Standard
