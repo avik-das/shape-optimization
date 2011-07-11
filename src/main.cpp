@@ -427,12 +427,12 @@ int main(int argc,char** argv) {
     glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
     glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
 
-    glClearColor(.4,.2,1,0);
+    glClearColor(0,0,0,0);
 
     // set some lights
     {
-       float ambient[3] = { .1f, .1f, .1f };
-       float diffuse[3] = { .2f, .5f, .5f };
+       float ambient[3] = { .5f, .5f, .5f };
+       float diffuse[3] = { .5f, .5f, .5f };
        float pos[4] = { 0, 5, -5, 0 };
        glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
        glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
