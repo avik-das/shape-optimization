@@ -1,0 +1,415 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Optimization of Gridded Surfaces
+\end_layout
+
+\begin_layout Author
+Avik Das
+\begin_inset Newline newline
+\end_inset
+
+Victor Huang
+\begin_inset Newline newline
+\end_inset
+
+Adviser: Carlo Séquin
+\end_layout
+
+\begin_layout Abstract
+This paper presents an attempt to visualize the minimization of bending
+ energy and twist of a genus 1 object.
+ The algorithm used to converge to an optimum is gradient descent.
+ The results show that the torus will behave as expected: with no inherent
+ twist, it will converge to a Clifford torus to minimize bending energy;
+ with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ of inherent twist, it will converge to a figure 8 to minimize twist.
+ With proper weighting of the energy functionals, intermediate states can
+ be achieved.
+\end_layout
+
+\begin_layout Description
+keywords:
+\end_layout
+
+\begin_layout Description
+torus optimization, bending energy, gradient descent
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Topologically, a surface is allowed to freely pass through itself, without
+ creating a crease or fold, into another shape.
+ This is called a homeomorphism.
+ Similarly, it is allowed to accumulate twist as it warps.
+ The surface is also allowed to scale itself as necessary.
+ It is important to note that a torus with no twist is not topologically
+ equivalent to a torus with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ of twist.
+ However, a torus with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+of twist is equivalent to a figure 8 with no twist.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename figure-8-no-twist.png
+	width 2in
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename twisted-circle.png
+	width 2in
+
+\end_inset
+
+fig 1: figure 8 is equivalent to twisted circle
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename untwisted-circle.png
+	width 2in
+
+\end_inset
+
+[PLACEHOLDER FOR TWISTED FIGURE 8] fig 2: untwisted circle is equivalent
+ to twisted figure 8
+\begin_inset Newline newline
+\end_inset
+
+In the following section, we present our method for calculating the two
+ energy functionals, as well as the algorithm to minimize them.
+ The results are presented in section 3, followed by discussion in section
+ 4.
+\end_layout
+
+\begin_layout Section
+The Approach
+\end_layout
+
+\begin_layout Standard
+In our model, we used a linear interpolation of two energy functionals:
+ bending energy and global twist.
+ Formally,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $E=(1-\alpha)\cdot B+\alpha\cdot T$
+\end_inset
+
+,
+\begin_inset Newline newline
+\end_inset
+
+Where 
+\begin_inset Formula $E$
+\end_inset
+
+ is our total energy, 
+\begin_inset Formula $B$
+\end_inset
+
+ is the bending energy, 
+\begin_inset Formula $T$
+\end_inset
+
+ is the twist, and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is a parameter that we control.
+ By varying 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, we expect to see that the torus will behave differently to balance the
+ different contributing factors to the total energy.
+\end_layout
+
+\begin_layout Subsection
+Calculating Bending Energy
+\end_layout
+
+\begin_layout Standard
+Traditionally, the bending energy in a surface is a ratio between the change
+ in curvature per unit length.
+ We represent the torus with a bspline, using discretized control points.
+ We denote the edge connecting two control points as a strut.
+ To simplify our calculations, we introduce an elasticity function to ensure
+ that all strut lengths remain constant.
+ This is simply Hooke's law.
+ The spring constant was empirically chosen.
+\begin_inset Newline newline
+\end_inset
+
+With this constraint, calculating the bending energy is easy.
+ For each pair of struts, we calculate the angle between them and subtract
+ from 
+\begin_inset Formula $180^{\circ}$
+\end_inset
+
+.
+ We formulate the total bending energy as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\sum_{i}\left(180^{\circ}-\arccos(\frac{\vert S_{i-1}\cdot S_{i}\vert}{\vert S_{i-1}\vert\cdot\vert S_{i}\vert})\right){}^{2}$
+\end_inset
+
+,
+\begin_inset Newline newline
+\end_inset
+
+where 
+\begin_inset Formula $S_{i}$
+\end_inset
+
+ is the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+strut.
+ Because of our uniform-length constraint for struts, this calculation is
+ sufficient.
+ Note that by changing our energy functional, we can change the search space;
+ therefore, we are interested in finding an energy functional that avoids
+ local minima as much as possible.
+\end_layout
+
+\begin_layout Subsection
+Calculating the Twist
+\end_layout
+
+\begin_layout Standard
+The method used to calculate twist is based off of forward projection of
+ frames from one control point to another using a specified cross section.
+ The algorithm is detailed in Computation of Rotation Minimizing Frames
+ by Wenping Wang.
+ The rotation minimizing frame algorithm will naturally introduce twist
+ into the surface and create a mismatch with the endpoints.
+ The total twist is calculated simply by comparing this mismatch.
+\end_layout
+
+\begin_layout Subsection
+Gradient Descent
+\end_layout
+
+\begin_layout Standard
+The algorithm used to quickly converge to an optimum is gradient descent.
+ For each degree of freedom in our shape, the algorithm takes a step in
+ the positive and negative direction, then calculates the resulting bending
+ energy.
+ The degrees of freedom correspond to the three coordinates of each control
+ point.
+ If either change results in a lower energy, that change is recorded.
+ If both changes result in a lower energy, the larger change is selected.
+ After this step, the resulting vector is interpreted as the gradient, and
+ we move in the direction of the calculated gradient.
+ The step size is chosen in such a way as to avoid local minima—with too
+ large of a step size, movement along the gradient can get erratic, often
+ causing the algorithm to thrash.
+ Similarly, too small of a step size can result in getting trapped in a
+ local minimum.
+ Because we use a numerical algorithm, we do not use a closed form solution
+ to calculate step size.
+ 
+\end_layout
+
+\begin_layout Standard
+[Sorry, a little vague here--I described in the best I could, and didn't
+ detail step size calculation, TODO].
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Standard
+As expected, we found that, depending on our choice of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, we could force the torus to behave in different ways.
+\begin_inset Newline newline
+\end_inset
+
+A figure 8 with no twist, when given a high penalty for bending energy,
+ unfolds into a circle with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+of twist.
+ [CAN REFER TO FIG 1, or repeat, TODO]
+\begin_inset Newline newline
+\end_inset
+
+Conversely, a circle with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+of twist, with a high penalty for twist, folds itself into a figure 8.
+\begin_inset Newline newline
+\end_inset
+
+To show the robustness of our algorithm, we ran it on some more complex
+ configurations.
+ 
+\begin_inset Newline newline
+\end_inset
+
+A double circle will unfold itself into a figure 8, as expected.
+\begin_inset Newline newline
+\end_inset
+
+A circle with 
+\begin_inset Formula $2520^{\circ}$
+\end_inset
+
+of twist corrects itself into either a circle with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+of twist or a figure 8 with no twist, depending on our choice of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+Furthermore, intermediate states for each example could be achieved by a
+ correct choice of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ Here, we see that the figure 8 is in the process of unfolding itself, balancing
+ the two energies.
+\begin_inset Graphics
+	filename unfolding-figure-8-2.png
+	width 2in
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+[For each of these descriptions, there should be an accompanying figure.
+ A few screenshots for the double circle unfolding can be helpful here.
+ Same for the largely twisted circle, TODO]
+\end_layout
+
+\begin_layout Section
+Discussion
+\end_layout
+
+\begin_layout Standard
+An interesting phenomenon that we discovered in our experiments is that
+ with a small perturbation, a lot of twist is introduced into the system.
+ This resulted in several figure 8 shapes to be slightly offset from planar.
+ We concluded that this is the model's attempt to minimize energy by allowing
+ some bending to reduce twist.
+ 
+\begin_inset Newline newline
+\end_inset
+
+Furthermore, we found that for certain configurations, the algorithm got
+ trapped in a local minimum.
+ [Example picture of that weird square shape, TODO] In the following example,
+ we see a configuration that is in a local minimum: any movement will increase
+ both the twist and bending energy, but we can see that a drastic step size
+ could potentially find a better solution.
+\begin_inset Newline newline
+\end_inset
+
+As a suggested future exercise, more domain knowledge can be integrated
+ into the algorithm.
+ For example, if the desired result is a circle, a parameter for radial
+ offset can be added to the gradient calculation, which would ensure faster
+ convergence and avoid possible local minima.
+\end_layout
+
+\begin_layout Section
+Acknowledgements
+\end_layout
+
+\begin_layout Standard
+We would like to thank Satish Rao and Umesh Vazirani for providing valuable
+ insight regarding gradient descent, and Carlo Sequin, without whose advice
+ and guidance, this project would not have been possible.
+\end_layout
+
+\begin_layout Section*
+References
+\end_layout
+
+\begin_layout Standard
+Wang, W., J¨uttler, B., Zheng, D., and Liu, Y.
+ 2008.
+ Computation of rotation minimizing frame.
+ ACM Trans.
+ Graph.
+ 27, 1, Article 2 (March 2008), 18 pages.
+ DOI = 10.1145/1330511.1330513 http://doi.acm.org/10.1145/1330511.1330513
+\end_layout
+
+\end_body
+\end_document

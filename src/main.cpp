@@ -38,7 +38,9 @@ Energy* energy = NULL;
 double twist_weight = 0.5;
 bool running = false;
 bool paused  = true ;
+
 double speed = 1.0;
+bool smooth = false;
 
 //****************************************************
 // Forward Declarations (not exhaustive)
@@ -84,7 +86,7 @@ void display() {
         applyMat4(viewport.orientation);
     }
     if (coaster) {
-        coaster->renderWithDisplayList(100,.3,3,.2,0);
+        coaster->renderWithDisplayList(smooth ? 100 : 1,.3,3,.2,0);
     }
 
     //Draw the AntTweakBar
@@ -253,6 +255,16 @@ void TW_CALL atb_get_speed(void *value, void *clientData) {
     *(double *)value = speed;
 }
 
+void TW_CALL atb_set_smooth(const void *value, void *clientData) { 
+    smooth = *(const bool *)value;
+    if (coaster) { coaster->clearDisplayList(); }
+    glutPostRedisplay();
+}
+
+void TW_CALL atb_get_smooth(void *value, void *clientData) { 
+    *(bool *)value = smooth;
+}
+
 //-------------------------------------------------------------------------------
 /// Initialize AntTweakBar and set up all the configuration items.
 void setup_anttweakbar() {
@@ -270,7 +282,7 @@ void setup_anttweakbar() {
     TwAddVarRW(tbar, "twist_weight_field", TW_TYPE_DOUBLE, &twist_weight,
         "label='Twist Penalty Weight' "
         "help='What percentage of the total penalty is derived from the twist "
-        "penalty' "
+            "penalty' "
         "min=0 max=1 step=0.001 precision=10");
 
     TwAddVarCB(tbar, "opt_speed", TW_TYPE_DOUBLE,
@@ -288,6 +300,14 @@ void setup_anttweakbar() {
     TwAddButton(tbar, "pause_opt_button", atb_pause_optimization, NULL,
         "label='PAUSE' "
         "help='Pause or continue the current optimization'");
+
+    TwAddSeparator(tbar, "render_sep", NULL);
+
+    TwAddVarCB(tbar, "smooth", TW_TYPE_BOOLCPP,
+        atb_set_smooth, atb_get_smooth, NULL,
+        "label='Render Smoothly' "
+        "help='Whether the curve is rendered smoothly, or simply as a polygon "
+            "with the control points as the vertices' ");
 }
 
 void setup_anttweakbar_tracks() {
@@ -407,12 +427,12 @@ int main(int argc,char** argv) {
     glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
     glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
 
-    glClearColor(.4,.2,1,0);
+    glClearColor(0,0,0,0);
 
     // set some lights
     {
-       float ambient[3] = { .1f, .1f, .1f };
-       float diffuse[3] = { .2f, .5f, .5f };
+       float ambient[3] = { .5f, .5f, .5f };
+       float diffuse[3] = { .5f, .5f, .5f };
        float pos[4] = { 0, 5, -5, 0 };
        glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
        glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);

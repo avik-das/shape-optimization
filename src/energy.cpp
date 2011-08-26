@@ -214,7 +214,9 @@ double LineEnergy::compute_integrand(double t, double dt) {
 
 void LineEnergy::log_iteration(float step_size) {
     float e = calc_energy();
-    std::cout << "Iterated. Energy: " << e << ", step_size = " << step_size << std::endl;
+    std::cout << "Iterated. Energy: " << e <<
+               ", step_size = " << step_size <<
+               ", twist = " << torus->getGlobalTwist() << std::endl;
 }
 
 void LineEnergy::log_energies() {
