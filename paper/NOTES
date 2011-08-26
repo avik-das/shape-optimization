@@ -1,0 +1,23 @@
+E3
+
+--------------------------------------------------------------------------------
+
+[[The following is not a good thing: the "test step size" for finite differencing
+and the step size to be taken in the energy landscape should be kept separate.
+Also don't confuse a change in energy with the "gradient" which is delta e / delta p ! ]]
+%The gradient is then normalized so its magnitude is the
+step size, $\Delta p$, and this change is applied to the parameters
+to produce the result of the current iteration.
+
+--------------------------------------------------------------------------------
+
+%While a planar circle with a twist of $360^{\circ}$ demonstrated
+the limitations of our system, the same shape with a slight perturbation
+of one of the control points off the plane in which the other points
+lie is indeed correctly optimized, albeit in an undesirable manner.
+The perturbation effectively signals to the optimization that some
+form of folding out of the plane should occur, but the optimization
+proceeds locally before producing the desired planar, untwisted figure
+eight. This result is summarized in Figure 7.
+
+--------------------------------------------------------------------------------
