@@ -242,7 +242,7 @@ uses by default an RMF along the control polygon.
 Despite the fact that both the starting and ending cross-sections 
 are sampled at the same point on the curve, 
 the incremental forward projection of the RMF, 
-calculated as per Wang et al. \cite{wang97} \citewang08,
+calculated as per Wang et al. \cite{wang97} \cite{wang08},
 may result in a mismatch between the two cross-sections. 
 The normal vectors to the curve within the two cross-sections are compared to each other, 
 and the angle between these two vectors measures the mismatch between the two coordinate frames.
@@ -299,7 +299,7 @@ Thus the local twist cost can pass gracefully through a value of zero
 as two subsequent curve segments pas through a collinear configuration.
 Thus a refined form of the twist cost component may amount to:
 \[
-E_{3} = \sum_{i}\left(\frac{S_{i-1}\cdot S_{i}\cross S_{i+1}} 
+E_{3} = \sum_{i}\left(\frac{S_{i-1}\cdot S_{i}\times S_{i+1}} 
 {\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert \cdot\left\Vert S_{i-1}\right\Vert } \right)^{2}
 \]
 Another way of looking at this cost component is to see it as a penalty for non-planarity of 3 subsequent curve segments.
@@ -496,7 +496,7 @@ eight. This result is summarized in Figure 7.
 \hfill{}%
 \begin{tabular}{cc}
 \includegraphics[width=2in]{perturbed-1} & \includegraphics[width=2in]{perturbed-2}\tabularnewline
-\noalign{\vskip0.5cm}
+\noalign{\vskip{0.5cm}}
 \includegraphics[width=2in]{perturbed-3} & \includegraphics[width=2in]{perturbed-4}\tabularnewline[0.5cm]
 \noalign{\vskip\doublerulesep}
 \includegraphics[width=2in]{perturbed-5} & \tabularnewline

@@ -1,53 +1,78 @@
-#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass article
 \begin_preamble
-\usepackage{color}
-\usepackage{graphicx}
+\@ifundefined{definecolor}
+ {\usepackage{color}}{}
+
+
+\@ifundefined{showcaptionsetup}{}{%
+ \PassOptionsToPackage{caption=false}{subfig}}
+\usepackage{subfig}
+
+\usepackage{babel}
 \end_preamble
-\use_default_options true
+\use_default_options false
+\maintain_unincluded_children false
 \language english
-\inputencoding auto
+\language_package default
+\inputencoding latin9
+\fontencoding global
 \font_roman default
 \font_sans default
 \font_typewriter default
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \paperfontsize default
 \spacing single
 \use_hyperref false
 \papersize default
 \use_geometry false
-\use_amsmath 1
+\use_amsmath 2
 \use_esint 1
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine basic
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
 
 \begin_layout Title
-Optimization of B-Spline--based Genus-1 Objects
+Bending and Torsion Minimization of Toroidal Loops
 \end_layout
 
 \begin_layout Author
@@ -55,26 +80,32 @@ Avik Das, Victor Huang
 \begin_inset Newline newline
 \end_inset
 
-Adviser: Carlo Séquin
+ Adviser: Carlo Séquin
 \begin_inset Newline newline
 \end_inset
 
-
+ 
 \begin_inset Newline newline
 \end_inset
 
-
+ 
 \emph on
 CS Division, University of California, Berkeley
 \end_layout
 
 \begin_layout Abstract
-We adapt the problem of minimizing the surface bending energy of a three-dimensi
-onal shape to genus-1 objects represented as B-Splines in order to incorporate
- the concept of twisting.
- Using a standard gradient descent algorithm, we investigate smooth deformations
- of these objects, with the goal of a minimizing a weighted linear combination
- of the bending energy and the twisting energy.
+We focus on a special optimization problem of parameterized surfaces of
+ genus one.
+ In particular we trade off the penalty functions for bending a toroidal
+ path and for applying a twist to it and aim to find local minima of this
+ cost function.
+ This analysis forms a key element in demonstrating the different regular
+ homotopy classes of tori.
+ A generalization of this surface optimization, which considers curvature
+ as well as any shearing of its parameter grid, may be used to find the
+ most optimal direct path from an arbitrary closed manifold of genus one
+ into one of the four basic representatives of four regular homotopy classes
+ of tori.
 \begin_inset Newline newline
 \end_inset
 
@@ -86,42 +117,249 @@ onal shape to genus-1 objects represented as B-Splines in order to incorporate
 \emph on
 key words
 \emph default
-: torus, bending, twisting energy, gradient descent
+: torus, bending energy, twisting energy, gradient descent, regular homotopy.
+ 
+\end_layout
+
+\begin_layout Standard
+[[USE A MORE PAGE-FILLING FORMAT -- I.E.
+ A LINE WIDTH OF AT LEAST 6 INCHES ]]
 \end_layout
 
 \begin_layout Section
-Background
+Problem Statement and Background
 \end_layout
 
 \begin_layout Standard
-Topologically, an object may undergo a smooth deformation, or more generally,
- a homeomorphism, in which the object may warp and stretch without creating
- any creases or sharp bends.
- In doing so, the object may pass through itself.
- The objects, before and after the transformation, are considered topologically
- equivalent to one another.
-\end_layout
-
-\begin_layout Standard
-We consider the class of objects that can be modelled using a closed space
- curve, such as some variation on a torus.
- In rendering such a shape, the cross-section is be oriented along an orthonorma
-l frame attached to the curve, the orientation of which is computed as a
- rotation minimizing frame (RMF) as described in Wang et al.
-\begin_inset CommandInset citation
-LatexCommand cite
-key "wang"
+We study minimum-energy configurations of toroidal surfaces.
+ In this report we are only concerned with simple sweeps of a constant (circular
+) cross section along a smooth, closed sweep path.
+ As this sweep path changes its shape in 3D space, the integrated torsion
+ around its loop changes ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:torsion"
 
 \end_inset
 
- However, it is not guaranteed that the orientation of the cross-section
- at the start of the curve will match the orientation of the cross-section
- at the end of the curve.
- In the case of a planar curve, there will be no mismatch, as the RMF will
- not change orientation at any point.
- Curves exhibiting symmetry may also have no mismatch, as the accumulated
- rotation of the RMF will cancel out to zero.
- However, other curves will demonstrate a mismatch.
+ ).
+ The absolute value of this integrated torsion is determined by generating
+ a sequence of rotation minimizing frames (RMF) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bishop75"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "klok86"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang97"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang08"
+
+\end_inset
+
+ along the curve and measuring the misalignment between an arbitrary starting
+ frame and the end-frame that is being generated by going once around the
+ toroidal loop.
+ For a planar sweep curve with no inflection points the overall torsion
+ is always zero ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:torsion"
+
+\end_inset
+
+a ), since the RMF will always keep its bi-normal axis perpendicular to
+ the plane of the sweep curve.
+\end_layout
+
+\begin_layout Standard
+[[When regenerating all the figures, please avoid the Mathematica-kind of
+ colored directional illumination.
+ We want to clearly see four different hues on four different sides of the
+ toroid, so that the twist stands out easily.]]
+\end_layout
+
+\begin_layout Standard
+FIGURE 1 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%
+\backslash
+caption{
+\backslash
+label{fig:torsion}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 1: Loops with and without overall torsion: (a) A 3D space curve will
+ typically have some built in torsion [[Fig.1c -- but a more obvious 3D configura
+tion]]; (b) in space curves with the proper kind of symmetry, the overall
+ torsion can cancel out to zero [[Fig.
+ 1b]]; (c) in planar curves without inflection points the overall torsion
+ is always zero [[Fig.
+ 1a]].
+\end_layout
+
+\begin_layout Standard
+If such a loop ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:torsion"
+
+\end_inset
+
+a ) is smoothly deformed through a warped 3D configuration into some figure-8
+ shape, where the approaching path segments are allowed to cross over each
+ other ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:cro0ssover"
+
+\end_inset
+
+b ), and is then further deformed until it forms again a roughly circular,
+ planar path ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:cro0ssover"
+
+\end_inset
+
+c ), then we find that the overall torsion has changed by exactly +/- 
+\begin_inset Formula $720^{\circ}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+FIGURE 2 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%
+\backslash
+caption{
+\backslash
+label{fig:crossover}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 2: A figure-8 cross-over move will add or subtract 
+\begin_inset Formula $720^{\circ}$
+\end_inset
+
+ of torsion: (a) Circular starting configuration with zero torsion; (b)
+ Figure-8 configuration with 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ of torsion; (c) circular end configuration with 
+\begin_inset Formula $720^{\circ}$
+\end_inset
+
+ of torsion.
+\end_layout
+
+\begin_layout Standard
+An immersion of a 2-manifold into 
+\begin_inset Formula $\mathbb{R}^{3}$
+\end_inset
+
+ implies that the neighborhood around every point of this surface is equivalent
+ to a small disk.
+ Thus the surface must not have any tears, creases, or pinch-off points.
+ On the other hand, we are allowed to deform the surface smoothly as much
+ as we like and let it self-intersect and pass through itself as often as
+ we like.
+ A transformations of this kind that also leaves any parameterization grid
+ on this surface connected at all times is called a regular homotopy.
+ It is known that all orientable surfaces of genus one fall into four different
+ classes that cannot be transformed into one another with a regular homotopy
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "hass85"
+
+\end_inset
+
+.
+ An easy-to-understand introduction to these four homotopy classes of tori
+ and a visualization of four simple representatives for these classes can
+ be found in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sequin11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The goal of this project is to find local minima in the combined penalty
+ functions for bending and for twisting of simple toroidal shapes and to
+ generate some visualizations of the deformation sequences that would lead
+ to these minima.
+ To keep things simple and to allow the optimization to progress at interactive
+ speeds, we choose a very structured representation of the tori with relatively
+ few independent parameters.
+ We simply use an abstract representation of a piece-wise linear sweep path
+ enhanced with a sequence of rotation-minimizing frames.
+ The overall bending energy is calculated as the sum of the squared turning
+ angles at the joints of subsequent line segments along the sweep path.
+ The overall twist energy is simply proportional to the squared value of
+ the overall torsion.
+ By selecting the relative weights for these two energy components, we can
+ choose to obtain either circular loops with some possible non-zero overall
+ torsion, or some true 3D space curve with a lesser amount of overall torsion.
+ A gradient-descent optimization loop will push a given toroid with some
+ built-in twist into the nearest local minimum.
+ These issues are discussed in more details in the subsequent sections and
+ visualization models for several gradient-descent optimization runs are
+ presented.
+\end_layout
+
+\begin_layout Standard
+[[THIS GETS REPLACED BY ABOVE FIGURES ]]
 \end_layout
 
 \begin_layout Standard
@@ -180,33 +418,6 @@ Various space curves with and without cross-sectional mismatch
 \end_layout
 
 \begin_layout Standard
-This cross-sectional mismatch is modelled as a twist, in which the difference
- in orientation between the two cross-sections is compensated for by applying
- an additional rotation to the RMF along the curve gradually.
- In the case of a smooth deformation, the cross-sectional mismatch may change
- as the shape modelled by the curve warps through space, such as when a
- planar torus, modelled by a circle, smoothly transitions in to one of the
- other shapes in Figure 1.
- However, a special case arises when compensating rotation, or the twist,
- nears 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
-.
- To maintain the continuity of the transformation, it must be ensured that
- the twist not transition from just under 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
- to just over 
-\begin_inset Formula $0^{\circ}$
-\end_inset
-
-, even if a small twist is sufficent to align the cross-sections.
- This applies to twists surrounding all multiples of a full rotation.
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -219,7 +430,6 @@ status open
 
 \begin_inset Graphics
 	filename twisty-1.png
-	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -227,7 +437,6 @@ status open
 
 \begin_inset Graphics
 	filename twisty-1-compensated.png
-	lyxscale 50
 	width 1.5in
 
 \end_inset
@@ -256,146 +465,42 @@ Cross-sectional mismatch compensated by a twist
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset space \hfill{}
-\end_inset
-
-
-\begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="2">
-<features>
-<column alignment="center" valignment="middle" width="0">
-<column alignment="center" valignment="middle" width="0">
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename figure-8-no-twist.png
-	lyxscale 50
-	width 2in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename unfolding-figure-8-1.png
-	lyxscale 50
-	width 2in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename unfolding-figure-8-2.png
-	lyxscale 50
-	width 2in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename twisted-circle.png
-	lyxscale 50
-	width 2in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\begin_inset space \hfill{}
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Continuous deformation of an untwisted near-planar figure eight into a twisted
- planar circle.
- The shape is rendered so that the individual control points are easily
- visible, highlighting the movement of these points during the transformation.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
+\begin_layout Section
+Toroid Representation and Energy Functionals
 \end_layout
 
 \begin_layout Standard
-In this way, we say that during certain continuous deformations, the twist
- of an object accumulates.
- As seen in Figure 3, a near-planar figure eight with minimal twist can
- be continuously deformed into a planar circle with a twist of 
+The sweep path of the toroid is rendered as a closed B-spline, regularly
+ sampled in parameter space with a user-definable number of segments.
+ The few control points of the B-spline allow the user to define the geometry
+ of the starting configuration.
+ The end-to-end torsion is then calculated, and some compensating twist
+ is introduced to generate properly aligned end-frames.
+ Any artificially introduced twist is uniformly spread out over the whole
+ parameter range of the complete spline curve.
+ The user can also optionally introduce additional twist.
+ In most cases this twist will be a multiple of 
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
-, even though all planar curves can be rendered with matching starting and
- ending RMF's, that is with no twist.
- For this reason, an untwisted planar figure eight is not topologically
- equivalent to an untwisted planar circle, and indeed, no homeomorphism
- exists between the two, despite the fact that both are genus-1 objects.
-\end_layout
+, since we want to make sure that our surface corresponds to a torus with
+ proper parameterization, in which all parameter lines close onto themselves
+ if one goes once around the loop (or around the minor circle as well).
+ As the sweep curve is deformed gradually, the overall twist is adjusted
+ incrementally from one iteration to the next, to guarantee that the end-to-end
+ connectivity of the torus does not suddenly change by taking a jump in
+ twist of +/- 
+\begin_inset Formula $360^{\circ}$
+\end_inset
 
-\begin_layout Section
-Energy Functionals
+.
 \end_layout
 
 \begin_layout Standard
-The energy functional developed for this project is composed of three parts,
- all dictated by the chosen representation.
- This energy functional is then minimized for a given input shape while
- ensuring all transformations are homeomorphic, that is they are continuous
- and preserve topological equivalence.
+The energy functional used in the various optimization runs is composed
+ of three parts.
+ They have been designed to preserve the length of the sweep curve (approximatel
+y), and to measure its total bending energy and twist energy, respectively.
 \end_layout
 
 \begin_layout Subsection
@@ -403,15 +508,17 @@ Representation
 \end_layout
 
 \begin_layout Standard
-A B-Spline was used to represent all objects being optimized.
- This simplifies calculation of twist when considering topological equivalence
- classes, at the cost of restricting the scope of the representation to
- genus-1 objects, assuming all curves are closed.
- In this representation, a curve consists of a number of control points,
- which through sampling and interpolation can be rendered as a smooth curve.
- Calculation of the energy functional is performed solely on the control
- polygon, with the control points as the vertices.
- The edges between two neighboring vertices is a strut, with the 
+Even though the sweep curve is rendered as a "smooth" B-spline (depending
+ on how many line segments the user is asking for), all calculations of
+ energy and all optimization moves are simply carried out on the control
+ polygon.
+ This reduces dramatically the degrees of freedom in the system and the
+ scale of the derivative computations in the optimization process.
+ An edge between two subsequent control vertices is called a 
+\emph on
+strut
+\emph default
+, with the 
 \begin_inset Formula $i$
 \end_inset
 
@@ -427,29 +534,36 @@ Spring Energy
 \end_layout
 
 \begin_layout Standard
-For aesthetic and practical purposes, the size of the curve was restricted
- by imposing a penalty on all deviation of strut lengths from a predefined
- rest length.
- The penalty is calculated by modelling the struts as springs, then using
- Hooke's Law, summed over all the struts:
-\begin_inset Formula \[
-\sum_{i}\frac{1}{2}\cdot k\cdot(\left\Vert S_{i}\right\Vert -R)\]
-
+To keep the curve length roughly the same as originally drawn and to avoid
+ tedious rescaling steps, the average length of all the initial struts 
+\begin_inset Formula $\left\Vert S_{i}\right\Vert $
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-where 
-\begin_inset Formula $k$
-\end_inset
-
- is a constant denoting the rigidity of the springs and 
+ is defined to be their desired rest length 
 \begin_inset Formula $R$
 \end_inset
 
- is the predefined rest length.
+ during the optimization process.
+ Understanding the struts as idealized springs, the square of the deviation
+ from the rest length 
+\begin_inset Formula $R$
+\end_inset
+
+ is proportional to the energy stored in these springs, and the sum of these
+ terms is used as one component of the cost function during optimization.
+ Applying Hooke's Law with a spring constant 
+\begin_inset Formula $k$
+\end_inset
+
+ leads to the following energy term: 
+\begin_inset Formula 
+\[
+E_{S}=\sum_{i}\frac{1}{2}\cdot k\cdot(\left\Vert S_{i}\right\Vert -R)^{2}
+\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -457,55 +571,33 @@ Bending Energy
 \end_layout
 
 \begin_layout Standard
-Common approaches to measuring bending energy typically consider the curvature
- of the surface at each point integrated over the entire surface, including
- those evaluated and compared by Joshi and Séquin
-\begin_inset CommandInset citation
-LatexCommand cite
-key "joshi"
-
-\end_inset
-
-.
- Due to our B-Spline--based representation, we need only consider bending
- along one direction.
- Secondly, the integration of curvature across a surface is commonly used
- in order to prevent unbounded growth despite the decrease in curvature
- as a shape grows, while the spring model constituting one part of our functiona
-l already prevents such growth.
- Thus, the bending energy calculation in our functional considers only the
- deviation from colinearity between three neighboring vertices:
-\begin_inset Formula \[
-\sum_{i}\left(\pi-\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert }\right)\right)^{2}\]
-
-\end_inset
-
-
+Common approaches to calculating the bending energy of a 2-manifold typically
+ consider the curvature of the surface at each point integrated over the
+ entire surface.
+ Since our study concentrates on thin, tube-like structures with a constant
+ cross section, we restrict ourselves to considering only the amount of
+ bending found in the sweep path itself.
+ Unfortunately, the bending energy of a smooth curve, calculated as an arc-lengt
+h integration of curvature squared, is not scale invariant.
+ However, since we work only with a coarse, discrete representation of our
+ curve, i.e., the control polygon of a B-spline, and since we have a separate
+ mechanism to maintain the lengths of the individual curve segments (see
+ previous subsection), we can also calculate the bending energy in discrete
+ form, based on the turning angles at all the joints of the control polygon.
+ Each joint contributes the square of its deviation from collinearity: [[
+ There is no reason to flip one of the two vectors backwards; use them in
+ their natural forward-pointing direction !]]
 \end_layout
 
 \begin_layout Standard
-The calculation of the inverse cosine of the normalized dot product is the
- standard calculation of the angle between two vectors, with the assumption
- that both vectors have their tail at a common point.
- In our case, this means that both struts have their tail in the middle
- of three neighboring vertices and point toward the other two.
- This angle is then substracted from the optimal 
-\begin_inset Formula $180^{\circ}$
+\begin_inset Formula 
+\[
+E_{B}=\sum_{i}\left(\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert }\right)\right)^{2}
+\]
+
 \end_inset
 
-, which would be angle between the two struts if all three vertices were
- colinear.
- Finally, the square of this deviation is summed across the curve.
-\end_layout
 
-\begin_layout Standard
-This formulation of the bending energy suffices because the shape of the
- cross-section of the object in question is constant, and thus only the
- sweep of the curve itself is used to compare two objects with respect to
- their energies.
- Note that this implies a Clifford torus need not be achieved if a topologically
- equivalent shape is optimized, and in fact the optimal in that case is
- the unit circle, regardless of the cross-section used to render the shape.
 \end_layout
 
 \begin_layout Subsection
@@ -513,97 +605,155 @@ Twist Energy
 \end_layout
 
 \begin_layout Standard
-Our energy functional penalizes heavily twisted objects by adding a third
- component to the energy functional based on the magnitude of the twist
- present in the shape.
- This requires calculating the additional rotation needed to compensate
- for the cross-sectional mismatch due to the sweep of the curve.
+Since we are interested not just in the pure geometrical shape of a toroid
+ under investigation, but also in the deformation of a parameter grid embedded
+ in its surface, we have to add a third term to our cost function: the twist
+ energy.
+ This is a measure of the deviation of a given state of the toroid from
+ the geometry produced by a pure RMF (rotation minimizing frame).
 \end_layout
 
 \begin_layout Standard
-The framework used to render the B-Spline using rotation minimizing frames
- is able to apply an additional global twist to any curve.
- This twist is distributed among all sampled cross-sections, so with 
-\begin_inset Formula $n$
+The framework used for the generation and optimization of these toroidal
+ shapes uses by default an RMF along the control polygon.
+ Despite the fact that both the starting and ending cross-sections are sampled
+ at the same point on the curve, the incremental forward projection of the
+ RMF, calculated as per Wang et al.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang97"
+
 \end_inset
 
- sampled cross-sections and a global twist of 
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang08"
+
+\end_inset
+
+, may result in a mismatch between the two cross-sections.
+ The normal vectors to the curve within the two cross-sections are compared
+ to each other, and the angle between these two vectors measures the mismatch
+ between the two coordinate frames.
+ The framework can then apply an additional global twist to the whole curve,
+ so that the beginning and ending coordinate frames line up and the longitudinal
+ parameter lines in the toroid surface properly join with themselves after
+ one pass around the loop.
+ This additional twist is distributed evenly among all line segments of
+ the sweep path; thus with a global twist of 
 \begin_inset Formula $t$
 \end_inset
 
-, the local twist of the 
-\begin_inset Formula $i$
+ and with 
+\begin_inset Formula $n$
 \end_inset
 
-th sampled cross-section is 
+ sampled cross-sections, the local twist along each of the 
+\begin_inset Formula $n$
+\end_inset
+
+ line segments is 
 \begin_inset Formula $\frac{i}{n}\cdot t$
 \end_inset
 
 .
- Note that the cross section at 
-\begin_inset Formula $i=0$
-\end_inset
-
- is sampled again at the very end, with 
-\begin_inset Formula $i=n$
-\end_inset
-
-.
- Then, when the 
-\begin_inset Formula $i$
-\end_inset
-
-th RMF is calculated as per Wang et al.
-\begin_inset CommandInset citation
-LatexCommand cite
-key "wang"
-
-\end_inset
-
-, the RMF is further rotated around the tangent to the curve by the local
- twist.
-\end_layout
-
-\begin_layout Standard
-Despite the fact that both the starting and ending cross-sections are sampled
- at the same point on the curve, the combination of the rotation minimizing
- sweep and the global twist may result in a mismatch between the two cross-secti
-ons.
- The normal vector to the curve within each cross-section is then compared
- to each other, and the angle between these two vectors is the mismatch
- between the two cross-sections.
- Adding this amount to the global twist will then cause the two cross-sections
- to align by distributing the corrective factor along the entire curve.
-\end_layout
-
-\begin_layout Standard
-If the global twist is kept updated after each change to the shape, and
- each change is incremental, the twist will also change gradually, satisfying
- the accumulation of twist described above.
- This is because the cross-sectional mismatch is calculated with the previous
- global twist applied, and the mismatch is added to the previous global
- twist.
- Even if the cross-sectional mismatch without any global twist applied were
- to transition from just under 
+ After a match of the two end-frames has been established, the user can
+ add additional global twist in increments of +/- 
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
- to just over 
-\begin_inset Formula $0^{\circ}$
-\end_inset
-
-, the mismatch with the previous global twist applied will only be a few
- degrees, and adding this to the previous twist will ensure the new global
- twist is over 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
-.
+, which keeps all longitudinal parameter lines properly connected to themselves.
 \end_layout
 
 \begin_layout Standard
-The twist energy is simply the square of the current global twist, in radians,
- needed to compensate for the cross-sectional mismatch.
+The simplest way to define a twist penalty is to use the square of this
+ total twist, comprising the component needed to establish the matching
+ coordinate frames as well as any additional twist added by the user.
+ 
+\begin_inset Formula 
+\[
+E_{T}=\text{Built-in curve torsion}+\text{user-added twist}.
+\]
+
+\end_inset
+
+ Once this toroidal end-around connectivity has been initialized, it is
+ important that it be maintained throughout the whole optimization process.
+ Thus the global twist is updated incrementally after each change to the
+ curve shape, so that the two end frames keep their alignment.
+ This prevents the toroid from suddenly experiencing jumps in twist of +/-
+ 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+, as the framework looks for a minimal amount of global twist to keep the
+ two coordinate frames aligned.
+\end_layout
+
+\begin_layout Standard
+However, this simple calculation of a twist penalty may not be quite good
+ enough.
+ Even though for many optimization sequences studied, this functional was
+ good enough to guide the toroid evolution to the expected final state,
+ there were some cases where this optimization process passed through some
+ highly convoluted shapes.
+ In a continuation of this project we will thus have to consider a more
+ refined assessment of the twistiness of the whole toroid, - one that does
+ not allow heavily twisted segments with opposite signs in their overall
+ torsion to cancel out.
+ We thus need to find a way to calculate the twist along each segment independen
+tly by monitoring how much the normal vector in the Frenet frame (the natural
+ intrinsic coordinate system based on local curvature) changes from one
+ joint to the next.
+\end_layout
+
+\begin_layout Standard
+[[I have used the occasion of this re-writing pass to think deeply about
+ this issue.
+ Here is my current thinking.
+ Please bring your thoughts to the table.
+ And then finally this needs to be verified by an experimentally.]]
+\end_layout
+
+\begin_layout Standard
+However, this is a somewhat tricky issue.
+ Just considering the rotation angle from one frame to the next may lead
+ to a hyper-sensitive, discontinuous functional.
+ When a control point in a planar curve moves slightly so as to introduce
+ two inflection points, the Frenet frame suddenly flips through 
+\begin_inset Formula $180^{\circ}$
+\end_inset
+
+ at these inflection points, which would add a huge penalty to the cost
+ function and may trigger instabilities in the optimization process.
+ But we really do not want to introduce any hurdles for almost straight
+ curve segment sequences with a possible inflection point in it.
+ Thus any frame rotation around the tangent direction must be seen in the
+ context of curve bending; and this rotational cost component should be
+ weighted by the bending cost.
+ Thus the local twist cost can pass gracefully through a value of zero as
+ two subsequent curve segments pass through a collinear configuration.
+ Thus a refined form of the twist cost component may amount to: 
+\begin_inset Formula 
+\[
+E_{3}=\sum_{i}\left(\frac{S_{i-1}\cdot S_{i}\times S_{i+1}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert \cdot\left\Vert S_{i-1}\right\Vert }\right)^{2}
+\]
+
+\end_inset
+
+ Another way of looking at this cost component is to see it as a penalty
+ for non-planarity of 3 subsequent curve segments.
+ And perhaps this is the best way of expressing local twistiness; because
+ creating a helical path is one way of absorbing some built-in twist without
+ incurring a twist penalty for it.
+ However the energy component 
+\begin_inset Formula $E_{3}$
+\end_inset
+
+ would discourage such a diversion of a curve into a 3D configuration (see
+ discussion in subsection "Undesirable Behavior").
 \end_layout
 
 \begin_layout Subsection
@@ -625,21 +775,46 @@ For the purposes of investigating the effect of penalizing twist, the amount
 \begin_inset Formula $T$
 \end_inset
 
-, the final energy of the shape is
-\begin_inset Formula \[
-E=S+(1-\alpha)\cdot B+\alpha\cdot T\]
+, the final energy of the shape is 
+\begin_inset Formula 
+\[
+E=E_{S}+(1-\alpha)\cdot E_{B}+\alpha\cdot E_{T}+(\textnormal{optionally})\beta\cdot E_{3}
+\]
 
 \end_inset
 
+ First the spring constant 
+\begin_inset Formula $k$
+\end_inset
 
+ in 
+\begin_inset Formula $E_{S}$
+\end_inset
+
+ is adjusted so that obtaining struts that are all close to the rest length
+ has priority over any other adjustments to the control points, without
+ making the optimization problem too stiff.
+ A value of 
+\begin_inset Formula $k=10$
+\end_inset
+
+ worked well.
 \end_layout
 
 \begin_layout Standard
-where 
+Then the user can play with the parameter 
 \begin_inset Formula $\alpha$
 \end_inset
 
- is the user-controlled parameter, known as the twist penalty weight.
+, which trades off the twist penalty weight against bending costs.
+ Adjusting this ratio is the primary way to affect the outcome of the optimizati
+on.
+ Experimenting with parameter 
+\begin_inset Formula $\beta$
+\end_inset
+
+ in the future should reveal how easy it is to suppress the unwanted formation
+ of local helices.
 \end_layout
 
 \begin_layout Section
@@ -651,86 +826,108 @@ Gradient Descent
 \end_layout
 
 \begin_layout Standard
-A standard gradient descent algorithm is used to optimize an input shape
- by minimizing the energy of the shape.
+A standard gradient descent algorithm is used to optimize the given input
+ toroid by minimizing the energy of the final configuration.
  While an analytic approach to solving a set of linear equations using gradient
- descent is possible, this type of analytic approach does not apply to minimizin
-g our energy functional.
- Firstly, the spring and bending energy components are difficult to analyze
- in closed form.
+ descent is possible, this type of analytic approach is not well suited
+ to minimizing our energy functional.
+ Firstly, the bending energy components by themselves are already difficult
+ to analyze in closed form.
  Secondly, the twist energy is determined by the numerical method of approximati
 ng the RMF using a sequence of frames sampled along the curve, and the accumulat
 ion of twist is calculating by updating a parameter that is used in the
- calculation of the change in twist in the subsequent iteration.
- Thus, we take the approach of varying each parameter of the optimization
- independently by a small amount and recalculating the energy after each
- change.
- The gradient is then the vector that points in the direction of the greatest
- decrease in energy with respect to each of these parameters.
+ calculation of the change in twist in subsequent iterations - a process
+ that is difficult to capture in closed form.
 \end_layout
 
 \begin_layout Standard
-Formally, we consider an independent parameter for each of the three components
- of the position in space of each control point, for a total of 
-\begin_inset Formula $3n$
-\end_inset
-
- parameters given 
+Thus, we employ finite differencing to determine the influence of each primary
+ parameter on the overall cost of the resulting configuration.
+ Each parameter, in our case: each coordinate component of each control
+ point, is varied independently by a small amount, and the resulting change
+ in the energy of the toroid is calculated.
+ Given a sweep curve defined by 
 \begin_inset Formula $n$
 \end_inset
 
- control points.
- Each parameter 
+ control points, there are a total of 
+\begin_inset Formula $3n$
+\end_inset
+
+ parameters.
+ Each of these parameters 
 \begin_inset Formula $p_{i}$
 \end_inset
 
- is separately varied by an amount 
-\begin_inset Formula $\Delta p$
+ is first changed by an amount 
+\begin_inset Formula $+\Delta p$
 \end_inset
 
-, the step size, then by 
-\begin_inset Formula $-\Delta p$
-\end_inset
-
-.
- After each change, the energy of the resulting shape is calculated, denoting
- the first energy as 
+, resulting in a new toroid energy 
 \begin_inset Formula $E^{+}$
 \end_inset
 
- and the second as 
+, and subsequently by 
+\begin_inset Formula $-\Delta p$
+\end_inset
+
+, resulting in a toroid energy 
 \begin_inset Formula $E^{-}$
 \end_inset
 
 .
- Then, the 
+ Thus, the impact of the 
 \begin_inset Formula $i$
 \end_inset
 
-th component of the gradient is 
-\begin_inset Formula \[
+th component on the toroidal energy is 
+\begin_inset Formula 
+\[
 \Delta E_{i}=\begin{cases}
 E^{-}-E^{+} & E^{-}<E^{0}\text{ or }E^{+}<E^{0}\\
-0 & \text{otherwise}\end{cases}\]
+0 & \text{otherwise}
+\end{cases}
+\]
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-where 
+ where 
 \begin_inset Formula $E^{0}$
 \end_inset
 
  is the energy of the shape before the parameter is varied.
- In this way, the gradient, 
-\begin_inset Formula $\Delta E=<\Delta E_{0},\ldots,\Delta E_{3n}>$
+ With this approach the overal energy gradient can be calculated as: 
+\begin_inset Formula $\Delta E/2\cdot\Delta p=<\Delta E_{1},\ldots,\Delta E_{3n}>/2\cdot\Delta p$
 \end_inset
 
-, will point in the direction of the largest decrease in energy, with the
- components weighted by the magnitude of the decrease due to each parameter.
- The gradient is then normalized so its magnitude is the step size, 
+; and this vector will point in the direction of the largest decrease in
+ energy, with each parametric components weighted by the magnitude of the
+ energy decrease due to that parameter.
+\end_layout
+
+\begin_layout Standard
+[[The following is not a good thing: the "test step size" for finite differencin
+g and the step size to be taken in the energy landscape should be kept separate.
+ Also don't confuse a change in energy with the "gradient" which is delta
+ e / delta p ! ]]
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%The gradient is then normalized so its magnitude is the
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+step size, 
 \begin_inset Formula $\Delta p$
 \end_inset
 
@@ -743,70 +940,101 @@ Step Size
 \end_layout
 
 \begin_layout Standard
-The amount to vary each parameter, as well as the distance to travel in
- each iteration, is crucial to accurate optimization.
- Additionally, aesthetic considerations must be taken into account, as the
- optimization should proceed at a pace conducive to understanding the way
- in which a shape may be continuously deformed to produce an optimized variation.
+Both, the amount by which parameters should be varied to reliably calculate
+ the energy gradient vector, as well as the distance along that vector that
+ should be traveled in one iteration, are crucial to an efficient and stable
+ optimization process.
+ In addition, if we are interested in creating a real-time interactive visualiza
+tion or a smoothly evolving demonstration movie, additional constraints
+ on the step size and thus on the optimization speed, may come into play.
 \end_layout
 
 \begin_layout Standard
-For the purposes of this project, an initial and ending step size were chosen
- empirically.
- At each iteration, if no improvement could be achieved using that step
- size, that is the gradient using that step size was calculated to be the
- zero vector, the step size was halved, and the next iteration attempted
- to decrease the energy using the new step size.
- When the step size dropped below the predefined ending step size, the optimizat
-ion was halted, and the shape was said to be in the optimal configuration.
+For the purposes of this project, the initial finite-differencing step is
+ set at [[WHAT?]].
+ The initial optimization step size is set at [[WHAT?]].
+ Before each iteration step is carried out, it is checked that the intended
+ step would indeed result in a reduction in the overall energy function.
+ If this is not the case, the iteration step size is cut in half, and subsequent
+ iterations attempt to decrease the energy by using this new, reduced step
+ size.
+ When the step size drops below a predefined ending step size, [[HOW IS
+ THIS SET?]] the optimization halts, and it is inferred that the toroid
+ has reached a local optimum.
 \end_layout
 
 \begin_layout Standard
-The step size affects the result of the optimization, both based on the
- energy functional chosen, and the input shape itself.
- Too large a step size may result in travelling past one local minimum into
- a valley containing a potentially higher local minimum.
- Too small a step size may result in converging to an undesirably high local
- minimum, or an unacceptably large convergence time.
+The iteration step size has an important influence on the progress of the
+ optimization.
+ Too large a step size may result in flying past one local minimum into
+ a valley containing another local minimum of possibly higher energy, or
+ it may cause tunneling through a barrier into an inappropriate region of
+ the energy landscape.
+ Too small a step size may result in unacceptably long convergence times.
 \end_layout
 
 \begin_layout Standard
-One approach is to use a line search algorithm, in which the direction of
- the gradient is searched to determine which distance results in the largest
- decrease in energy along that direction, but for simplicity, this algorithm
- was not implemented.
- Additionally, such an implementation would cause large discontinuities
- in the progress of the optimization, a trait undesirable when attempting
- to view the optimization process in order to understand the resulting transform
-ation.
+One often-used optimization approach is to employ a line search algorithm,
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%
+\backslash
+cite{??}, 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+in which the direction of the gradient is searched in a more refined manner
+ to find an appropriate energy minimum on that line.
+ This algorithm was not used for this project.
+ A first reason was simplicity and that fact that satisfactory results were
+ obtained with a straight-forward gradient-descent algorithm.
+ But another concern was also that such a line-search algorithm may result
+ in a rather uneven rate of progress.
+ This would be rather undesirable when trying to create real-time interactive
+ visualizations or smoothly progressing movies of the evolution of a toroidal
+ shape.
+\end_layout
+
+\begin_layout Section
+Results
 \end_layout
 
 \begin_layout Subsection
-Limitations
+Elementary Test Cases
 \end_layout
 
 \begin_layout Standard
-Undesirable behavior when optimizing shapes is the result of two sources
- of error.
+The most fundamental benchmark for this project is the unfolding of a planar,
+ untwisted figure-8 loop into a planar circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+.
+ This evolution is shown in Figure 3, with the control points implicitly
+ visible at the joints between subsequent straight line segments.
+ This optimization has been performed using 
+\begin_inset Formula $\alpha=0$
+\end_inset
+
+, i.e., no twist penalty at all.
 \end_layout
 
 \begin_layout Standard
-First, the analytical properties of the energy functional determines how
- the optimization convergences, and to which point it converges.
- In particular, the non-linearity, and more specifically the higher-order
- nature, of the functional is a major issue, as the presence of local minima
- may cause the optimization to progress toward a configuration that decreases
- the energy of the shape without resulting in the desired final configuration.
-\end_layout
-
-\begin_layout Standard
-The second source of error is in how well the energy functional approximates
- the intentions of the authors.
- For example, it was discovered that the use of the global twist to calculate
- the twist energy, while accurately modelling the undesirability of the
- twist in many common scenarios, did not account for the case in which a
- large amount of twisting cancelled itself out due to the symmetry of a
- particular curve.
+It must be noted that the input shape has one of its two center points slightly
+ raised above the plane in which the rest of the points lie; this is to
+ break the symmetrical "log-jam" and give the optimization a clear direction
+ in which to start its evolution.
+ Without breaking the symmetry of this configuration in some way, the optimizati
+on will not get under way.
 \end_layout
 
 \begin_layout Standard
@@ -821,9 +1049,8 @@ status open
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="3">
-<features>
-<column alignment="center" valignment="top" width="0">
+<lyxtabular version="3" rows="2" columns="2">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -832,13 +1059,12 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename lim-twisted-circle-1.png
-	lyxscale 50
-	width 1.5in
+	filename figure-8-no-twist.png
+	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
@@ -848,25 +1074,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename lim-twisted-circle-2.png
-	lyxscale 50
-	width 1.5in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename lim-twisted-circle-3.png
-	lyxscale 50
-	width 1.5in
+	filename unfolding-figure-8-1.png
+	width 2in
 
 \end_inset
 
@@ -877,35 +1086,31 @@ status open
 </cell>
 </row>
 <row>
-<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename lim-twisted-circle-4.png
-	lyxscale 75
+	filename unfolding-figure-8-2.png
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
 </cell>
-<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-
-\end_layout
+\begin_inset Graphics
+	filename twisted-circle.png
+	width 2in
 
 \end_inset
-</cell>
-<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
-\begin_inset Text
 
-\begin_layout Plain Layout
 
 \end_layout
 
@@ -927,16 +1132,16 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-A planar circle with an intial twist of 
-\begin_inset Formula $360^{\circ}$
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:eight2circle"
+
 \end_inset
 
- bends inwards to minimize its twist.
- Optimization performed using 
-\begin_inset Formula $\alpha=0.5$
-\end_inset
-
-.
+ Continuous deformation of an untwisted near-planar figure-8 loop into a
+ twisted planar circle.
+ The shape is rendered so that the individual control points are easily
+ visible, highlighting the movement of these points during the transformation.
 \end_layout
 
 \end_inset
@@ -950,97 +1155,17 @@ A planar circle with an intial twist of
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset CommandInset include
-LatexCommand input
-preview true
-filename "lim-twisted-circle.tex"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Energy Components for Figure 4 by Iteration
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-These limitations are apparent when a planar circular torus with an initial
- twist of 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
- is optimized, as seen in Figure 4.
- Instead of folding itself into a figure eight, the planar twisted circle
- bends inwards.
- As expected, this does increase the bending energy significantly, in this
- particular case by more than five-fold.
- However, the twisting energy decreases by thirty-six times! This is related
- to the symmetry of the final shape, combined with the non-planar configuration,
- in which a great deal of the twist cancels out from one end of the curve
- to the other.
- At this point, the optimization cannot proceed further, due to the presence
- of a local minimum.
- A plot of each component of the energy as the optimizing progresses is
- shown in Figure 5.
-\end_layout
-
-\begin_layout Section
-Results
-\end_layout
-
-\begin_layout Standard
-The most fundamental benchmark for this project is the unfolding of a planar,
- untwisted figure eight into a planar circle with a twist of 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
-.
- This is shown in Figure 3, with the control points clearly visible.
- It must be noted that the input shape has one of the center points perturbed
- off the plane in which the rest of the points lie; this is to hint to the
- optimization which direction to start proceeding.
- Without perturbing one point, the energy will not decrease when any individual
- parameter is varied independently of the other parameters.
- The optimization is performed using 
-\begin_inset Formula $\alpha=0$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-The result of the optimization of this input is highly sensitive to the
+The result of the optimization of this toroid is highly sensitive to the
  value of 
 \begin_inset Formula $\alpha$
 \end_inset
 
 .
- Empirically, it was determined that values of 
+ Empirically, it was determined that for the 16-segment loop 
 \begin_inset Formula $\alpha$
 \end_inset
 
- below 
+ values below 
 \begin_inset Formula $0.048324$
 \end_inset
 
@@ -1057,11 +1182,16 @@ The result of the optimization of this input is highly sensitive to the
 Intermediate configurations between a planar, untwisted figure eight and
  a planar, twisted circle were achievable when the input shape contained
  fewer control points.
- With the correct values for this optimization parameter, the shape attempted
- to balance both the bending energy, which is minimized by a circular configurat
-ion, and the twisting energy, which is minimized by the figure eight.
- The result was an intermediate state of unfolding.
- These results are summarized in Figure 6.
+ With only 8 control points in the loop and suitable parameter values for
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, the toroid shape manages to find a balance between bending energy, which
+ is minimized by a circular configuration, and twisting energy, which is
+ minimized by the figure-8 loop.
+ The results correspond to different intermediate states of unfolding of
+ the figure-8 loop (see Figure 6).
 \end_layout
 
 \begin_layout Standard
@@ -1080,20 +1210,39 @@ status open
 \begin_layout Plain Layout
 \begin_inset Tabular
 <lyxtabular version="3" rows="2" columns="2">
-<features>
-<column alignment="center" valignment="middle" width="0">
-<column alignment="center" valignment="middle" width="0">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
 <row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Float figure
-wide false
-sideways false
-status open
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
+
+
+\backslash
+subfloat
+\end_layout
+
+\end_inset
+
+[Initial shape: a warped figure-8 loop.
+ Note the low number of control points]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
 \begin_inset Graphics
 	filename alpha-balance-1.png
 	width 2in
@@ -1104,21 +1253,17 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
-Input figure.
- Note the low number of control points
+
+}
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\end_inset
-
-
+ 
 \end_layout
 
 \end_inset
@@ -1127,12 +1272,34 @@ Input figure.
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Float figure
-wide false
-sideways false
-status open
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
+
+
+\backslash
+subfloat
+\end_layout
+
+\end_inset
+
+[
+\begin_inset Formula $\alpha=0.1$
+\end_inset
+
+, enough to cause the figure to unfold completely]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
 \begin_inset Graphics
 	filename alpha-balance-2.png
 	width 2in
@@ -1143,18 +1310,12 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
-\begin_inset Formula $\alpha=0.1$
-\end_inset
 
-, enough to cause the figure to unfold completely
-\end_layout
-
-\end_inset
-
-
+}
 \end_layout
 
 \end_inset
@@ -1170,12 +1331,34 @@ status open
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Float figure
-wide false
-sideways false
-status open
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
+
+
+\backslash
+subfloat
+\end_layout
+
+\end_inset
+
+[
+\begin_inset Formula $\alpha=0.15$
+\end_inset
+
+, resulting in an intermediate state]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
 \begin_inset Graphics
 	filename alpha-balance-3.png
 	width 2in
@@ -1183,23 +1366,17 @@ status open
 \end_inset
 
 
-\begin_inset Caption
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
-\begin_inset Formula $\alpha=0.15$
-\end_inset
 
-, resulting in an intermediate state
+}
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\end_inset
-
-
+ 
 \end_layout
 
 \end_inset
@@ -1208,12 +1385,34 @@ status open
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Float figure
-wide false
-sideways false
-status open
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
+
+
+\backslash
+subfloat
+\end_layout
+
+\end_inset
+
+[
+\begin_inset Formula $\alpha=0.2$
+\end_inset
+
+, enough to prevent any unfolding]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
 \begin_inset Graphics
 	filename alpha-balance-4.png
 	width 2in
@@ -1221,18 +1420,12 @@ status open
 \end_inset
 
 
-\begin_inset Caption
+\begin_inset ERT
+status collapsed
 
 \begin_layout Plain Layout
-\begin_inset Formula $\alpha=0.2$
-\end_inset
 
-, enough to prevent any unfolding
-\end_layout
-
-\end_inset
-
-
+}
 \end_layout
 
 \end_inset
@@ -1258,7 +1451,13 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Intermediate states of unfolding in order to balance bending and twisting
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:intermediate_states"
+
+\end_inset
+
+ Intermediate states of unfolding in order to balance bending and twisting
  energy for different vaues of 
 \begin_inset Formula $\alpha$
 \end_inset
@@ -1277,13 +1476,38 @@ Intermediate states of unfolding in order to balance bending and twisting
 \end_layout
 
 \begin_layout Standard
-While a planar circle with a twist of 
+Figure 7 demonstrates the inverse of this optimization process.
+ We start with a nearly circular loop with a user-added twist of 
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
- demonstrated the limitations of our system, the same shape with a slight
- perturbation of one of the control points off the plane in which the other
- points lie is indeed correctly optimized, albeit in an undesirable manner.
+.
+ We also add some perturbation on one side of the circle to break the symmetry
+ of this configuration and to give the optimization a clear direction in
+ which to start warping the circle so that it eventually ends up in a figure-8
+ configuration with no twist at all.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%While a planar circle with a twist of $360^{
+\backslash
+circ}$ demonstrated
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+the limitations of our system, the same shape with a slight perturbation
+ of one of the control points off the plane in which the other points lie
+ is indeed correctly optimized, albeit in an undesirable manner.
  The perturbation effectively signals to the optimization that some form
  of folding out of the plane should occur, but the optimization proceeds
  locally before producing the desired planar, untwisted figure eight.
@@ -1297,17 +1521,13 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset space \hfill{}
 \end_inset
 
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="2">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -1317,12 +1537,11 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-1.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
@@ -1333,7 +1552,6 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-2.png
-	lyxscale 50
 	width 2in
 
 \end_inset
@@ -1344,19 +1562,19 @@ status open
 \end_inset
 </cell>
 </row>
-<row topspace="0.5cm" bottomspace="0.5cm">
+<row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+ 
 \begin_inset Graphics
 	filename perturbed-3.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
@@ -1367,7 +1585,6 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-4.png
-	lyxscale 50
 	width 2in
 
 \end_inset
@@ -1378,24 +1595,23 @@ status open
 \end_inset
 </cell>
 </row>
-<row topspace="default">
+<row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-5.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1420,13 +1636,17 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-A nearly-planar circle with a twist of 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:circle2eight"
+
+\end_inset
+
+ A nearly-planar circle with a twist of 
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
  folds itself into a figure eight.
- The optimization proceeds locally before balancing all the components of
- the shape.
  This optimization was performed with 
 \begin_inset Formula $\alpha=0.5$
 \end_inset
@@ -1439,38 +1659,41 @@ A nearly-planar circle with a twist of
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
-Finally, testing with a doubly-looped circle, both with and without an initial
- twist, demonstrate successful optimization.
- A doubly-looped circle with an initial twist of 
+Next we demonstrate the unfolding of a doubly-looped circle, both with and
+ without an initial twist.
+ In Figure 8 the double loop has an initial twist of 
 \begin_inset Formula $360^{\circ}$
-\end_inset
-
- successfully unfolds itself into a planar, untwisted, single-looped circle
- when optimized with 
-\begin_inset Formula $\alpha=0.5$
-\end_inset
-
-, while an untwisted doubly-looped circle successfully unfolds into a planar
- single-looped circle with a twist of 
-\begin_inset Formula $360^{\circ}$
-\end_inset
-
- when optimized with 
-\begin_inset Formula $\alpha=0$
 \end_inset
 
 .
- These results are summarized in Figures 8 and 9 respectively.
+ Even though it goes through a relatively contorted shape with some pretty
+ sharp bends, it successfully unfolds itself into a planar, untwisted, single-lo
+oped circle when optimized with 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In Figure 9 the double loop has no twist, but some perturbation to brake
+ the planarity of this configuration.
+ When optimized under pure bending energy with 
+\begin_inset Formula $\alpha=0$
+\end_inset
+
+, it gracefully unfolds into an almost planar figure-8 loop, and from there
+ into a planar single-looped circle with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+, following the sequence shown in Figure 3.
 \end_layout
 
 \begin_layout Standard
@@ -1485,8 +1708,8 @@ status open
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="2">
-<features>
+<lyxtabular version="3" rows="3" columns="2">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -1496,12 +1719,11 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-1.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
@@ -1512,7 +1734,6 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-2.png
-	lyxscale 50
 	width 2in
 
 \end_inset
@@ -1523,19 +1744,66 @@ status open
 \end_inset
 </cell>
 </row>
-<row topspace="0.5cm" bottomspace="0.5cm">
+<row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Graphics
-	filename double-circle-3.png
-	lyxscale 50
-	width 2in
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+noalign
+\end_layout
 
 \end_inset
 
 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+vskip
+\end_layout
+
+\end_inset
+
+0.5cm
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics
+	filename double-circle-3.png
+	width 2in
+
+\end_inset
+
+ 
 \end_layout
 
 \end_inset
@@ -1546,11 +1814,30 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-4.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[0.5cm] 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -1607,8 +1894,8 @@ status open
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="2">
-<features>
+<lyxtabular version="3" rows="3" columns="2">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -1618,12 +1905,11 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-5.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
-
+ 
 \end_layout
 
 \end_inset
@@ -1634,7 +1920,6 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-6.png
-	lyxscale 50
 	width 2in
 
 \end_inset
@@ -1645,19 +1930,66 @@ status open
 \end_inset
 </cell>
 </row>
-<row topspace="0.5cm" bottomspace="0.5cm">
+<row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Graphics
-	filename double-circle-7.png
-	lyxscale 50
-	width 2in
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+noalign
+\end_layout
 
 \end_inset
 
 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+vskip
+\end_layout
+
+\end_inset
+
+0.5cm
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics
+	filename double-circle-7.png
+	width 2in
+
+\end_inset
+
+ 
 \end_layout
 
 \end_inset
@@ -1668,11 +2000,30 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename double-circle-8.png
-	lyxscale 50
 	width 2in
 
 \end_inset
 
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[0.5cm] 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -1716,6 +2067,325 @@ A double-looped circle with no initial twist unfolds into a planar, twisted
 
 \end_layout
 
+\begin_layout Subsection
+More Complex Examples
+\end_layout
+
+\begin_layout Standard
+[[ Add a couple of more complex pictures: e.g.
+ the unwinding of the heavily twisted circle,
+\end_layout
+
+\begin_layout Standard
+and of a 3,4 torus knot with moderate twist - ending up in a circle with
+ 360 deg twist.
+ -- I will provide a starting path ...
+ ]]
+\end_layout
+
+\begin_layout Subsection
+Unexpected, Undesirable Behavior
+\end_layout
+
+\begin_layout Standard
+There were some optimization sequences that surprised us, and where we first
+ thought that there was something wrong with our torus representation or
+ with our gradient-descent process.
+ One such problem sequence is shown in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:wiggles"
+
+\end_inset
+
+.
+ We start with a perfectly symmetrical circular loop with 16?? segments
+ and with a twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+.
+ But his toroid, rather than unfolding into a planar figure-8 loop as in
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:circle2eight"
+
+\end_inset
+
+, ends up in a 4-fold symmetrical hoop with four wavy "sides".
+ When we monitor the behavior of the various energy components ( 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:energycurves"
+
+\end_inset
+
+ ), we see that the twist energy is reduced dramatically, by a factor of
+ 36, while there is only a modest increase in bending energy of about a
+ factor of 5.
+ So what is going on here?
+\end_layout
+
+\begin_layout Standard
+Actually, we could synthesize a perfect, twist-free solution with a rectilinear
+ cubist control polygon that produces four planar, S-shaped curve that join
+ together with four vertical junctions where the Frenet frame makes an instant
+ 
+\begin_inset Formula $90^{\circ}$
+\end_inset
+
+ turn.
+ This accommodates an overall twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ with no twist penalty, since all four junctions allow an RMF frame to pass
+ through completely undisturbed.
+\end_layout
+
+\begin_layout Standard
+[[Here are the coordinates for such a control polygon: (1 1 -1) (1 1 1)
+ (0 1 1) (0 1 -1) (-1 1 -1) (-1 1 1) (-1 0 1) (-1 0 -1) (-1 -1 -1) (-1 -1
+ 1) (0 -1 1) (0 -1 -1) (1 -1 -1) (1 -1 1) (1 0 1) (1 0 -1) Render a piece-wise
+ linear and/or quadratic B-spline of this loop and insert into 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:wiggles"
+
+\end_inset
+
+.
+ ]]
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename lim-twisted-circle-1.png
+	width 1.5in
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename lim-twisted-circle-2.png
+	width 1.5in
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename lim-twisted-circle-3.png
+	width 1.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multicolumn="1" alignment="none" valignment="top" usebox="none" special="c">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename lim-twisted-circle-4.png
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:wiggles"
+
+\end_inset
+
+ A planar circle with an initial twist of 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+ bends inwards to minimize its twist.
+ Optimization performed using 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset CommandInset include
+LatexCommand input
+filename "lim-twisted-circle.lyx"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:energycurves"
+
+\end_inset
+
+ Energy Components for Figure 4 by Iteration
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This example demonstrates that the use of the overall twist is not sufficient
+ to prevent local twistiness that may cancel out in the calculation of the
+ overall twist.
+ Thus we need a more refined measure that captures the twist more locally
+ and sumes it up in a sign-independent, squared manner.
+\end_layout
+
+\begin_layout Standard
+The problem is, how do we measure such a local twist? A natural way would
+ be to determine how much the Frenet frame rotates from one joint to the
+ next; but this may cause problems for a sequence of nearly collinear line
+ segments, where a small change in the coordinates of one control point
+ may lead to generation or cancellation of inflection points Thus the bending
+ angles at the two joints should also be taken into consideration.
+ This leads to the proposed "non-coplanarity measure" discussed in Section
+ 2.4?? .
+\end_layout
+
+\begin_layout Standard
+Here is a test case that should allow us to analyze how well this new measure
+ resolves this issue of concern: Connect two multi-looped circles (really
+ helices) and see whether the optimization will unravel this into a simple
+ circle of figure-8 loop.
+\end_layout
+
+\begin_layout Standard
+[[ Control point of "anti-helices": (2 -1 0.0) (3 0 0.1) (2 1 0.2) (1 0 0.3)
+ (2 -1 0.4) (3 0 0.5) (2 1 0.6) (1 0 0.7) (2 -1 0.8) (3 0 0.9) (2 1 1.0) (-2 1
+ 1.0) (-3 0 0.9) (-2 -1 0.8) (-1 0 0.7) (-2 1 0.6) (-3 0 0.5) (-2 -1 0.4) (-1 0
+ 0.3) (-2 1 0.2) (-3 0 0.1) (-2 -1 0.0) --- I am eager to see what happens to
+ this one with old and new functionals ! ]]
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Standard
+[[some concluding remarks ...]] With these experiments we have demonstrated
+ that simple CAD models can be constructed with suitable cost functions
+ that will evolve toroidal structures to their simplest representative within
+ the appropriate regular homotopy class.
+\end_layout
+
 \begin_layout Section
 Acknowledgements
 \end_layout
@@ -1726,7 +2396,47 @@ We would like to thank Satish Rao and Umesh Vazirani for providing valuable
  and guidance, this project would not have been possible.
 \end_layout
 
+\begin_layout Section
+More References
+\end_layout
+
 \begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+% TODO
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%line search algorithm 
+\backslash
+cite{??}, 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+ 
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 bibfiles "references"
