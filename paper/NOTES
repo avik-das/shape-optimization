@@ -21,3 +21,23 @@ proceeds locally before producing the desired planar, untwisted figure
 eight. This result is summarized in Figure 7.
 
 --------------------------------------------------------------------------------
+
+Start with up vector at one point. Project forward. Compare to up vector at next point.
+
+     x
+   +--->       *   \
+  y|           *   -+- equidistant
+   V           *   /
+                  *
+                   *
+                   *  \_ possibly repeat of last two
+                  *   /
+               *
+               *
+               *
+
+KBM has up vector in XZ plane.
+
+Symmetric.
+
+Keep C3-C6 as normal optimizable control points. Make tilt, etc. as different parameters. Make stretch of q0-q2 as parameters, as well as q7-q9. Add radius of each point as parameters.
