@@ -1,7 +1,7 @@
 # A planar circle with a built-in twist. Many points, actually attempts to
 # untwist itself.
 
-twist 360
+#twist 90
 
 # a rectangular cross section
 p  1  1
