@@ -49,20 +49,6 @@ void KBMTorus::create_leftarm() {
     pts.push_back(q0); pts.push_back(q1); pts.push_back(q2);
     pts.push_back(q3); pts.push_back(q4); pts.push_back(q5); pts.push_back(q6);
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
-    //pts.push_back(vec3(0, -torposy - 2, -torposz));
-    //pts.push_back(vec3(0, -torposy, -torposz));
-    //pts.push_back(vec3(0, -torposy + 2, -torposz));
-
-    //pts.push_back(vec3(-0.3 * looprad, -torposy + 3, -torposz));
-    ////pts.push_back(vec3(-1.0, 0,  2));
-    //pts.push_back(vec3(-looprad, -2, 0));
-    ////pts.push_back(vec3(-1.0, 0, -2));
-    //pts.push_back(vec3(-looprad,  2, 0));
-    //pts.push_back(vec3(-0.3 * looprad,  torposy - 3,  torposz));
-
-    //pts.push_back(vec3(0, torposy - 2, torposz));
-    //pts.push_back(vec3(0, torposy, torposz));
-    //pts.push_back(vec3(0, torposy + 2, torposz));
 
     leftarm = new SplineCoaster(pts, profile, 0.0, 0.0);
     leftarm->setClosed(false);
