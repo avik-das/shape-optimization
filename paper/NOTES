@@ -41,3 +41,27 @@ KBM has up vector in XZ plane.
 Symmetric.
 
 Keep C3-C6 as normal optimizable control points. Make tilt, etc. as different parameters. Make stretch of q0-q2 as parameters, as well as q7-q9. Add radius of each point as parameters.
+
+KBM control points have fixed radii; middle points have optimizable radii.
+
+Instead of distributing twist evenly, give each of the middle points its own local azimuth. Penalize changes in azimuth quadratically.
+
+Penalize huge changes in radius. L * (1/r)^2 * 2*pi*r = L*1/r * 2*pi
+
+First experiment: only change middle points' coordinates with only bending. Everything should squish to straight cylinder. (Based on bending.) Second: tilt KBM.
+
+Want to use the same type of cubic interpolation used for X, Y, Z of slices used to interpolate twist, radius.
+
+--------------------------------------------------------------------------------
+
+  Y     torposy  8.0
+  Y     torposz  0.0
+  Y     tortilt -1.5
+  N     torrot   270
+        
+  N     looprad   5.0
+  N     looptilt -1.5
+        
+  N     azimP  -45   <-- later local azimuths at each middle control point
+  N     azimB   45
+  N     twst  -170

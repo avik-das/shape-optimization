@@ -268,3 +268,33 @@ float LineEnergy::update_step_size(float old, float end) {
     // enforce additional constraints.
 	return old;
 }
+/* KBM TORUS ENERGY =========================================================*/
+
+KBMEnergy::KBMEnergy(
+    KBMTorus *torus, double twist_weight) :
+    Energy(0.1f, 0.00001f, 1),
+    torus(torus),
+    twist_weight(twist_weight) {}
+
+void KBMEnergy::apply_change(VectorXf *chg) {
+    // TODO
+}
+
+float KBMEnergy::calc_energy() {
+    // TODO
+    return 0.0;
+}
+
+void KBMEnergy::log_iteration(float step_size) {
+    // TODO
+}
+
+void KBMEnergy::log_energies() {
+    // TODO
+}
+
+float KBMEnergy::update_step_size(float old, float end) {
+    // Let the optimization loop deal with the step size; we don't need to
+    // enforce additional constraints.
+	return old;
+}

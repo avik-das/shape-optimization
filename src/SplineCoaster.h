@@ -43,6 +43,8 @@ struct SplinePoint {
 class SplineCoaster {
 public:
     SplineCoaster(string filename);
+    SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
+        double globalTwist = 0.0, double globalAzimuth = 0.0);
 
     // renders the coaster
     void render(int samplesPerPt, double crossSectionScale=.2, int supportsPerPt=3, double supportSize=.1, double groundY=0.0);
@@ -89,6 +91,10 @@ public:
 	int getNumControlPoints();
 	void changePoint(int index, double dx, double dy, double dz);
 
+    // When closed, a strut is constructed from the last control point back to
+    // the first. When not closed, this strut is not constructed.
+    void setClosed(bool closed) { this->closed = closed; }
+
     // --- normalize the individual struts so that the entire track is at some
     //     decent size, while leaving the overall shape the same
     void normalizeStruts();
@@ -108,10 +114,12 @@ private:
     GLuint DLid;
     bool hasDL;
 
+    bool closed;
+
     // --- internal helper functions
     void renderSupports(int supportsPerPt, double supportSize, double groundY);
     void renderSweep(vector<SplinePoint*> &pts, double crossSectionScale);
-    void createPolyline(vector<SplinePoint*> &pts, int totalSamples); // sample bspline
+    void createPolyline(vector<SplinePoint*> &pts, int totalSamples, int lastSample); // sample bspline
     void freePolyline(vector<SplinePoint*> &pts); // cleanup samples
     vec3 getFirstUp(); // helper to get initial frame (default to frenet, fallback to 'up=+Y')
     // rotates vector from RMF to account for twist, azimuth, etc:

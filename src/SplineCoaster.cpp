@@ -78,7 +78,7 @@ SplinePoint SplinePoint::sampleBSpline(vector<SplinePoint*>& cps, double t, bool
     return result;
 }
 
-SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), hasDL(false) {
+SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), hasDL(false), closed(true) {
     ifstream f(filename.c_str());
     if (!f) {
         UCBPrint("SplineCoaster", "Couldn't load file " << filename);
@@ -115,6 +115,21 @@ SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwi
     compensateTwist();
 }
 
+SplineCoaster::SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
+    double globalTwist, double globalAzimuth) :
+    globalTwist(globalTwist), initialGlobalTwist(globalTwist),
+    globalAzimuth(globalAzimuth),
+    profile(profile), hasDL(false), closed(true) {
+
+    for (vector<vec3>::iterator it = bsplineVecs.begin();
+         it < bsplineVecs.end(); it++) {
+        bsplinePts.push_back(new SplinePoint(*it));
+    }
+
+    normalizeStruts();
+    compensateTwist();
+}
+
 // clean up memory (helper for the big render function)
 void SplineCoaster::freePolyline(vector<SplinePoint*> &pts) {
     for(vector<SplinePoint*>::iterator it = pts.begin(); it != pts.end(); ++it)
@@ -122,15 +137,17 @@ void SplineCoaster::freePolyline(vector<SplinePoint*> &pts) {
 }
 
 // create a polyline that samples the curve (helper for the big render function)
-void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamples) {
+void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamples, int lastSample) {
     if (totalSamples == 0)
         return; // ... no samples is easy!
 
     vec3 lastGood(0.0);
-    for (int i = 0; i < totalSamples + 3; i++) {
+    for (int i = 0; i < lastSample; i++) {
         int loc = i % totalSamples;
         double t = loc / double(totalSamples);
-        SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);
+        //SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);
+        SplinePoint sp = *bsplinePts[loc];
+        cout << t << ": " << sp.point << endl;
         if (!polyline.empty() && (sp.point - lastGood).length2() < .0001) {
             continue; // wait for the samples to get a bit further apart ... !
         } else {
@@ -257,6 +274,7 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
     vec3 oldDir(0.0), right(0.0);
     vec3 up(0.0);
     bool firstDir = true;
+    crossSectionScale = 0.01;
     for (int i = 1; i < size-1; i++) {
         double percent = double(i % size) / (double(size-3));
         for (int c = -1; c <= 1; c++) { // populate local pts
@@ -329,6 +347,8 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
         vec3 *temp = newSlice;
         newSlice = oldSlice;
         oldSlice = temp;
+
+        crossSectionScale += 0.03;
     }
     delete [] newSlice;
     delete [] oldSlice;
@@ -336,10 +356,12 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
 
 // the big render function
 void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int supportsPerPt, double supportSize, double groundY) {
+    int numBsplinePts = (int) bsplinePts.size() + (closed ? 3 : 0);
     int totalSamples = (int) bsplinePts.size() * samplesPerPt;
+    int lastSample = numBsplinePts * samplesPerPt;
 
     vector<SplinePoint*> polyline;
-    createPolyline(polyline, totalSamples);
+    createPolyline(polyline, totalSamples, lastSample);
 
     int size = (int) polyline.size();
     if (size < 2) { // a polyline with only one point is pretty lame!

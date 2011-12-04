@@ -5,6 +5,7 @@
 USING_PART_OF_NAMESPACE_EIGEN
 
 #include "SplineCoaster.h"
+#include "KBMTorus.h"
 
 /* TODO: document properly */
 
@@ -74,6 +75,23 @@ protected:
 
     SplineCoaster *torus;
     double compute_integrand(double t, double dt);
+
+    double twist_weight;
+};
+
+class KBMEnergy : public Energy {
+public:
+    KBMEnergy(KBMTorus *torus, double twist_weight);
+    float calc_energy();
+
+protected:
+    void apply_change(VectorXf *chg);
+    float update_step_size(float old, float end);
+
+    void log_iteration(float step_size);
+    void log_energies();
+
+    KBMTorus *torus;
 
     double twist_weight;
 };

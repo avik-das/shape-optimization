@@ -25,7 +25,6 @@ public:
 Viewport viewport;
 UCB::ImageSaver * imgSaver;
 int frameCount = 0;
-SplineCoaster *coaster = NULL;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
 
@@ -41,6 +40,12 @@ bool paused  = true ;
 
 double speed = 1.0;
 bool smooth = false;
+
+//****************************************************
+// Potential models
+//****************************************************
+SplineCoaster *coaster = NULL;
+KBMTorus *kbmtorus = NULL;
 
 //****************************************************
 // Forward Declarations (not exhaustive)
@@ -85,8 +90,27 @@ void display() {
         glTranslatef(0,-2,-30);
         applyMat4(viewport.orientation);
     }
+
+    glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(10.0, 0.0, 0.0);
+
+        glColor3f(0.0, 1.0, 0.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 10.0, 0.0);
+        
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 10.0);
+    glEnd();
+
+    int samples_per_pt = smooth ? 100 : 1;
     if (coaster) {
-        coaster->renderWithDisplayList(smooth ? 100 : 1,.3,3,.2,0);
+        coaster->renderWithDisplayList(samples_per_pt,.3);
+    }
+    else if (kbmtorus) {
+        kbmtorus->renderWithDisplayList(samples_per_pt);
     }
 
     //Draw the AntTweakBar
@@ -143,13 +167,16 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
             viewMode = (viewMode+1)%VIEW_MAX;
             break;
         case '+':
-             coaster->incrGlobalTwist(10.0);
+             if (coaster)
+                 coaster->incrGlobalTwist(10.0);
              break;
 		case '=':
-			 coaster->incrGlobalTwist(10.0);
+             if (coaster)
+                 coaster->incrGlobalTwist(10.0);
 			 break;
         case '-':
-             coaster->incrGlobalTwist(-10.0);
+             if (coaster)
+                 coaster->incrGlobalTwist(-10.0);
              break;
 	}
 }
@@ -258,6 +285,7 @@ void TW_CALL atb_get_speed(void *value, void *clientData) {
 void TW_CALL atb_set_smooth(const void *value, void *clientData) { 
     smooth = *(const bool *)value;
     if (coaster) { coaster->clearDisplayList(); }
+    if (kbmtorus) { kbmtorus->clearDisplayList(); }
     glutPostRedisplay();
 }
 
@@ -377,17 +405,22 @@ void load_curr_track() {
 
     TwDefine("'Optimization Parameters'/pause_opt_button visible=false ");
 
-    if (coaster) { delete coaster; }
-    if (energy ) { delete energy ; }
+    if (coaster ) { delete coaster ; }
+    if (kbmtorus) { delete kbmtorus; }
+    if (energy  ) { delete energy  ; }
 
-    coaster = new SplineCoaster(tracks[currTrack].c_str());
-    if (coaster->bad()) {
-        cout << "Coaster file appears to not have a proper coaster in it"
-             << endl;
-        return;
-    }
+    // FIXME: check filename, then load correct model based on that
+    //coaster = new SplineCoaster(tracks[currTrack].c_str());
+    //if (coaster->bad()) {
+    //    cout << "Coaster file appears to not have a proper coaster in it"
+    //         << endl;
+    //    return;
+    //}
+	//energy = new LineEnergy(coaster, twist_weight);
 
-	energy = new LineEnergy(coaster, twist_weight);
+    kbmtorus = new KBMTorus();
+    energy = new KBMEnergy(kbmtorus, twist_weight);
+
     energy->set_speed(speed);
 }
 
