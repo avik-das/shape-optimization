@@ -145,9 +145,9 @@ void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamp
     for (int i = 0; i < lastSample; i++) {
         int loc = i % totalSamples;
         double t = loc / double(totalSamples);
-        //SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);
-        SplinePoint sp = *bsplinePts[loc];
-        cout << t << ": " << sp.point << endl;
+        SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);
+        //SplinePoint sp = *bsplinePts[loc];
+        //cout << loc << ": " << sp.point << endl;
         if (!polyline.empty() && (sp.point - lastGood).length2() < .0001) {
             continue; // wait for the samples to get a bit further apart ... !
         } else {
@@ -348,7 +348,7 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
         newSlice = oldSlice;
         oldSlice = temp;
 
-        crossSectionScale += 0.03;
+        crossSectionScale += 0.5 / size;
     }
     delete [] newSlice;
     delete [] oldSlice;
@@ -356,9 +356,10 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
 
 // the big render function
 void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int supportsPerPt, double supportSize, double groundY) {
-    int numBsplinePts = (int) bsplinePts.size() + (closed ? 3 : 0);
-    int totalSamples = (int) bsplinePts.size() * samplesPerPt;
+    int numBsplinePts = bsplinePts.size() + (closed ? 3 : 0);
+    int totalSamples = bsplinePts.size() * samplesPerPt;
     int lastSample = numBsplinePts * samplesPerPt;
+    if (!closed) lastSample -= (int) (samplesPerPt * 2.52 - 1);
 
     vector<SplinePoint*> polyline;
     createPolyline(polyline, totalSamples, lastSample);
@@ -403,6 +404,10 @@ void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
 	point->point[2] += dz;
 
 	clearDisplayList();
+}
+
+SplinePoint SplineCoaster::getPoint(int index) {
+	return *bsplinePts[index];
 }
 
 void SplineCoaster::normalizeStruts() {

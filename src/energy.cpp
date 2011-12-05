@@ -7,11 +7,11 @@
 
 #include <iostream>
 
-const float ENERGY_THRESHOLD = 0.0001f;
+const float ENERGY_THRESHOLD = 0.000000000001f;
 const float ZERO_THRESHOLD   = 0.000000000001f;
 const double PI = boost::math::constants::pi<double>();
 
-const double ELASTICITY = 10.0;
+const double ELASTICITY = 0.20;
 const double STRUT_REST_LENGTH = 2.5;
 
 inline bool is_improvement(float orig, float changed) {
@@ -272,25 +272,115 @@ float LineEnergy::update_step_size(float old, float end) {
 
 KBMEnergy::KBMEnergy(
     KBMTorus *torus, double twist_weight) :
-    Energy(0.1f, 0.00001f, 1),
+    // each control point has x, y and z components
+    Energy(0.1f, 0.00001f, 24),//torus->getNumControlPoints() * 3),
     torus(torus),
     twist_weight(twist_weight) {}
 
 void KBMEnergy::apply_change(VectorXf *chg) {
-    // TODO
+    //int numPointsLeft = torus->getNumControlPoints(KBMTorus::LEFTARM);
+    //int numPointsRght = torus->getNumControlPoints(KBMTorus::RGHTARM);
+    int numPointsLeft = 4;
+    int numPointsRght = 4;
+
+	for (int pi = 0; pi < numPointsLeft * 3; pi += 3) {
+		double dx = (*chg)[pi  ];
+		double dy = (*chg)[pi+1];
+		double dz = (*chg)[pi+2];
+
+		torus->changePoint(KBMTorus::LEFTARM, pi/3 + 3, dx, dy, dz);
+	}
+
+	for (int pi = 0; pi < numPointsRght * 3; pi += 3) {
+		double dx = (*chg)[numPointsLeft*3+pi  ];
+		double dy = (*chg)[numPointsLeft*3+pi+1];
+		double dz = (*chg)[numPointsLeft*3+pi+2];
+
+		torus->changePoint(KBMTorus::RGHTARM, pi/3 + 3, dx, dy, dz);
+	}
+    // TODO? torus->compensateTwist();
 }
 
 float KBMEnergy::calc_energy() {
-    // TODO
-    return 0.0;
+    return calc_arm_energy(KBMTorus::LEFTARM) +
+           calc_arm_energy(KBMTorus::RGHTARM);
+}
+
+float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
+	int numPoints = torus->getNumControlPoints(whicharm);
+
+    double bending = 0.0;
+    double stretch = 0.0;
+    for (int t = 1; t < numPoints - 1; t++) {
+        SplinePoint point1 = torus->getPoint(whicharm, t-1);
+        SplinePoint point2 = torus->getPoint(whicharm, t);
+        SplinePoint point3 = torus->getPoint(whicharm, t+1);
+
+        vec3 pv1 = point1.point;
+        vec3 pv2 = point2.point;
+        vec3 pv3 = point3.point;
+
+        vec3 strut1 = pv1 - pv2;
+        vec3 strut2 = pv3 - pv2;
+        double strut1l = strut1.length();
+        double strut2l = strut2.length();
+
+        double normdot = strut1 * strut2 / (strut1l * strut2l);
+        double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
+
+        double stretch1 = STRUT_REST_LENGTH - strut1l;
+        double stretch2 = STRUT_REST_LENGTH - strut2l;
+        double springpe1 = 0.5 * ELASTICITY * stretch1 * stretch1;
+        double springpe2 = 0.5 * ELASTICITY * stretch2 * stretch2;
+        double avgpe = (springpe1 + springpe2) / 2.0;
+
+        bending += k1 * k1 * k1 * k1;
+        stretch += avgpe * avgpe;
+    }
+
+    // cout << "Arm: " << whicharm <<
+    //         ", B: " << bending  <<
+    //         ", S: " << stretch  << endl;
+
+    return bending + stretch;
 }
 
 void KBMEnergy::log_iteration(float step_size) {
-    // TODO
+    float e = calc_energy();
+    std::cout << "Iterated. Energy: " << e <<
+               ", step_size = " << step_size << std::endl;
 }
 
 void KBMEnergy::log_energies() {
     // TODO
+    KBMTorus::ArmType whicharm = KBMTorus::RGHTARM;
+	int numPoints = torus->getNumControlPoints(whicharm);
+
+    double max_angle = 0.0;
+    double min_angle = 360.0;
+    for (int t = 1; t < numPoints - 1; t++) {
+        SplinePoint point1 = torus->getPoint(whicharm, t-1);
+        SplinePoint point2 = torus->getPoint(whicharm, t);
+        SplinePoint point3 = torus->getPoint(whicharm, t+1);
+
+        vec3 pv1 = point1.point;
+        vec3 pv2 = point2.point;
+        vec3 pv3 = point3.point;
+
+        vec3 strut1 = pv1 - pv2;
+        vec3 strut2 = pv3 - pv2;
+        double strut1l = strut1.length();
+        double strut2l = strut2.length();
+
+        double normdot = strut1 * strut2 / (strut1l * strut2l);
+        double angle = acos(CLAMP(normdot, -1.0, 1.0));
+
+        if (angle > max_angle) max_angle = angle;
+        if (angle < min_angle) min_angle = angle;
+    }
+
+    cout << "max_angle: " << max_angle << ", "
+         << "min_angle: " << min_angle << endl;
 }
 
 float KBMEnergy::update_step_size(float old, float end) {

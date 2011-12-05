@@ -87,6 +87,7 @@ public:
 protected:
     void apply_change(VectorXf *chg);
     float update_step_size(float old, float end);
+    float calc_arm_energy(KBMTorus::ArmType whicharm);
 
     void log_iteration(float step_size);
     void log_energies();

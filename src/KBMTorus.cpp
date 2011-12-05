@@ -4,7 +4,7 @@
 
 KBMTorus::KBMTorus() :
     torposy( 8.0), torposz(0.0),
-    tortilt(-1.5),
+    tortilt(-1.0),
     looprad( 5.0), looptilt(0.0),
     hasDL(false) {
     create_leftarm();
@@ -19,6 +19,43 @@ KBMTorus::~KBMTorus() {
 void KBMTorus::render(int samplesPerPt, double crossSectionScale) {
     leftarm->render(samplesPerPt, crossSectionScale);
     rghtarm->render(samplesPerPt, crossSectionScale);
+}
+
+int KBMTorus::getNumControlPoints() {
+    return getNumControlPoints(LEFTARM) +
+           getNumControlPoints(RGHTARM);
+}
+
+int KBMTorus::getNumControlPoints(ArmType whicharm) {
+    switch (whicharm) {
+        case LEFTARM:
+            return leftarm->getNumControlPoints();
+        case RGHTARM:
+            return rghtarm->getNumControlPoints();
+    }
+}
+
+void KBMTorus::changePoint(ArmType whicharm, int index,
+                           double dx, double dy, double dz) {
+    switch (whicharm) {
+        case LEFTARM:
+            leftarm->changePoint(index, dx, dy, dz);
+            break;
+        case RGHTARM:
+            rghtarm->changePoint(index, dx, dy, dz);
+            break;
+    }
+
+	clearDisplayList();
+}
+
+SplinePoint KBMTorus::getPoint(ArmType whicharm, int index) {
+    switch (whicharm) {
+        case LEFTARM:
+            return leftarm->getPoint(index);
+        case RGHTARM:
+            return rghtarm->getPoint(index);
+    }
 }
 
 void KBMTorus::create_leftarm() {

@@ -53,6 +53,16 @@ public:
         }
     }
 
+	/*Returns number of parameters **ENERGY-RELATED** */
+    enum ArmType {LEFTARM, RGHTARM};
+
+	int getNumControlPoints();
+	int getNumControlPoints(ArmType whicharm);
+
+	void changePoint(ArmType whicharm, int index,
+        double dx, double dy, double dz);
+	SplinePoint getPoint(ArmType whicharm, int index);
+
 private:
     /* High-level parameters */
     float torposy;
