@@ -59,6 +59,9 @@ public:
 	int getNumControlPoints();
 	int getNumControlPoints(ArmType whicharm);
 
+	int getNumMovableControlPoints();
+	int getNumMovableControlPoints(ArmType whicharm);
+
 	void changePoint(ArmType whicharm, int index,
         double dx, double dy, double dz);
 	SplinePoint getPoint(ArmType whicharm, int index);

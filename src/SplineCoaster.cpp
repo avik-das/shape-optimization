@@ -142,7 +142,7 @@ void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamp
         return; // ... no samples is easy!
 
     vec3 lastGood(0.0);
-    for (int i = 0; i < lastSample; i++) {
+    for (int i = 0; i < lastSample + 1; i++) {
         int loc = i % totalSamples;
         double t = loc / double(totalSamples);
         SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);

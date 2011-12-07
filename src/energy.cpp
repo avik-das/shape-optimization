@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-const float ENERGY_THRESHOLD = 0.000000000001f;
+const float ENERGY_THRESHOLD = 0.000001f;
 const float ZERO_THRESHOLD   = 0.000000000001f;
 const double PI = boost::math::constants::pi<double>();
 
@@ -273,15 +273,13 @@ float LineEnergy::update_step_size(float old, float end) {
 KBMEnergy::KBMEnergy(
     KBMTorus *torus, double twist_weight) :
     // each control point has x, y and z components
-    Energy(0.1f, 0.00001f, 24),//torus->getNumControlPoints() * 3),
+    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 3),
     torus(torus),
     twist_weight(twist_weight) {}
 
 void KBMEnergy::apply_change(VectorXf *chg) {
-    //int numPointsLeft = torus->getNumControlPoints(KBMTorus::LEFTARM);
-    //int numPointsRght = torus->getNumControlPoints(KBMTorus::RGHTARM);
-    int numPointsLeft = 4;
-    int numPointsRght = 4;
+    int numPointsLeft = torus->getNumMovableControlPoints(KBMTorus::LEFTARM);
+    int numPointsRght = torus->getNumMovableControlPoints(KBMTorus::RGHTARM);
 
 	for (int pi = 0; pi < numPointsLeft * 3; pi += 3) {
 		double dx = (*chg)[pi  ];
@@ -310,7 +308,7 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
 	int numPoints = torus->getNumControlPoints(whicharm);
 
     double bending = 0.0;
-    double stretch = 0.0;
+    double lenchgs = 0.0;
     for (int t = 1; t < numPoints - 1; t++) {
         SplinePoint point1 = torus->getPoint(whicharm, t-1);
         SplinePoint point2 = torus->getPoint(whicharm, t);
@@ -325,24 +323,16 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
         double strut1l = strut1.length();
         double strut2l = strut2.length();
 
+        double devlen = abs(1.0 - strut1l / strut2l);
+        lenchgs += devlen * devlen;
+
         double normdot = strut1 * strut2 / (strut1l * strut2l);
         double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
 
-        double stretch1 = STRUT_REST_LENGTH - strut1l;
-        double stretch2 = STRUT_REST_LENGTH - strut2l;
-        double springpe1 = 0.5 * ELASTICITY * stretch1 * stretch1;
-        double springpe2 = 0.5 * ELASTICITY * stretch2 * stretch2;
-        double avgpe = (springpe1 + springpe2) / 2.0;
-
-        bending += k1 * k1 * k1 * k1;
-        stretch += avgpe * avgpe;
+        bending += k1 * k1;
     }
 
-    // cout << "Arm: " << whicharm <<
-    //         ", B: " << bending  <<
-    //         ", S: " << stretch  << endl;
-
-    return bending + stretch;
+    return bending + lenchgs;
 }
 
 void KBMEnergy::log_iteration(float step_size) {
@@ -356,8 +346,6 @@ void KBMEnergy::log_energies() {
     KBMTorus::ArmType whicharm = KBMTorus::RGHTARM;
 	int numPoints = torus->getNumControlPoints(whicharm);
 
-    double max_angle = 0.0;
-    double min_angle = 360.0;
     for (int t = 1; t < numPoints - 1; t++) {
         SplinePoint point1 = torus->getPoint(whicharm, t-1);
         SplinePoint point2 = torus->getPoint(whicharm, t);
@@ -375,12 +363,14 @@ void KBMEnergy::log_energies() {
         double normdot = strut1 * strut2 / (strut1l * strut2l);
         double angle = acos(CLAMP(normdot, -1.0, 1.0));
 
-        if (angle > max_angle) max_angle = angle;
-        if (angle < min_angle) min_angle = angle;
+        double angleDeg = angle * 180.0 / PI;
+        if (t == 1)
+            cout << "(" << strut1l << ") ";
+        cout << t << "->" << angleDeg;
+        cout << " (" << strut2l << ") ";
     }
 
-    cout << "max_angle: " << max_angle << ", "
-         << "min_angle: " << min_angle << endl;
+    cout << endl;
 }
 
 float KBMEnergy::update_step_size(float old, float end) {

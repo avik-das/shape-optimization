@@ -4,7 +4,7 @@
 
 KBMTorus::KBMTorus() :
     torposy( 8.0), torposz(0.0),
-    tortilt(-1.0),
+    tortilt(-1.5),
     looprad( 5.0), looptilt(0.0),
     hasDL(false) {
     create_leftarm();
@@ -32,6 +32,22 @@ int KBMTorus::getNumControlPoints(ArmType whicharm) {
             return leftarm->getNumControlPoints();
         case RGHTARM:
             return rghtarm->getNumControlPoints();
+    }
+}
+
+int KBMTorus::getNumMovableControlPoints() {
+    return getNumMovableControlPoints(LEFTARM) +
+           getNumMovableControlPoints(RGHTARM);
+}
+
+int KBMTorus::getNumMovableControlPoints(ArmType whicharm) {
+    // subtract 3 control points for each of the two mouths, which for now will
+    // not move.
+    switch (whicharm) {
+        case LEFTARM:
+            return leftarm->getNumControlPoints() - 6;
+        case RGHTARM:
+            return rghtarm->getNumControlPoints() - 6;
     }
 }
 
