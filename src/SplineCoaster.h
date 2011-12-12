@@ -27,12 +27,14 @@ using namespace std;
 struct SplinePoint {
     vec3 point;
     double azimuth;
+    double crossSectionScale;
 
     SplinePoint() {}
-    SplinePoint(vec3 pt, double az = 0) : point(pt), azimuth(az) {}
+    SplinePoint(vec3 pt, double az = 0, double css = 0.3) :
+        point(pt), azimuth(az), crossSectionScale(css) {}
 
     static SplinePoint lerp(double t, SplinePoint &a, SplinePoint &b) {
-        return SplinePoint( (1-t)*a.point + t*b.point, (1-t)*a.azimuth + t*b.azimuth );
+        return SplinePoint( (1-t)*a.point + t*b.point, (1-t)*a.azimuth + t*b.azimuth, (1-t)*a.crossSectionScale + t*b.crossSectionScale );
     }
 
     static SplinePoint sampleBSpline(vector<SplinePoint*>& cps, double t, bool closed = true, int degree = 3);
@@ -44,16 +46,17 @@ class SplineCoaster {
 public:
     SplineCoaster(string filename);
     SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
+        vector<double> crossSectionScales,
         double globalTwist = 0.0, double globalAzimuth = 0.0);
 
     // renders the coaster
-    void render(int samplesPerPt, double crossSectionScale=.2, int supportsPerPt=3, double supportSize=.1, double groundY=0.0);
+    void render(int samplesPerPt, int supportsPerPt=3, double supportSize=.1, double groundY=0.0);
     // renders the coaster with a cache.  Ignores parameters after display list is set; use clearDisplayList() before updating parameters
-    void renderWithDisplayList(int samplesPerPt, double crossSectionScale=.2, int supportsPerPt=3, double supportSize=.1, double groundY=0.0) {
+    void renderWithDisplayList(int samplesPerPt, int supportsPerPt=3, double supportSize=.1, double groundY=0.0) {
         if (!hasDL) {
             DLid = glGenLists(1);
             glNewList(DLid, GL_COMPILE);
-            render(samplesPerPt, crossSectionScale, supportsPerPt, supportSize, groundY);
+            render(samplesPerPt, supportsPerPt, supportSize, groundY);
             glEndList();
             hasDL = true;
         }
@@ -89,7 +92,7 @@ public:
 
 	/*Returns number of parameters **ENERGY-RELATED** */
 	int getNumControlPoints();
-	void changePoint(int index, double dx, double dy, double dz);
+	void changePoint(int index, double dx, double dy, double dz, double dcss);
     SplinePoint getPoint(int index);
 
     // When closed, a strut is constructed from the last control point back to
@@ -119,8 +122,8 @@ private:
 
     // --- internal helper functions
     void renderSupports(int supportsPerPt, double supportSize, double groundY);
-    void renderSweep(vector<SplinePoint*> &pts, double crossSectionScale);
-    void createPolyline(vector<SplinePoint*> &pts, int totalSamples); // sample bspline
+    void renderSweep(vector<SplinePoint*> &pts);
+    void createPolyline(vector<SplinePoint*> &pts, unsigned int totalSamples); // sample bspline
     void freePolyline(vector<SplinePoint*> &pts); // cleanup samples
     vec3 getFirstUp(); // helper to get initial frame (default to frenet, fallback to 'up=+Y')
     // rotates vector from RMF to account for twist, azimuth, etc:

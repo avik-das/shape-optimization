@@ -16,9 +16,9 @@ KBMTorus::~KBMTorus() {
     if (rghtarm) { delete rghtarm; }
 }
 
-void KBMTorus::render(int samplesPerPt, double crossSectionScale) {
-    leftarm->render(samplesPerPt, crossSectionScale);
-    rghtarm->render(samplesPerPt, crossSectionScale);
+void KBMTorus::render(int samplesPerPt) {
+    leftarm->render(samplesPerPt);
+    //rghtarm->render(samplesPerPt);
 }
 
 int KBMTorus::getNumControlPoints() {
@@ -52,13 +52,13 @@ int KBMTorus::getNumMovableControlPoints(ArmType whicharm) {
 }
 
 void KBMTorus::changePoint(ArmType whicharm, int index,
-                           double dx, double dy, double dz) {
+                           double dx, double dy, double dz, double dcss) {
     switch (whicharm) {
         case LEFTARM:
-            leftarm->changePoint(index, dx, dy, dz);
+            leftarm->changePoint(index, dx, dy, dz, dcss);
             break;
         case RGHTARM:
-            rghtarm->changePoint(index, dx, dy, dz);
+            rghtarm->changePoint(index, dx, dy, dz, dcss);
             break;
     }
 
@@ -103,7 +103,13 @@ void KBMTorus::create_leftarm() {
     pts.push_back(q3); pts.push_back(q4); pts.push_back(q5); pts.push_back(q6);
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
 
-    leftarm = new SplineCoaster(pts, profile, 0.0, 0.0);
+    vector<double> scales;
+    scales.push_back(0.1); scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.5); scales.push_back(0.5); scales.push_back(0.5);
+
+    leftarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     leftarm->setClosed(false);
 }
 
@@ -136,6 +142,12 @@ void KBMTorus::create_rghtarm() {
     pts.push_back(q3); pts.push_back(q4); pts.push_back(q5); pts.push_back(q6);
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
 
-    rghtarm = new SplineCoaster(pts, profile, 0.0, 0.0);
+    vector<double> scales;
+    scales.push_back(0.1); scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.1); scales.push_back(0.1);
+    scales.push_back(0.5); scales.push_back(0.5); scales.push_back(0.5);
+
+    rghtarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     rghtarm->setClosed(false);
 }

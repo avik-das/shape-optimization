@@ -137,7 +137,7 @@ void LineEnergy::apply_change(VectorXf *chg) {
 		double dy = (*chg)[pi+1];
 		double dz = (*chg)[pi+2];
 
-		torus->changePoint(pi/3, dx, dy, dz);
+		torus->changePoint(pi/3, dx, dy, dz, 0.0);
 	}
     torus->compensateTwist();
 }
@@ -272,8 +272,8 @@ float LineEnergy::update_step_size(float old, float end) {
 
 KBMEnergy::KBMEnergy(
     KBMTorus *torus, double twist_weight) :
-    // each control point has x, y and z components
-    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 3),
+    // each control point has x, y and z components, plus a cross-section scale
+    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 4),
     torus(torus),
     twist_weight(twist_weight) {}
 
@@ -281,20 +281,22 @@ void KBMEnergy::apply_change(VectorXf *chg) {
     int numPointsLeft = torus->getNumMovableControlPoints(KBMTorus::LEFTARM);
     int numPointsRght = torus->getNumMovableControlPoints(KBMTorus::RGHTARM);
 
-	for (int pi = 0; pi < numPointsLeft * 3; pi += 3) {
-		double dx = (*chg)[pi  ];
-		double dy = (*chg)[pi+1];
-		double dz = (*chg)[pi+2];
+	for (int pi = 0; pi < numPointsLeft * 4; pi += 4) {
+		double dx   = (*chg)[pi  ];
+		double dy   = (*chg)[pi+1];
+		double dz   = (*chg)[pi+2];
+        double dcss = (*chg)[pi+3];
 
-		torus->changePoint(KBMTorus::LEFTARM, pi/3 + 3, dx, dy, dz);
+		torus->changePoint(KBMTorus::LEFTARM, pi/4 + 3, dx, dy, dz, dcss);
 	}
 
-	for (int pi = 0; pi < numPointsRght * 3; pi += 3) {
-		double dx = (*chg)[numPointsLeft*3+pi  ];
-		double dy = (*chg)[numPointsLeft*3+pi+1];
-		double dz = (*chg)[numPointsLeft*3+pi+2];
+	for (int pi = 0; pi < numPointsRght * 4; pi += 4) {
+		double dx   = (*chg)[numPointsLeft*4+pi  ];
+		double dy   = (*chg)[numPointsLeft*4+pi+1];
+		double dz   = (*chg)[numPointsLeft*4+pi+2];
+        double dcss = (*chg)[numPointsLeft*4+pi+3];
 
-		torus->changePoint(KBMTorus::RGHTARM, pi/3 + 3, dx, dy, dz);
+		torus->changePoint(KBMTorus::RGHTARM, pi/4 + 3, dx, dy, dz, dcss);
 	}
     // TODO? torus->compensateTwist();
 }
@@ -309,6 +311,7 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
 
     double bending = 0.0;
     double lenchgs = 0.0;
+    double csschgs = 0.0;
     for (int t = 1; t < numPoints - 1; t++) {
         SplinePoint point1 = torus->getPoint(whicharm, t-1);
         SplinePoint point2 = torus->getPoint(whicharm, t);
@@ -330,9 +333,14 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
         double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
 
         bending += k1 * k1;
+
+        double r2 = point2.crossSectionScale;
+        double r3 = point3.crossSectionScale;
+        double rchg = (max(r2,r3) / min(r2, r3) - 1) / strut2l;
+        csschgs += rchg;
     }
 
-    return bending + lenchgs;
+    return bending + lenchgs + csschgs;
 }
 
 void KBMEnergy::log_iteration(float step_size) {
@@ -363,11 +371,15 @@ void KBMEnergy::log_energies() {
         double normdot = strut1 * strut2 / (strut1l * strut2l);
         double angle = acos(CLAMP(normdot, -1.0, 1.0));
 
+        double r2 = point2.crossSectionScale;
+        double r3 = point3.crossSectionScale;
+        double rchg = (max(r2,r3) / min(r2, r3) - 1) / strut2l;
+
         double angleDeg = angle * 180.0 / PI;
         if (t == 1)
             cout << "(" << strut1l << ") ";
         cout << t << "->" << angleDeg;
-        cout << " (" << strut2l << ") ";
+        cout << " (" << strut2l << ", " << rchg << " (" << r2 << "->" << r3 << ")" << ") ";
     }
 
     cout << endl;

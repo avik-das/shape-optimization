@@ -107,7 +107,7 @@ void display() {
 
     int samples_per_pt = smooth ? 100 : 1;
     if (coaster) {
-        coaster->renderWithDisplayList(samples_per_pt,.3);
+        coaster->renderWithDisplayList(samples_per_pt);
     }
     else if (kbmtorus) {
         kbmtorus->renderWithDisplayList(samples_per_pt);

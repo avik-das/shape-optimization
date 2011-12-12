@@ -31,15 +31,15 @@ public:
     ~KBMTorus();
 
     // renders the KBM torus
-    void render(int samplesPerPt, double crossSectionScale=.2);
+    void render(int samplesPerPt);
 
     // renders the KBM torus with a cache.  Ignores parameters after display
     // list is set; use clearDisplayList() before updating parameters
-    void renderWithDisplayList(int samplesPerPt, double crossSectionScale=.2) {
+    void renderWithDisplayList(int samplesPerPt) {
         if (!hasDL) {
             DLid = glGenLists(1);
             glNewList(DLid, GL_COMPILE);
-            render(samplesPerPt, crossSectionScale);
+            render(samplesPerPt);
             glEndList();
             hasDL = true;
         }
@@ -63,7 +63,7 @@ public:
 	int getNumMovableControlPoints(ArmType whicharm);
 
 	void changePoint(ArmType whicharm, int index,
-        double dx, double dy, double dz);
+        double dx, double dy, double dz, double dcss);
 	SplinePoint getPoint(ArmType whicharm, int index);
 
 private:

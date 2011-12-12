@@ -116,14 +116,16 @@ SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwi
 }
 
 SplineCoaster::SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
+    vector<double> crossSectionScales,
     double globalTwist, double globalAzimuth) :
     globalTwist(globalTwist), initialGlobalTwist(globalTwist),
     globalAzimuth(globalAzimuth),
     profile(profile), hasDL(false), closed(true) {
 
-    for (vector<vec3>::iterator it = bsplineVecs.begin();
-         it < bsplineVecs.end(); it++) {
-        bsplinePts.push_back(new SplinePoint(*it));
+    vector<double>::iterator sit = crossSectionScales.begin();
+    for (vector<vec3>::iterator bit = bsplineVecs.begin();
+         bit < bsplineVecs.end(); bit++, sit++) {
+        bsplinePts.push_back(new SplinePoint(*bit, 0.0, *sit));
     }
 
     normalizeStruts();
@@ -137,7 +139,7 @@ void SplineCoaster::freePolyline(vector<SplinePoint*> &pts) {
 }
 
 // create a polyline that samples the curve (helper for the big render function)
-void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamples) {
+void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, unsigned int totalSamples) {
     if (totalSamples == 0)
         return; // ... no samples is easy!
 
@@ -279,7 +281,7 @@ vec3 SplineCoaster::getFirstUp() {
 
 
 // sweep the cross section along the curve (helper for the big render function)
-void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSectionScale) {
+void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline) {
     SplinePoint* pts[3]; // pts[1] is us, pts[0] and pts[3] surround us
     vector<vec2> & crossSection = profile;
     int size = (int) polyline.size();
@@ -288,7 +290,6 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
     vec3 oldDir(0.0), right(0.0);
     vec3 up(0.0);
     bool firstDir = true;
-    crossSectionScale = 0.01;
     for (int i = 1; i < size-1; i++) {
         double percent = double(i % size) / (double(size-3));
         for (int c = -1; c <= 1; c++) { // populate local pts
@@ -330,7 +331,7 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
             scaleTrans = scale - 1.0;
 		}
 
-        double s = crossSectionScale;
+        double s = pts[1]->crossSectionScale;
         int ind = 0;
         for (vector<vec2>::iterator it = crossSection.begin(); it != crossSection.end(); ++it, ++ind) {
             vec2 pos2d = rotation2D(vec2(0,0),rot) * (*it);
@@ -361,15 +362,13 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
         vec3 *temp = newSlice;
         newSlice = oldSlice;
         oldSlice = temp;
-
-        crossSectionScale += 0.5 / size;
     }
     delete [] newSlice;
     delete [] oldSlice;
 }
 
 // the big render function
-void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int supportsPerPt, double supportSize, double groundY) {
+void SplineCoaster::render(int samplesPerPt, int supportsPerPt, double supportSize, double groundY) {
     int totalSamples = (int) bsplinePts.size() * samplesPerPt;
 
     vector<SplinePoint*> polyline;
@@ -384,7 +383,7 @@ void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int suppo
 
     //renderSupports(supportsPerPt, supportSize, groundY);
 
-    renderSweep(polyline, crossSectionScale);
+    renderSweep(polyline);
 
     freePolyline(polyline);
 }
@@ -407,12 +406,15 @@ int SplineCoaster::getNumControlPoints() {
 	return bsplinePts.size();
 }
 
-void SplineCoaster::changePoint(int index, double dx, double dy, double dz) {
+void SplineCoaster::changePoint(int index,
+    double dx, double dy, double dz, double dcss) {
 	SplinePoint* point = bsplinePts[index];
 
 	point->point[0] += dx;
 	point->point[1] += dy;
 	point->point[2] += dz;
+
+    point->crossSectionScale += dcss;
 
 	clearDisplayList();
 }
