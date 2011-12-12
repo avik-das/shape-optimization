@@ -120,7 +120,7 @@ private:
     // --- internal helper functions
     void renderSupports(int supportsPerPt, double supportSize, double groundY);
     void renderSweep(vector<SplinePoint*> &pts, double crossSectionScale);
-    void createPolyline(vector<SplinePoint*> &pts, int totalSamples, int lastSample); // sample bspline
+    void createPolyline(vector<SplinePoint*> &pts, int totalSamples); // sample bspline
     void freePolyline(vector<SplinePoint*> &pts); // cleanup samples
     vec3 getFirstUp(); // helper to get initial frame (default to frenet, fallback to 'up=+Y')
     // rotates vector from RMF to account for twist, azimuth, etc:

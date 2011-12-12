@@ -137,16 +137,30 @@ void SplineCoaster::freePolyline(vector<SplinePoint*> &pts) {
 }
 
 // create a polyline that samples the curve (helper for the big render function)
-void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamples, int lastSample) {
+void SplineCoaster::createPolyline(vector<SplinePoint*> &polyline, int totalSamples) {
     if (totalSamples == 0)
         return; // ... no samples is easy!
 
+    // if closed, wrap around and allow for re-rendering the first few points,
+    // in order to ensure that we curve back in the right direction at the end.
+    int lastSample = totalSamples + (closed ? 3 : 0);
+
+    // when rendering a non-closed curve without using many samples, then there
+    // are some artifacts related to curving back to the original point after
+    // the last point. If we make lastSample too large in relation to
+    // totalSamples, then we accidentally curve back when we're not supposed
+    // to. But, if we have too few samples, then the curve is not complete. In
+    // the non-smooth (low totalSamples) case, we'll just render the control
+    // points instead of sampling the curve.
+    bool sample = !(totalSamples == bsplinePts.size() && !closed);
+
     vec3 lastGood(0.0);
-    for (int i = 0; i < lastSample + 1; i++) {
+    for (int i = 0; i < lastSample; i++) {
         int loc = i % totalSamples;
         double t = loc / double(totalSamples);
-        SplinePoint sp = SplinePoint::sampleBSpline(bsplinePts, t);
-        //SplinePoint sp = *bsplinePts[loc];
+        SplinePoint sp = sample ?
+            SplinePoint::sampleBSpline(bsplinePts, t, closed) :
+            *bsplinePts[loc];
         //cout << loc << ": " << sp.point << endl;
         if (!polyline.empty() && (sp.point - lastGood).length2() < .0001) {
             continue; // wait for the samples to get a bit further apart ... !
@@ -185,7 +199,7 @@ void SplineCoaster::renderSupports(int supportsPerPt, double supportSize, double
 
 // sample the curve at a point
 SplinePoint SplineCoaster::sample(double t) {
-    return SplinePoint::sampleBSpline(bsplinePts, t);
+    return SplinePoint::sampleBSpline(bsplinePts, t, closed);
 }
 // get the forward direction
 vec3 SplineCoaster::sampleForward(double t, double step) {
@@ -356,13 +370,10 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline, double crossSect
 
 // the big render function
 void SplineCoaster::render(int samplesPerPt, double crossSectionScale, int supportsPerPt, double supportSize, double groundY) {
-    int numBsplinePts = bsplinePts.size() + (closed ? 3 : 0);
-    int totalSamples = bsplinePts.size() * samplesPerPt;
-    int lastSample = numBsplinePts * samplesPerPt;
-    if (!closed) lastSample -= (int) (samplesPerPt * 2.52 - 1);
+    int totalSamples = (int) bsplinePts.size() * samplesPerPt;
 
     vector<SplinePoint*> polyline;
-    createPolyline(polyline, totalSamples, lastSample);
+    createPolyline(polyline, totalSamples);
 
     int size = (int) polyline.size();
     if (size < 2) { // a polyline with only one point is pretty lame!
