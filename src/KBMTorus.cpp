@@ -4,7 +4,7 @@
 
 KBMTorus::KBMTorus() :
     torposy( 8.0), torposz(0.0),
-    tortilt(-1.5),
+    tortilt(-1.0),
     looprad( 5.0), looptilt(0.0),
     hasDL(false) {
     create_leftarm();

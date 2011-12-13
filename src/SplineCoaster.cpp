@@ -384,8 +384,37 @@ void SplineCoaster::render(int samplesPerPt, int supportsPerPt, double supportSi
     //renderSupports(supportsPerPt, supportSize, groundY);
 
     renderSweep(polyline);
+    renderUpVectors();
 
     freePolyline(polyline);
+}
+
+void SplineCoaster::renderUpVectors() {
+    double x1, x2,
+           y1, y2,
+           z1, z2;
+
+    vec3 pt1pt = sample  (0.0).point;
+    vec3 pt1up = sampleUp(0.0);
+
+    x1 =      pt1pt[0]; y1 =      pt1pt[1]; z1 =      pt1pt[2];
+    x2 = x1 + pt1up[0]; y2 = y1 + pt1up[1]; z2 = z1 + pt1up[2];
+
+    glBegin(GL_LINES);
+        glVertex3d(x1, y1, z1);
+        glVertex3d(x2, y2, z2);
+    glEnd();
+
+    vec3 pt2pt = sample  (1.0-EPSILON).point;
+    vec3 pt2up = sampleUp(1.0-EPSILON);
+
+    x1 =      pt2pt[0]; y1 =      pt2pt[1]; z1 =      pt2pt[2];
+    x2 = x1 + pt2up[0]; y2 = y1 + pt2up[1]; z2 = z1 + pt2up[2];
+
+    glBegin(GL_LINES);
+        glVertex3d(x1, y1, z1);
+        glVertex3d(x2, y2, z2);
+    glEnd();
 }
 
 

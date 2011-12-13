@@ -51,6 +51,7 @@ public:
 
     // renders the coaster
     void render(int samplesPerPt, int supportsPerPt=3, double supportSize=.1, double groundY=0.0);
+    void renderUpVectors();
     // renders the coaster with a cache.  Ignores parameters after display list is set; use clearDisplayList() before updating parameters
     void renderWithDisplayList(int samplesPerPt, int supportsPerPt=3, double supportSize=.1, double groundY=0.0) {
         if (!hasDL) {
