@@ -326,7 +326,7 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
         double strut1l = strut1.length();
         double strut2l = strut2.length();
 
-        double devlen = abs(1.0 - strut1l / strut2l);
+        double devlen = abs(log(strut1l / strut2l));
         lenchgs += devlen * devlen;
 
         double normdot = strut1 * strut2 / (strut1l * strut2l);
