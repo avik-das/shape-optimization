@@ -370,7 +370,7 @@ void find_tracks() {
     for (directory_iterator itr(dir); itr != end_itr; itr++) {
         if (is_directory(itr->status())) { continue; }
 
-        string name = itr->path().filename();
+        string name = itr->path().filename().string();
 
         if (name.rfind(".trk") == name.size() - 4)
             tracks.push_back (name);
