@@ -61,7 +61,7 @@ Double Circle
 The following libraries are used, along with the package that provides them on
 Ubuntu (and possibly other Debian-based systems, including Debian itself).
 
-* Eigen 2 (libeigen2-dev)
+* Eigen 3 (libeigen3-dev)
   - http://eigen.tuxfamily.org/index.php?title=Main_Page
 * Libbost Math 1.46.1 (libboost-math1.46-dev)
   - http://www.boost.org/doc/libs/1_46_1/libs/math/doc/html/index.html
