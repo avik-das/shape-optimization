@@ -93,7 +93,7 @@ public:
 
 	/*Returns number of parameters **ENERGY-RELATED** */
 	int getNumControlPoints();
-	void changePoint(int index, double dx, double dy, double dz, double dcss);
+	void changePoint(int index, double dx, double dy, double dz, double dcss, double drot);
     SplinePoint getPoint(int index);
 
     // When closed, a strut is constructed from the last control point back to

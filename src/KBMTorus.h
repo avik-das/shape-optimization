@@ -62,8 +62,11 @@ public:
 	int getNumMovableControlPoints();
 	int getNumMovableControlPoints(ArmType whicharm);
 
+    void compensateTwist();
+    double getGlobalTwist(ArmType whicharm);
+
 	void changePoint(ArmType whicharm, int index,
-        double dx, double dy, double dz, double dcss);
+        double dx, double dy, double dz, double dcss, double drot);
 	SplinePoint getPoint(ArmType whicharm, int index);
 
 private:

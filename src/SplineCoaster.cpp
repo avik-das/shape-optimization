@@ -389,32 +389,107 @@ void SplineCoaster::render(int samplesPerPt, int supportsPerPt, double supportSi
     freePolyline(polyline);
 }
 
-void SplineCoaster::renderUpVectors() {
+void drawVector(vec3 pt, vec3 vc) {
     double x1, x2,
            y1, y2,
            z1, z2;
 
-    vec3 pt1pt = sample  (0.0).point;
-    vec3 pt1up = sampleUp(0.0);
-
-    x1 =      pt1pt[0]; y1 =      pt1pt[1]; z1 =      pt1pt[2];
-    x2 = x1 + pt1up[0]; y2 = y1 + pt1up[1]; z2 = z1 + pt1up[2];
+    x1 =      pt[0]; y1 =      pt[1]; z1 =      pt[2];
+    x2 = x1 + vc[0]; y2 = y1 + vc[1]; z2 = z1 + vc[2];
 
     glBegin(GL_LINES);
         glVertex3d(x1, y1, z1);
         glVertex3d(x2, y2, z2);
     glEnd();
+}
 
-    vec3 pt2pt = sample  (1.0-EPSILON).point;
-    vec3 pt2up = sampleUp(1.0-EPSILON);
+void SplineCoaster::renderUpVectors() {
+    glLineWidth(2.0f);
+    double myGlobalTwist = 0;
+    //double dgt = 0;
 
-    x1 =      pt2pt[0]; y1 =      pt2pt[1]; z1 =      pt2pt[2];
-    x2 = x1 + pt2up[0]; y2 = y1 + pt2up[1]; z2 = z1 + pt2up[2];
+    int numCPs = getNumControlPoints();
+    for (int i = 2; i < numCPs - 3; i++) {
+        // We consider a group of four adjacent points, p1-p4, and consider
+        // the three segments between them, s1-s3.
+        //
+        //      p2 --- p3
+        //     /        \
+        //   p1          p4
+        //
+        // We calculate the normal vectors at p2 and p3 by taking the
+        // normalized vectors of the two segments surrounding them, then
+        // averaging them.
+        //         s2
+        //      p2 --> p3
+        //   s1 | \
+        //      |  \ n1
+        //      V   \
+        //     p1
+        //
+        // We must normalize the normal vector because its length depends on
+        // the angle between the two surrounding segments.
+        vec3 p1 = getPoint(i-1).point;
+        vec3 p2 = getPoint(i  ).point;
+        vec3 p3 = getPoint(i+1).point;
+        vec3 p4 = getPoint(i+2).point;
 
-    glBegin(GL_LINES);
-        glVertex3d(x1, y1, z1);
-        glVertex3d(x2, y2, z2);
-    glEnd();
+        vec3 s1 = (p2 - p1).normalize();
+        vec3 s2 = (p3 - p2).normalize();
+        vec3 s3 = (p4 - p3).normalize();
+
+        vec3 n2 = ((s2 - s1) / 2).normalize();
+        vec3 n3 = ((s3 - s2) / 2).normalize();
+
+        glColor3f(1.0f, 1.0f, 1.0f);
+        drawVector(p2, n2);
+        drawVector(p3, n3);
+
+        // Next, we have to project the two normals onto the segment bisecting
+        // plane for s2. To do this, we each normal, project it onto s2, and
+        // finally, take the difference between the projection and the normal
+        // to get a vector orthogonal to s2. This vector is the projection of
+        // each normal onto the segment bisecting plane.
+        //
+        //     s2    s2*n
+        //   <-------<-- p3
+        //           |  /
+        //    n-s2*n | / n
+        //           V/
+
+        vec3 proj2 = (n2 - (s2 * n2) * s2).normalize();
+        vec3 proj3 = (n3 - (s2 * n3) * s2).normalize();
+
+        vec3 mid = (p2 + p3) / 2;
+
+        glColor3f(1.0f, 0.0f, 0.0f);
+        drawVector(mid, proj2);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        drawVector(mid, proj3);
+
+        // Now that we have two vectors in the same plane, we can compare the
+        // unsigned angle between them based on their dot products. This is
+        // especially convenient, since the vectors are normalized.
+
+        double normdot = proj2 * proj3;
+        double twist   = acos(CLAMP(normdot, -1.0, 1.0));
+
+        // The only issue is that the range of acos is [0,180], not [-180,180],
+        // even though we want the signed angle between the two vectors. To
+        // solve this, we take the cross product of the two vectors. This
+        // vector will be aligned with s2, but will either point in the same
+        // or the exact opposite direction. As a convention, we label the first
+        // case positive, and the latter case negative.
+
+        double dir = (proj3 ^ proj2) * s2;
+        if (dir < 0)
+            twist *= -1;
+
+        myGlobalTwist += twist;
+        cout << twist << endl;
+    }
+
+    cout << myGlobalTwist << endl;
 }
 
 
@@ -436,7 +511,7 @@ int SplineCoaster::getNumControlPoints() {
 }
 
 void SplineCoaster::changePoint(int index,
-    double dx, double dy, double dz, double dcss) {
+    double dx, double dy, double dz, double dcss, double drot) {
 	SplinePoint* point = bsplinePts[index];
 
 	point->point[0] += dx;
@@ -444,6 +519,7 @@ void SplineCoaster::changePoint(int index,
 	point->point[2] += dz;
 
     point->crossSectionScale += dcss;
+    point->azimuth           += drot;
 
 	clearDisplayList();
 }
@@ -475,34 +551,109 @@ void SplineCoaster::normalizeStruts() {
 }
 
 void SplineCoaster::compensateTwist() {
-    vec3 firstUp = sampleUp(0.0);
-    vec3  lastUp = sampleUp(1.0-EPSILON);
-    
-    // Rotate the up vector so by the initial global twist, which accounts for
-    // the fact that the two up vectors may be mismatched by that amount and
-    // still be considered matched. This is important for twists that are not
-    // multiples of 360 degrees, such as 180 degrees. In such a case, the ends
-    // will only match up (though the colors will not) if the cross sections
-    // are a specific shape, such as a rectangle.
-    vec3 lastForward = sampleForward(1.0-EPSILON);
-    lastUp = rotation3D(lastForward, initialGlobalTwist) * lastUp;
+    if (closed) {
+        vec3 firstUp = sampleUp(0.0);
+        vec3  lastUp = sampleUp(1.0-EPSILON);
 
-    double normdot = firstUp*lastUp / (firstUp.length()*lastUp.length());
-    double angle = acos(CLAMP(normdot, -1.0, 1.0)) * 180 / acos(-1.0);
+        // Rotate the up vector so by the initial global twist, which accounts
+        // for the fact that the two up vectors may be mismatched by that
+        // amount and still be considered matched. This is important for twists
+        // that are not multiples of 360 degrees, such as 180 degrees. In such
+        // a case, the ends will only match up (though the colors will not) if
+        // the cross sections are a specific shape, such as a rectangle.
+        vec3 lastForward = sampleForward(1.0-EPSILON);
+        lastUp = rotation3D(lastForward, initialGlobalTwist) * lastUp;
 
-    // The first check to make is whether or not the correct angle is greater
-    // than or less than 180 degrees. This is because the range of acos is 0 to
-    // 180, not 0 to 360.
-    // 
-    // To perform this check, we check the cross product of the last up vector
-    // with the first up vector against the forward vector at the starting
-    // point. They should point in same direction if the actual mismatch is
-    // within 180 degrees.
-    vec3 compForward = lastUp ^ firstUp;
-    vec3 realForward = sampleForward(1.0-EPSILON);
-    if (compForward * realForward >= 0.0) { angle *= -1; }
+        double normdot = firstUp*lastUp / (firstUp.length()*lastUp.length());
+        double angle = acos(CLAMP(normdot, -1.0, 1.0)) * 180 / acos(-1.0);
 
-    globalTwist += angle;
+        // The first check to make is whether or not the correct angle is
+        // greater than or less than 180 degrees. This is because the range of
+        // acos is 0 to 180, not 0 to 360.
+        //
+        // To perform this check, we check the cross product of the last up
+        // vector with the first up vector against the forward vector at the
+        // starting point. They should point in same direction if the actual
+        // mismatch is within 180 degrees.
+        vec3 compForward = lastUp ^ firstUp;
+        vec3 realForward = sampleForward(1.0-EPSILON);
+        if (compForward * realForward >= 0.0) { angle *= -1; }
+
+        globalTwist += angle;
+    }
+    else {
+        double myGlobalTwist = 0.0;
+        int numCPs = getNumControlPoints();
+        for (int i = 2; i < numCPs - 4; i++) {
+            // We consider a group of four adjacent points, p1-p4, and consider
+            // the three segments between them, s1-s3.
+            //
+            //      p2 --- p3
+            //     /        \
+            //   p1          p4
+            //
+            // We calculate the normal vectors at p2 and p3 by taking the
+            // normalized vectors of the two segments surrounding them, then
+            // averaging them.
+            //         s2
+            //      p2 --> p3
+            //   s1 | \
+            //      |  \ n1
+            //      V   \
+            //     p1
+            //
+            // We must normalize the normal vector because its length depends
+            // on the angle between the two surrounding segments.
+            vec3 p1 = getPoint(i-1).point;
+            vec3 p2 = getPoint(i  ).point;
+            vec3 p3 = getPoint(i+1).point;
+            vec3 p4 = getPoint(i+2).point;
+
+            vec3 s1 = (p2 - p1).normalize();
+            vec3 s2 = (p3 - p2).normalize();
+            vec3 s3 = (p4 - p3).normalize();
+
+            vec3 n2 = ((s2 - s1) / 2).normalize();
+            vec3 n3 = ((s3 - s2) / 2).normalize();
+
+            // Next, we have to project the two normals onto the segment
+            // bisecting plane for s2. To do this, we each normal, project it
+            // onto s2, and finally, take the difference between the projection
+            // and the normal to get a vector orthogonal to s2. This vector is
+            // the projection of each normal onto the segment bisecting plane.
+            //
+            //     s2    s2*n
+            //   <-------<-- p3
+            //           |  /
+            //    n-s2*n | / n
+            //           V/
+
+            vec3 proj2 = (n2 - (s2 * n2) * s2).normalize();
+            vec3 proj3 = (n3 - (s2 * n3) * s2).normalize();
+
+            // Now that we have two vectors in the same plane, we can compare
+            // the unsigned angle between them based on their dot products.
+            // This is especially convenient, since the vectors are normalized.
+
+            double normdot = proj2 * proj3;
+            double twist   = acos(CLAMP(normdot, -1.0, 1.0));
+
+            // The only issue is that the range of acos is [0,180], not
+            // [-180,180], even though we want the signed angle between the two
+            // vectors. To solve this, we take the cross product of the two
+            // vectors. This vector will be aligned with s2, but will either
+            // point in the same or the exact opposite direction. As a
+            // convention, we label the first case positive, and the latter
+            // case negative.
+
+            double dir = (proj3 ^ proj2) * s2;
+            if (dir < 0)
+                twist *= -1;
+
+            myGlobalTwist += twist;
+        }
+        globalTwist = 180 - myGlobalTwist;
+    }
 }
 
 double SplineCoaster::getGlobalTwist() {

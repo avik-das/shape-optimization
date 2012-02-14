@@ -31,6 +31,7 @@ int KBMTorus::getNumControlPoints(ArmType whicharm) {
         case LEFTARM:
             return leftarm->getNumControlPoints();
         case RGHTARM:
+        default     :
             return rghtarm->getNumControlPoints();
     }
 }
@@ -47,18 +48,35 @@ int KBMTorus::getNumMovableControlPoints(ArmType whicharm) {
         case LEFTARM:
             return leftarm->getNumControlPoints() - 6;
         case RGHTARM:
+        default     :
             return rghtarm->getNumControlPoints() - 6;
     }
 }
 
-void KBMTorus::changePoint(ArmType whicharm, int index,
-                           double dx, double dy, double dz, double dcss) {
+void KBMTorus::compensateTwist() {
+    leftarm->compensateTwist();
+    rghtarm->compensateTwist();
+}
+
+double KBMTorus::getGlobalTwist(ArmType whicharm) {
     switch (whicharm) {
         case LEFTARM:
-            leftarm->changePoint(index, dx, dy, dz, dcss);
+            return leftarm->getGlobalTwist();
+        case RGHTARM:
+        default     :
+            return rghtarm->getGlobalTwist();
+    }
+}
+
+void KBMTorus::changePoint(ArmType whicharm, int index,
+                           double dx, double dy, double dz,
+                           double dcss, double drot) {
+    switch (whicharm) {
+        case LEFTARM:
+            leftarm->changePoint(index, dx, dy, dz, dcss, drot);
             break;
         case RGHTARM:
-            rghtarm->changePoint(index, dx, dy, dz, dcss);
+            rghtarm->changePoint(index, dx, dy, dz, dcss, drot);
             break;
     }
 
@@ -70,6 +88,7 @@ SplinePoint KBMTorus::getPoint(ArmType whicharm, int index) {
         case LEFTARM:
             return leftarm->getPoint(index);
         case RGHTARM:
+        default     :
             return rghtarm->getPoint(index);
     }
 }
@@ -111,6 +130,7 @@ void KBMTorus::create_leftarm() {
 
     leftarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     leftarm->setClosed(false);
+    leftarm->compensateTwist();
 }
 
 void KBMTorus::create_rghtarm() {
@@ -150,4 +170,5 @@ void KBMTorus::create_rghtarm() {
 
     rghtarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     rghtarm->setClosed(false);
+    rghtarm->compensateTwist();
 }
