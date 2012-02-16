@@ -27,6 +27,7 @@ UCB::ImageSaver * imgSaver;
 int frameCount = 0;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
+float zoom = 0.0f;
 
 TwBar* tbar = NULL;
 
@@ -87,7 +88,7 @@ void display() {
 
 
     if (viewMode == VIEW_THIRDPERSON) {
-        glTranslatef(0,-2,-30);
+        glTranslatef(0,-2,-20 - zoom);
         applyMat4(viewport.orientation);
     }
 
@@ -217,6 +218,26 @@ void myPassiveMotionFunc(int x, int y) {
 
     //Force a redraw of the window.
     glutPostRedisplay();
+}
+
+//-------------------------------------------------------------------------------
+/// Called whenever a mouse button is pressed
+void myMouseFunc(int button, int state, int x, int y) {
+    if (TwEventMouseButtonGLUT(button, state, x, y))
+        return;
+
+    // mouse wheel event
+    if (button == 3 || button == 4) {
+        if (state == GLUT_UP)
+            return; // disregard redundant GLUT_UP events
+
+        if (button == 3)
+            zoom += 0.1f;
+        else
+            zoom -= 0.1f;
+
+        glutPostRedisplay();
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -452,12 +473,12 @@ int main(int argc,char** argv) {
 	glutKeyboardFunc(myKeyboardFunc);
 	glutMotionFunc(myActiveMotionFunc);
 	glutPassiveMotionFunc(myPassiveMotionFunc);
+    glutMouseFunc(myMouseFunc);
     frameTimer(0);
 
     atexit(app_terminate);
 
     //Any event not handled by our code can be handled directly by AntTweakBar
-    glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
     glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
 
     glClearColor(0,0,0,0);
