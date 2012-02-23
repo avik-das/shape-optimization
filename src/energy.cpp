@@ -348,7 +348,7 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
 
     twistpn = torus->getGlobalTwist(whicharm);
     twistpn = twistpn * twistpn;
-    twistpn = 0.8; // TODO: needs to be variable
+    twistpn *= 10; // TODO: needs to be variable
 
     return bending + lenchgs + csschgs + twistpn;
 }
@@ -388,15 +388,13 @@ void KBMEnergy::log_energies() {
 
         double angleDeg = angle * 180.0 / PI;
 
-        double twist = torus->getGlobalTwist(whicharm);
-
         if (t == 1)
             cout << " (" << strut1l << ") ";
         cout << t << "->" << angleDeg << "," << point2.azimuth;
         cout << " (" << strut2l << ", " << rchg << " (" << r2 << "->" << r3 << ")" << ") ";
-        cout << " " << twist;
     }
 
+    cout << " " << torus->getGlobalTwist(whicharm);
     cout << endl;
 }
 

@@ -3,9 +3,11 @@
 #include "global.h"
 
 #include <fstream>
+#include <boost/math/constants/constants.hpp>
 
 #define EPSILON (.00000000001)
 #define FULL_ROTATION (360.0)
+const double PI = boost::math::constants::pi<double>();
 
 #define TWIST_JUMP (20.0)
 
@@ -316,7 +318,12 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline) {
         up.normalize(); right.normalize();
         oldDir = dir;
 
+        // Even though the global twist is used the calculations, we choose not
+        // to use it during rendering. This allows us to understand what the
+        // curve's rotation minimizing ending orientation is, which we can use
+        // to determine visually what the compensation should be.
         double rot = globalAzimuth + globalTwist * percent + pts[1]->azimuth;
+        //double rot = globalAzimuth + pts[1]->azimuth;
 
         vec3 bisect = leg1 + leg2;
         double len = bisect.length();
@@ -406,10 +413,14 @@ void drawVector(vec3 pt, vec3 vc) {
 void SplineCoaster::renderUpVectors() {
     glLineWidth(2.0f);
     double myGlobalTwist = 0;
+    globalTwist = 0;
     //double dgt = 0;
 
+    vec3 nstart = vec3( 1,0,0);
+    vec3 nend   = vec3(-1,0,0);
+
     int numCPs = getNumControlPoints();
-    for (int i = 2; i < numCPs - 3; i++) {
+    for (int i = 1; i < numCPs - 2; i++) {
         // We consider a group of four adjacent points, p1-p4, and consider
         // the three segments between them, s1-s3.
         //
@@ -429,6 +440,13 @@ void SplineCoaster::renderUpVectors() {
         //
         // We must normalize the normal vector because its length depends on
         // the angle between the two surrounding segments.
+        //
+        // We have to make special exceptions for the very first and the very
+        // last points, which don't have two segments on either side as needed
+        // for the calculation of the normal. Instead, we assign them arbitrary
+        // normals. Furthermore, by making the two normals point in the
+        // opposite direction, we build in the notion that the ideal
+        // configuration should incorporate a global twist of 180 degrees.
         vec3 p1 = getPoint(i-1).point;
         vec3 p2 = getPoint(i  ).point;
         vec3 p3 = getPoint(i+1).point;
@@ -438,8 +456,8 @@ void SplineCoaster::renderUpVectors() {
         vec3 s2 = (p3 - p2).normalize();
         vec3 s3 = (p4 - p3).normalize();
 
-        vec3 n2 = ((s2 - s1) / 2).normalize();
-        vec3 n3 = ((s3 - s2) / 2).normalize();
+        vec3 n2 = (i == 1         ) ? nstart : ((s2 - s1) / 2).normalize();
+        vec3 n3 = (i == numCPs - 3) ? nend   : ((s3 - s2) / 2).normalize();
 
         glColor3f(1.0f, 1.0f, 1.0f);
         drawVector(p2, n2);
@@ -489,7 +507,47 @@ void SplineCoaster::renderUpVectors() {
         cout << twist << endl;
     }
 
-    cout << myGlobalTwist << endl;
+    myGlobalTwist = fmod(myGlobalTwist, 2*PI);
+    cout << "myGlobalTwist: " << myGlobalTwist << endl;
+
+    // In addition to the artificial normal at the end of the curve, we also
+    // want to visualize the normal that would occur due to the forward
+    // projection of the normal vectors as performed above. This normal is
+    // simply the artificial normal at the end point rotated by global twist
+    // calculated above. The normal should be rotated in the plane containing
+    // the final cross-section, that is the axis of rotation is exactly the
+    // very last segment of the curve.
+    //
+    // For visualization purposes, we actually render the normal rotated not by
+    // the global twist, but by the negative of the global twist, to indicate
+    // that the final cross-section has been rotated that amount to
+    // *compensate* for the twist built into the curve.
+    vec3 p1 = getPoint(numCPs-3).point;
+    vec3 p2 = getPoint(numCPs-2).point;
+    vec3 s1 = (p2 - p1).normalize();
+
+    double x = s1[0],
+           y = s1[1],
+           z = s1[2],
+           t = myGlobalTwist;
+
+    // Rodriguez formula for rotating t radians around axis defined by s1.
+    vec3 v1(cos(t) + x*x*(1-cos(t)),
+            y*x*(1-cos(t))+z*sin(t),
+            z*x*(1-cos(t))-y*sin(t));
+    vec3 v2(x*y*(1-cos(t))-z*sin(t),
+            cos(t) + y*y*(1-cos(t)),
+            z*y*(1-cos(t))+x*sin(t));
+    vec3 v3(x*z*(1-cos(t))+y*sin(t),
+            y*z*(1-cos(t))-x*sin(t),
+            cos(t) + z*z*(1-cos(t)));
+    mat3 r  = mat3(v1, v2, v3);
+    vec3 projnend = r * nend;
+
+    glColor3f(1.0f, 1.0f, 0.0f);
+    drawVector(p2, projnend);
+
+    globalTwist = myGlobalTwist;
 }
 
 
@@ -582,9 +640,14 @@ void SplineCoaster::compensateTwist() {
         globalTwist += angle;
     }
     else {
+        globalTwist = 0.0;
         double myGlobalTwist = 0.0;
+
+        vec3 nstart = vec3( 1,0,0);
+        vec3 nend   = vec3(-1,0,0);
+
         int numCPs = getNumControlPoints();
-        for (int i = 2; i < numCPs - 4; i++) {
+        for (int i = 1; i < numCPs - 2; i++) {
             // We consider a group of four adjacent points, p1-p4, and consider
             // the three segments between them, s1-s3.
             //
@@ -604,6 +667,14 @@ void SplineCoaster::compensateTwist() {
             //
             // We must normalize the normal vector because its length depends
             // on the angle between the two surrounding segments.
+            //
+            // We have to make special exceptions for the very first and the
+            // very last points, which don't have two segments on either side
+            // as needed for the calculation of the normal. Instead, we assign
+            // them arbitrary normals. Furthermore, by making the two normals
+            // point in the opposite direction, we build in the notion that the
+            // ideal configuration should incorporate a global twist of 180
+            // degrees.
             vec3 p1 = getPoint(i-1).point;
             vec3 p2 = getPoint(i  ).point;
             vec3 p3 = getPoint(i+1).point;
@@ -613,8 +684,8 @@ void SplineCoaster::compensateTwist() {
             vec3 s2 = (p3 - p2).normalize();
             vec3 s3 = (p4 - p3).normalize();
 
-            vec3 n2 = ((s2 - s1) / 2).normalize();
-            vec3 n3 = ((s3 - s2) / 2).normalize();
+            vec3 n2 = (i == 1         ) ? nstart : ((s2 - s1) / 2).normalize();
+            vec3 n3 = (i == numCPs - 3) ? nend   : ((s3 - s2) / 2).normalize();
 
             // Next, we have to project the two normals onto the segment
             // bisecting plane for s2. To do this, we each normal, project it
@@ -652,7 +723,7 @@ void SplineCoaster::compensateTwist() {
 
             myGlobalTwist += twist;
         }
-        globalTwist = 180 - myGlobalTwist;
+        globalTwist = fmod(myGlobalTwist, 2*PI);
     }
 }
 
