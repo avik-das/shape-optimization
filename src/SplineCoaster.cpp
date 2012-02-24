@@ -460,8 +460,8 @@ void SplineCoaster::renderUpVectors() {
         vec3 n3 = (i == numCPs - 3) ? nend   : ((s3 - s2) / 2).normalize();
 
         glColor3f(1.0f, 1.0f, 1.0f);
-        drawVector(p2, n2);
-        drawVector(p3, n3);
+        drawVector(p2, n2*2);
+        drawVector(p3, n3*2);
 
         // Next, we have to project the two normals onto the segment bisecting
         // plane for s2. To do this, we each normal, project it onto s2, and
@@ -481,9 +481,9 @@ void SplineCoaster::renderUpVectors() {
         vec3 mid = (p2 + p3) / 2;
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        drawVector(mid, proj2);
+        drawVector(mid, proj2*2);
         glColor3f(0.0f, 1.0f, 0.0f);
-        drawVector(mid, proj3);
+        drawVector(mid, proj3*2);
 
         // Now that we have two vectors in the same plane, we can compare the
         // unsigned angle between them based on their dot products. This is
@@ -545,7 +545,7 @@ void SplineCoaster::renderUpVectors() {
     vec3 projnend = r * nend;
 
     glColor3f(1.0f, 1.0f, 0.0f);
-    drawVector(p2, projnend);
+    drawVector(p2, projnend*2);
 
     globalTwist = myGlobalTwist;
 }
@@ -578,6 +578,20 @@ void SplineCoaster::changePoint(int index,
 
     point->crossSectionScale += dcss;
     point->azimuth           += drot;
+
+	clearDisplayList();
+}
+
+void SplineCoaster::setPoint(int index,
+    double x, double y, double z, double css, double rot) {
+	SplinePoint* point = bsplinePts[index];
+
+	point->point[0] = x;
+	point->point[1] = y;
+	point->point[2] = z;
+
+    point->crossSectionScale = css;
+    point->azimuth           = rot;
 
 	clearDisplayList();
 }

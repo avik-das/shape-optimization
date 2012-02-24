@@ -88,7 +88,7 @@ void display() {
 
 
     if (viewMode == VIEW_THIRDPERSON) {
-        glTranslatef(0,-2,-20 - zoom);
+        glTranslatef(0,-2,-35 - zoom);
         applyMat4(viewport.orientation);
     }
 

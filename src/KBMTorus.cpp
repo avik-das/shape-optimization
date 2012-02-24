@@ -93,6 +93,39 @@ SplinePoint KBMTorus::getPoint(ArmType whicharm, int index) {
     }
 }
 
+double KBMTorus::getTorTilt() {
+    return tortilt;
+}
+
+void KBMTorus::changeTorTilt(double dtilt) {
+    tortilt += dtilt;
+    move_left_end_segments();
+    move_rght_end_segments();
+}
+
+void KBMTorus::move_left_end_segments() {
+    leftarm->setPoint(0,
+            0, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2,
+            0.2, 0);
+    leftarm->setPoint(1,
+            0, -torposy, -torposz,
+            0.2, 0);
+    leftarm->setPoint(2,
+            0, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2,
+            0.2, 0);
+
+    leftarm->setPoint(7,
+            0, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2,
+            1.0, 0);
+    leftarm->setPoint(8,
+            0, torposy, torposz,
+            1.0, 0);
+    leftarm->setPoint(9,
+            0, torposy - sin(tortilt) * 2, torposz + cos(tortilt) * 2,
+            1.0, 0);
+    leftarm->compensateTwist();
+}
+
 void KBMTorus::create_leftarm() {
     vector<vec2> profile;
     profile.push_back(vec2(-1.0,  0.0));
@@ -100,9 +133,9 @@ void KBMTorus::create_leftarm() {
     profile.push_back(vec2( 1.0,  0.0));
     profile.push_back(vec2( 0.0, -1.0));
 
-    vec3 q0 = vec3(0, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2);
-    vec3 q1 = vec3(0, -torposy, -torposz);
-    vec3 q2 = vec3(0, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2);
+    vec3 q0 = vec3(0, 0, 0);
+    vec3 q1 = vec3(0, 0, 0);
+    vec3 q2 = vec3(0, 0, 0);
 
     vec3 q3 = vec3(-0.3 * looprad,
                    -torposy - 3 * sin(tortilt),
@@ -113,9 +146,9 @@ void KBMTorus::create_leftarm() {
                    torposy + 3 * sin(tortilt),
                    torposz - 3 * cos(tortilt));
 
-    vec3 q7 = vec3(0, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2);
-    vec3 q8 = vec3(0, torposy, torposz);
-    vec3 q9 = vec3(0, torposy - sin(tortilt) * 2, torposz + cos(tortilt) * 2);
+    vec3 q7 = vec3(0, 0, 0);
+    vec3 q8 = vec3(0, 0, 0);
+    vec3 q9 = vec3(0, 0, 0);
 
     vector<vec3> pts;
     pts.push_back(q0); pts.push_back(q1); pts.push_back(q2);
@@ -123,14 +156,37 @@ void KBMTorus::create_leftarm() {
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
 
     vector<double> scales;
-    scales.push_back(0.1); scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.5); scales.push_back(0.5); scales.push_back(0.5);
+    scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
 
     leftarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     leftarm->setClosed(false);
-    leftarm->compensateTwist();
+    move_left_end_segments();
+}
+
+void KBMTorus::move_rght_end_segments() {
+    rghtarm->setPoint(0,
+            0, torposy - sin(tortilt) * 2, torposz + cos(tortilt) * 2,
+            0.2, 0);
+    rghtarm->setPoint(1,
+            0, torposy, torposz,
+            0.2, 0);
+    rghtarm->setPoint(2,
+            0, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2,
+            0.2, 0);
+
+    rghtarm->setPoint(7,
+            0, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2,
+            1.0, 0);
+    rghtarm->setPoint(8,
+            0, -torposy, -torposz,
+            1.0, 0);
+    rghtarm->setPoint(9,
+            0, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2,
+            1.0, 0);
+    rghtarm->compensateTwist();
 }
 
 void KBMTorus::create_rghtarm() {
@@ -140,9 +196,9 @@ void KBMTorus::create_rghtarm() {
     profile.push_back(vec2( 1.0,  0.0));
     profile.push_back(vec2( 0.0, -1.0));
 
-    vec3 q0 = vec3(0, torposy - sin(tortilt) * 2, torposz + cos(tortilt) * 2);
-    vec3 q1 = vec3(0, torposy, torposz);
-    vec3 q2 = vec3(0, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2);
+    vec3 q0 = vec3(0, 0, 0);
+    vec3 q1 = vec3(0, 0, 0);
+    vec3 q2 = vec3(0, 0, 0);
 
     vec3 q3 = vec3(0.3 * looprad,
                    torposy + 3 * sin(tortilt),
@@ -153,9 +209,9 @@ void KBMTorus::create_rghtarm() {
                    -torposy - 3 * sin(tortilt),
                    -torposz + 3 * cos(tortilt));
 
-    vec3 q7 = vec3(0, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2);
-    vec3 q8 = vec3(0, -torposy, -torposz);
-    vec3 q9 = vec3(0, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2);
+    vec3 q7 = vec3(0, 0, 0);
+    vec3 q8 = vec3(0, 0, 0);
+    vec3 q9 = vec3(0, 0, 0);
 
     vector<vec3> pts;
     pts.push_back(q0); pts.push_back(q1); pts.push_back(q2);
@@ -163,12 +219,12 @@ void KBMTorus::create_rghtarm() {
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
 
     vector<double> scales;
-    scales.push_back(0.1); scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.1); scales.push_back(0.1);
-    scales.push_back(0.5); scales.push_back(0.5); scales.push_back(0.5);
+    scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
 
     rghtarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     rghtarm->setClosed(false);
-    rghtarm->compensateTwist();
+    move_rght_end_segments();
 }

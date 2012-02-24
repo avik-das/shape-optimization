@@ -69,6 +69,9 @@ public:
         double dx, double dy, double dz, double dcss, double drot);
 	SplinePoint getPoint(ArmType whicharm, int index);
 
+    double getTorTilt();
+    void changeTorTilt(double dtilt);
+
 private:
     /* High-level parameters */
     float torposy;
@@ -84,6 +87,9 @@ private:
 
     SplineCoaster *leftarm;
     SplineCoaster *rghtarm;
+
+    void move_left_end_segments();
+    void move_rght_end_segments();
 
     void create_leftarm();
     void create_rghtarm();
