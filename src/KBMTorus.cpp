@@ -104,6 +104,7 @@ void KBMTorus::dumpPoints() {
     leftarm->dumpPoints();
     cout << "Right Arm:" << endl;
     rghtarm->dumpPoints();
+}
 
 double KBMTorus::getTorTilt() {
     return tortilt;
