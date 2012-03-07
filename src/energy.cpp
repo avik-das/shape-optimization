@@ -273,14 +273,15 @@ float LineEnergy::update_step_size(float old, float end) {
 KBMEnergy::KBMEnergy(
     KBMTorus *torus, double twist_weight) :
     // each control point has x, y and z components, plus a cross-section
-    // scale
-    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 4),
+    // scale. Additionally, there is a tilt for the end cap.
+    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 4 + 1),
     torus(torus),
     twist_weight(twist_weight) {
     log_energies();
 }
 
 void KBMEnergy::apply_change(VectorXf *chg) {
+    int numParams = chg->size();
     int numPointsLeft = torus->getNumMovableControlPoints(KBMTorus::LEFTARM);
     int numPointsRght = torus->getNumMovableControlPoints(KBMTorus::RGHTARM);
 
@@ -303,6 +304,9 @@ void KBMEnergy::apply_change(VectorXf *chg) {
 		torus->changePoint(KBMTorus::RGHTARM,
             pi/4 + 3, dx, dy, dz, dcss, 0);
 	}
+
+    torus->changeTorTilt((*chg)[numParams - 1]);
+
     torus->compensateTwist();
 }
 
@@ -395,6 +399,7 @@ void KBMEnergy::log_energies() {
     }
 
     cout << " " << torus->getGlobalTwist(whicharm);
+    cout << " " << torus->getTorTilt();
     cout << endl;
 }
 

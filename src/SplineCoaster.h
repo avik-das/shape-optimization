@@ -98,6 +98,7 @@ public:
 	int getNumControlPoints();
 	void changePoint(int index, double dx, double dy, double dz, double dcss, double drot);
     SplinePoint getPoint(int index);
+	void setPoint(int index, double x, double y, double z, double css, double rot);
 
     // When closed, a strut is constructed from the last control point back to
     // the first. When not closed, this strut is not constructed.
