@@ -18,7 +18,7 @@ KBMTorus::~KBMTorus() {
 
 void KBMTorus::render(int samplesPerPt) {
     leftarm->render(samplesPerPt);
-    //rghtarm->render(samplesPerPt);
+    rghtarm->render(samplesPerPt);
 }
 
 int KBMTorus::getNumControlPoints() {
@@ -91,6 +91,19 @@ SplinePoint KBMTorus::getPoint(ArmType whicharm, int index) {
         default     :
             return rghtarm->getPoint(index);
     }
+}
+
+void KBMTorus::toggleUpVectors() {
+    leftarm->toggleUpVectors();
+    rghtarm->toggleUpVectors();
+	clearDisplayList();
+}
+
+void KBMTorus::dumpPoints() {
+    cout << "Left Arm:" << endl;
+    leftarm->dumpPoints();
+    cout << "Right Arm:" << endl;
+    rghtarm->dumpPoints();
 }
 
 void KBMTorus::create_leftarm() {

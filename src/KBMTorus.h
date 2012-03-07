@@ -69,6 +69,9 @@ public:
         double dx, double dy, double dz, double dcss, double drot);
 	SplinePoint getPoint(ArmType whicharm, int index);
 
+    void toggleUpVectors();
+    void dumpPoints();
+
 private:
     /* High-level parameters */
     float torposy;

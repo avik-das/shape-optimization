@@ -70,6 +70,9 @@ public:
         }
     }
 
+    void toggleUpVectors();
+    void dumpPoints();
+
     // --- these functions can provide a local frame along the track
     // sample the curve at a point
     SplinePoint sample(double t);
@@ -114,6 +117,8 @@ private:
     double initialGlobalTwist; // the configured value (as opposed to the compensated one)
     double globalAzimuth; // global azimuth rotates the whole frame
     vector<vec2> profile; // the cross section to be swept
+
+    bool displayingUpVectors;
 
     // display list for caching sweep geometry
     GLuint DLid;

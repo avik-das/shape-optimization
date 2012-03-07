@@ -179,6 +179,18 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
              if (coaster)
                  coaster->incrGlobalTwist(-10.0);
              break;
+        case 'U':
+        case 'u':
+             if (kbmtorus)
+                 kbmtorus->toggleUpVectors();
+             break;
+        case 'D':
+        case 'd':
+             if (kbmtorus)
+                 kbmtorus->dumpPoints();
+             if (coaster)
+                 coaster->dumpPoints();
+             break;
 	}
 }
 

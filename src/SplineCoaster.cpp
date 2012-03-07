@@ -2,6 +2,7 @@
 
 #include "global.h"
 
+#include <iomanip>
 #include <fstream>
 #include <boost/math/constants/constants.hpp>
 
@@ -80,7 +81,7 @@ SplinePoint SplinePoint::sampleBSpline(vector<SplinePoint*>& cps, double t, bool
     return result;
 }
 
-SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), hasDL(false), closed(true) {
+SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), displayingUpVectors(false), hasDL(false), closed(true) {
     ifstream f(filename.c_str());
     if (!f) {
         UCBPrint("SplineCoaster", "Couldn't load file " << filename);
@@ -122,7 +123,9 @@ SplineCoaster::SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
     double globalTwist, double globalAzimuth) :
     globalTwist(globalTwist), initialGlobalTwist(globalTwist),
     globalAzimuth(globalAzimuth),
-    profile(profile), hasDL(false), closed(true) {
+    profile(profile),
+    displayingUpVectors(true),
+    hasDL(false), closed(true) {
 
     vector<double>::iterator sit = crossSectionScales.begin();
     for (vector<vec3>::iterator bit = bsplineVecs.begin();
@@ -391,9 +394,30 @@ void SplineCoaster::render(int samplesPerPt, int supportsPerPt, double supportSi
     //renderSupports(supportsPerPt, supportSize, groundY);
 
     renderSweep(polyline);
-    renderUpVectors();
+    if (displayingUpVectors)
+        renderUpVectors();
 
     freePolyline(polyline);
+}
+
+void SplineCoaster::toggleUpVectors() {
+    displayingUpVectors = !displayingUpVectors;
+}
+
+void SplineCoaster::dumpPoints() {
+    vector<SplinePoint*>::iterator bi;
+    int i = 0;
+
+    vec3 pt;
+    int width = ceil(log(bsplinePts.size()) / log(10));
+    for (bi = bsplinePts.begin(); bi < bsplinePts.end(); bi++, i++) {
+        pt = (*bi)->point;
+
+        cout << setw(width) << i << setw(0);
+        cout << ": <" << pt[0] << ", "
+                      << pt[1] << ", "
+                      << pt[2] << ">" << endl;
+    }
 }
 
 void drawVector(vec3 pt, vec3 vc) {
@@ -459,7 +483,10 @@ void SplineCoaster::renderUpVectors() {
         vec3 n2 = (i == 1         ) ? nstart : ((s2 - s1) / 2).normalize();
         vec3 n3 = (i == numCPs - 3) ? nend   : ((s3 - s2) / 2).normalize();
 
-        glColor3f(1.0f, 1.0f, 1.0f);
+        if (i == 1)
+            glColor3f(1.0f, 0.0f, 1.0f);
+        else
+            glColor3f(1.0f, 1.0f, 1.0f);
         drawVector(p2, n2);
         drawVector(p3, n3);
 
