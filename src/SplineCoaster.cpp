@@ -552,27 +552,10 @@ void SplineCoaster::renderUpVectors() {
     vec3 p1 = getPoint(numCPs-3).point;
     vec3 p2 = getPoint(numCPs-2).point;
     vec3 s1 = (p2 - p1).normalize();
-
-    double x = s1[0],
-           y = s1[1],
-           z = s1[2],
-           t = myGlobalTwist;
-
-    // Rodriguez formula for rotating t radians around axis defined by s1.
-    vec3 v1(cos(t) + x*x*(1-cos(t)),
-            y*x*(1-cos(t))+z*sin(t),
-            z*x*(1-cos(t))-y*sin(t));
-    vec3 v2(x*y*(1-cos(t))-z*sin(t),
-            cos(t) + y*y*(1-cos(t)),
-            z*y*(1-cos(t))+x*sin(t));
-    vec3 v3(x*z*(1-cos(t))+y*sin(t),
-            y*z*(1-cos(t))-x*sin(t),
-            cos(t) + z*z*(1-cos(t)));
-    mat3 r  = mat3(v1, v2, v3);
-    vec3 projnend = r * nend;
+    vec3 projnend = rotation3D(s1, myGlobalTwist) * nend;
 
     glColor3f(1.0f, 1.0f, 0.0f);
-    drawVector(p2, projnend*2);
+    drawVector(p2, projnend*3);
 
     globalTwist = myGlobalTwist;
 }
