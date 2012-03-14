@@ -170,10 +170,8 @@ void KBMTorus::move_left_end_segments() {
 
 void KBMTorus::create_leftarm() {
     vector<vec2> profile;
-    profile.push_back(vec2(-1.0,  0.0));
-    profile.push_back(vec2( 0.0,  1.0));
-    profile.push_back(vec2( 1.0,  0.0));
-    profile.push_back(vec2( 0.0, -1.0));
+    for (float t = 0.0f; t < 2 * PI; t += PI / 8)
+        profile.push_back(vec2(cos(t), sin(t)));
 
     vec3 q0 = vec3(0, 0, 0);
     vec3 q1 = vec3(0, 0, 0);
@@ -242,10 +240,8 @@ void KBMTorus::move_rght_end_segments() {
 
 void KBMTorus::create_rghtarm() {
     vector<vec2> profile;
-    profile.push_back(vec2(-1.0,  0.0));
-    profile.push_back(vec2( 0.0,  1.0));
-    profile.push_back(vec2( 1.0,  0.0));
-    profile.push_back(vec2( 0.0, -1.0));
+    for (float t = 0.0f; t < 2 * PI; t += PI / 8)
+        profile.push_back(vec2(cos(-t), sin(-t)));
 
     vec3 q0 = vec3(0, 0, 0);
     vec3 q1 = vec3(0, 0, 0);
