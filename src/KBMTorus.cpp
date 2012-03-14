@@ -225,13 +225,13 @@ void KBMTorus::move_rght_end_segments() {
             -torposx, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2,
             0.2, 0);
 
-    rghtarm->setPoint(7,
+    rghtarm->setPoint(12,
             torposx, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2,
             1.0, 0);
-    rghtarm->setPoint(8,
+    rghtarm->setPoint(13,
             torposx, -torposy, -torposz,
             1.0, 0);
-    rghtarm->setPoint(9,
+    rghtarm->setPoint(14,
             torposx, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2,
             1.0, 0);
 
@@ -266,11 +266,18 @@ void KBMTorus::create_rghtarm() {
 
     vector<vec3> pts;
     pts.push_back(q0); pts.push_back(q1); pts.push_back(q2);
-    pts.push_back(q3); pts.push_back(q4); pts.push_back(q5); pts.push_back(q6);
+                       pts.push_back((q2 + q3) / 2 + vec3(0, 0, 0.1));
+    pts.push_back(q3); pts.push_back((q3 + q4) / 2 + vec3(0, 0, 0.1));
+    pts.push_back(q4); pts.push_back((q4 + q5) / 2 + vec3(0, 0, 0.1));
+    pts.push_back(q5); pts.push_back((q5 + q6) / 2 + vec3(0, 0, 0.1));
+    pts.push_back(q6); pts.push_back((q6 + q7) / 2 + vec3(0, 0, 0.1));
     pts.push_back(q7); pts.push_back(q8); pts.push_back(q9);
 
     vector<double> scales;
     scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.2); scales.push_back(0.2);
+    scales.push_back(0.2);
     scales.push_back(0.2); scales.push_back(0.2);
     scales.push_back(0.2); scales.push_back(0.2);
     scales.push_back(0.0); scales.push_back(0.0); scales.push_back(0.0);
