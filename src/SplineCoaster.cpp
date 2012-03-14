@@ -133,7 +133,6 @@ SplineCoaster::SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
         bsplinePts.push_back(new SplinePoint(*bit, 0.0, *sit));
     }
 
-    normalizeStruts();
     compensateTwist();
 }
 
@@ -440,9 +439,6 @@ void SplineCoaster::renderUpVectors() {
     globalTwist = 0;
     //double dgt = 0;
 
-    vec3 nstart = vec3( 1,0,0);
-    vec3 nend   = vec3(-1,0,0);
-
     int numCPs = getNumControlPoints();
     for (int i = 1; i < numCPs - 2; i++) {
         // We consider a group of four adjacent points, p1-p4, and consider
@@ -487,7 +483,8 @@ void SplineCoaster::renderUpVectors() {
             glColor3f(1.0f, 0.0f, 1.0f);
         else
             glColor3f(1.0f, 1.0f, 1.0f);
-        drawVector(p2, n2*2);
+        drawVector(p2, n2*(i == numCPs - 3 ? 2.5 : 2));
+        glColor3f(1.0f, 1.0f, 1.0f);
         drawVector(p3, n3*2);
 
         // Next, we have to project the two normals onto the segment bisecting
@@ -552,12 +549,30 @@ void SplineCoaster::renderUpVectors() {
     vec3 p1 = getPoint(numCPs-3).point;
     vec3 p2 = getPoint(numCPs-2).point;
     vec3 s1 = (p2 - p1).normalize();
-    vec3 projnend = rotation3D(s1, myGlobalTwist) * nend;
+    vec3 projnend = rotation3D(s1, myGlobalTwist * 180 / PI) * nend;
 
     glColor3f(1.0f, 1.0f, 0.0f);
     drawVector(p2, projnend*3);
 
     globalTwist = myGlobalTwist;
+}
+
+void SplineCoaster::setStartFrameRotation(const double rot) {
+    vec3 p0 = getPoint(1).point;
+    vec3 p1 = getPoint(2).point;
+    vec3 s1 = (p0 - p1).normalize();
+
+    nstart = rotation3D(s1, rot * 180 / PI) * vec3(1,0,0);
+}
+
+void SplineCoaster::setFinalFrameRotation(const double rot) {
+    int numCPs = getNumControlPoints();
+
+    vec3 p0 = getPoint(numCPs-2).point;
+    vec3 p1 = getPoint(numCPs-3).point;
+    vec3 s1 = (p0 - p1).normalize();
+
+    nend = rotation3D(s1, rot * 180 / PI) * vec3(-1,0,0);
 }
 
 

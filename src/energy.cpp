@@ -273,8 +273,9 @@ float LineEnergy::update_step_size(float old, float end) {
 KBMEnergy::KBMEnergy(
     KBMTorus *torus, double twist_weight) :
     // each control point has x, y and z components, plus a cross-section
-    // scale. Additionally, there is a tilt for the end cap.
-    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 4 + 1),
+    // scale. Additionally, there is a tilt for the end cap, and its position
+    // in space.
+    Energy(0.1f, 0.00001f, torus->getNumMovableControlPoints() * 4 + 1 + 3),
     torus(torus),
     twist_weight(twist_weight) {
     log_energies();
@@ -305,14 +306,26 @@ void KBMEnergy::apply_change(VectorXf *chg) {
             pi/4 + 3, dx, dy, dz, dcss, 0);
 	}
 
-    torus->changeTorTilt((*chg)[numParams - 1]);
+    torus->changeTorTilt((*chg)[numParams - 4]);
+    torus->changeTorposX((*chg)[numParams - 3]);
+    torus->changeTorposY((*chg)[numParams - 2]);
+    torus->changeTorposZ((*chg)[numParams - 1]);
 
     torus->compensateTwist();
 }
 
 float KBMEnergy::calc_energy() {
-    return calc_arm_energy(KBMTorus::LEFTARM) +
-           calc_arm_energy(KBMTorus::RGHTARM);
+    double energy = calc_arm_energy(KBMTorus::LEFTARM) +
+                    calc_arm_energy(KBMTorus::RGHTARM);
+
+    double twistpn = 0;
+    twistpn = torus->getGlobalTwist(KBMTorus::RGHTARM);
+    twistpn = twistpn * twistpn;
+    twistpn *= 10; // TODO: needs to be variable
+
+    energy += twistpn;
+
+    return energy;
 }
 
 float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
@@ -321,7 +334,6 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
     double bending = 0.0;
     double lenchgs = 0.0;
     double csschgs = 0.0;
-    double twistpn = 0.0;
     for (int t = 1; t < numPoints - 1; t++) {
         SplinePoint point1 = torus->getPoint(whicharm, t-1);
         SplinePoint point2 = torus->getPoint(whicharm, t);
@@ -350,11 +362,7 @@ float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
         csschgs += rchg * rchg;
     }
 
-    twistpn = torus->getGlobalTwist(whicharm);
-    twistpn = twistpn * twistpn;
-    twistpn *= 10; // TODO: needs to be variable
-
-    return bending + lenchgs + csschgs + twistpn;
+    return bending + lenchgs + csschgs;
 }
 
 void KBMEnergy::log_iteration(float step_size) {

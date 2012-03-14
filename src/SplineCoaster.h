@@ -100,6 +100,9 @@ public:
     SplinePoint getPoint(int index);
 	void setPoint(int index, double x, double y, double z, double css, double rot);
 
+    void setStartFrameRotation(const double rot);
+    void setFinalFrameRotation(const double rot);
+
     // When closed, a strut is constructed from the last control point back to
     // the first. When not closed, this strut is not constructed.
     void setClosed(bool closed) { this->closed = closed; }
@@ -118,6 +121,9 @@ private:
     double initialGlobalTwist; // the configured value (as opposed to the compensated one)
     double globalAzimuth; // global azimuth rotates the whole frame
     vector<vec2> profile; // the cross section to be swept
+
+    vec3 nstart;
+    vec3 nend  ;
 
     bool displayingUpVectors;
 

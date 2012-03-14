@@ -74,9 +74,13 @@ public:
 
     double getTorTilt();
     void changeTorTilt(double dtilt);
+    void changeTorposX(double dtorposx);
+    void changeTorposY(double dtorposy);
+    void changeTorposZ(double dtorposz);
 
 private:
     /* High-level parameters */
+    float torposx;
     float torposy;
     float torposz;
     float tortilt;
