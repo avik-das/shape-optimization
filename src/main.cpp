@@ -244,9 +244,9 @@ void myMouseFunc(int button, int state, int x, int y) {
             return; // disregard redundant GLUT_UP events
 
         if (button == 3)
-            zoom += 0.1f;
+            zoom += 0.5f;
         else
-            zoom -= 0.1f;
+            zoom -= 0.5f;
 
         glutPostRedisplay();
     }
