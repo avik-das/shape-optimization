@@ -433,6 +433,10 @@ void drawVector(vec3 pt, vec3 vc) {
     glEnd();
 }
 
+void drawVector(vec3 pt, vec3 vc, double offset) {
+    drawVector(pt + vc.normalize() * offset, vc);
+}
+
 void SplineCoaster::renderUpVectors() {
     glLineWidth(2.0f);
     double myGlobalTwist = 0;
@@ -472,6 +476,9 @@ void SplineCoaster::renderUpVectors() {
         vec3 p3 = getPoint(i+1).point;
         vec3 p4 = getPoint(i+2).point;
 
+        double css2 = getPoint(i  ).crossSectionScale;
+        double css3 = getPoint(i+1).crossSectionScale;
+
         vec3 s1 = (p2 - p1).normalize();
         vec3 s2 = (p3 - p2).normalize();
         vec3 s3 = (p4 - p3).normalize();
@@ -483,9 +490,9 @@ void SplineCoaster::renderUpVectors() {
             glColor3f(1.0f, 0.0f, 1.0f);
         else
             glColor3f(1.0f, 1.0f, 1.0f);
-        drawVector(p2, n2*(i == numCPs - 3 ? 2.5 : 2));
+        drawVector(p2, n2*(i == 1 ? 2.5 : 2), css2);
         glColor3f(1.0f, 1.0f, 1.0f);
-        drawVector(p3, n3*2);
+        drawVector(p3, n3*2, css3);
 
         // Next, we have to project the two normals onto the segment bisecting
         // plane for s2. To do this, we each normal, project it onto s2, and
@@ -502,12 +509,13 @@ void SplineCoaster::renderUpVectors() {
         vec3 proj2 = (n2 - (s2 * n2) * s2).normalize();
         vec3 proj3 = (n3 - (s2 * n3) * s2).normalize();
 
-        vec3 mid = (p2 + p3) / 2;
+        vec3   mid    = (  p2 +   p3) / 2;
+        double midcss = (css2 + css3) / 2;
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        drawVector(mid, proj2*2);
+        drawVector(mid, proj2*2, midcss);
         glColor3f(0.0f, 1.0f, 0.0f);
-        drawVector(mid, proj3*2);
+        drawVector(mid, proj3*2, midcss);
 
         // Now that we have two vectors in the same plane, we can compare the
         // unsigned angle between them based on their dot products. This is
@@ -551,8 +559,10 @@ void SplineCoaster::renderUpVectors() {
     vec3 s1 = (p2 - p1).normalize();
     vec3 projnend = rotation3D(s1, myGlobalTwist * 180 / PI) * nend;
 
+    double css2 = getPoint(numCPs-2).crossSectionScale;
+
     glColor3f(1.0f, 1.0f, 0.0f);
-    drawVector(p2, projnend*3);
+    drawVector(p2, projnend*3, css2);
 
     globalTwist = myGlobalTwist;
 }
