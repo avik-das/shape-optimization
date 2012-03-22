@@ -355,7 +355,10 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline) {
             glBegin(GL_QUADS);
             for (int v = 0; v < (int) crossSection.size(); v++) {
                 int vn = (v + 1) % int(crossSection.size());
-                glColor3f(v%4!=0,v%4!=1,v%4!=2);
+                if (v == 0 || v == 1)
+                    glColor3f(1, 0, 1);
+                else
+                    glColor3f(0.5, 0.5, 0.75);
 				vec3 n = (newSlice[v] - oldSlice[v])^(newSlice[vn] - oldSlice[v]);
 				n.normalize();
 				glNormal3dv(&n[0]);
