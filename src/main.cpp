@@ -13,7 +13,7 @@ using namespace boost::filesystem;
 //****************************************************
 class Viewport {
 public:
-    Viewport(): dx(0), dy(0), mousePos(0.0,0.0) {
+    Viewport(): mousePos(0.0,0.0), dx(0), dy(0) {
         orientation = identity3D();
     };
 
