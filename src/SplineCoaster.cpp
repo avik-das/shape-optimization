@@ -269,6 +269,11 @@ void SplineCoaster::orientVectorInFrame(const vec3 &dir, double percent, double 
 }
 
 vec3 SplineCoaster::getFirstUp() {
+    // In the case of a non-closed curve, we keep around this information
+    // manually anyway, so we might as well use it.
+    if (!closed)
+        return nstart;
+
     vec3 leg1 = sampleForward_nonzero(0).normalize();
     vec3 leg2 = sampleForward_nonzero(0,-.001).normalize();
     vec3 up = leg1+leg2; // start with the frenet frame
@@ -325,6 +330,7 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline) {
         // curve's rotation minimizing ending orientation is, which we can use
         // to determine visually what the compensation should be.
         double rot = globalAzimuth + globalTwist * percent + pts[1]->azimuth;
+        // cout << globalTwist << " * " << percent << " -> " << rot << endl;
         //double rot = globalAzimuth + pts[1]->azimuth;
 
         vec3 bisect = leg1 + leg2;
@@ -443,8 +449,6 @@ void drawVector(vec3 pt, vec3 vc, double offset) {
 void SplineCoaster::renderUpVectors() {
     glLineWidth(2.0f);
     double myGlobalTwist = 0;
-    globalTwist = 0;
-    //double dgt = 0;
 
     int numCPs = getNumControlPoints();
     for (int i = 1; i < numCPs - 2; i++) {
@@ -539,11 +543,11 @@ void SplineCoaster::renderUpVectors() {
             twist *= -1;
 
         myGlobalTwist += twist;
-        cout << twist << endl;
+        // cout << twist << endl;
     }
 
-    myGlobalTwist = fmod(myGlobalTwist, 2*PI);
-    cout << "myGlobalTwist: " << myGlobalTwist << endl;
+    myGlobalTwist = myGlobalTwist;
+    // cout << "myGlobalTwist: " << myGlobalTwist << endl;
 
     // In addition to the artificial normal at the end of the curve, we also
     // want to visualize the normal that would occur due to the forward
@@ -566,8 +570,6 @@ void SplineCoaster::renderUpVectors() {
 
     glColor3f(1.0f, 1.0f, 0.0f);
     drawVector(p2, projnend*3, css2);
-
-    globalTwist = myGlobalTwist;
 }
 
 void SplineCoaster::setStartFrameRotation(const double rot) {
@@ -695,9 +697,6 @@ void SplineCoaster::compensateTwist() {
         globalTwist = 0.0;
         double myGlobalTwist = 0.0;
 
-        vec3 nstart = vec3( 1,0,0);
-        vec3 nend   = vec3(-1,0,0);
-
         int numCPs = getNumControlPoints();
         for (int i = 1; i < numCPs - 2; i++) {
             // We consider a group of four adjacent points, p1-p4, and consider
@@ -775,7 +774,7 @@ void SplineCoaster::compensateTwist() {
 
             myGlobalTwist += twist;
         }
-        globalTwist = fmod(myGlobalTwist, 2*PI);
+        globalTwist = myGlobalTwist;
     }
 }
 

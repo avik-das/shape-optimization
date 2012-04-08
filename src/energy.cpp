@@ -306,10 +306,16 @@ void KBMEnergy::apply_change(VectorXf *chg) {
             pi/4 + 3, dx, dy, dz, dcss, 0);
 	}
 
-    torus->changeTorTilt((*chg)[numParams - 4]);
-    torus->changeTorposX((*chg)[numParams - 3]);
-    torus->changeTorposY((*chg)[numParams - 2]);
-    torus->changeTorposZ((*chg)[numParams - 1]);
+    // These parameters are disabled whenever we want to see the effects of the
+    // other parameters in isolation. Typically, this is the case when these
+    // parameters are known to be in an optimized state, but the other
+    // parameters need to be given a higher weight without allowing these
+    // parameters to be affected negatively.
+
+    // torus->changeTorTilt((*chg)[numParams - 4]);
+    // torus->changeTorposX((*chg)[numParams - 3]);
+    // torus->changeTorposY((*chg)[numParams - 2]);
+    // torus->changeTorposZ((*chg)[numParams - 1]);
 
     torus->compensateTwist();
 }
@@ -319,59 +325,95 @@ float KBMEnergy::calc_energy() {
                     calc_arm_energy(KBMTorus::RGHTARM);
 
     double twistpn = 0;
-    twistpn = torus->getGlobalTwist(KBMTorus::RGHTARM);
-    twistpn = twistpn * twistpn;
-    twistpn *= 10; // TODO: needs to be variable
 
+    double twistpnl;
+    twistpnl = torus->getGlobalTwist(KBMTorus::LEFTARM);
+    twistpnl = twistpnl * twistpnl;
+
+    // Here, we can force the twist in the right arm to a specified value. The
+    // final result we want is to allow the twist to go to 360 degrees, but we
+    // may choose other values for the sake of, say, creating an aesthetically
+    // pleasing physical model.
+    double twistpnr;
+    twistpnr = torus->getGlobalTwist(KBMTorus::RGHTARM) - 5*PI/4;
+    twistpnr = twistpnr * twistpnr;
+
+    twistpn += twistpnl;
+    twistpn += twistpnr;
+
+    twistpn *= 100; // TODO: needs to be variable
     energy += twistpn;
 
     return energy;
 }
 
 float KBMEnergy::calc_arm_energy(KBMTorus::ArmType whicharm) {
-	int numPoints = torus->getNumControlPoints(whicharm);
+    // Previously, the two arms would have been considered equal, and so, given
+    // a symmetric initial configuration, we expected the optimized
+    // configuration to also be symmetric. Now, we consider the case where the
+    // left arm is short and straight, and the right arm is a space curve that
+    // absorbs all the required twist.
+    if (whicharm == KBMTorus::RGHTARM) {
+        int numPoints = torus->getNumControlPoints(whicharm);
 
-    double bending = 0.0;
-    double lenchgs = 0.0;
-    double csschgs = 0.0;
-    for (int t = 1; t < numPoints - 1; t++) {
-        SplinePoint point1 = torus->getPoint(whicharm, t-1);
-        SplinePoint point2 = torus->getPoint(whicharm, t);
-        SplinePoint point3 = torus->getPoint(whicharm, t+1);
+        double bending = 0.0;
+        double lenchgs = 0.0;
+        double csschgs = 0.0;
+        for (int t = 1; t < numPoints - 1; t++) {
+            SplinePoint point1 = torus->getPoint(whicharm, t-1);
+            SplinePoint point2 = torus->getPoint(whicharm, t);
+            SplinePoint point3 = torus->getPoint(whicharm, t+1);
 
-        vec3 pv1 = point1.point;
-        vec3 pv2 = point2.point;
-        vec3 pv3 = point3.point;
+            vec3 pv1 = point1.point;
+            vec3 pv2 = point2.point;
+            vec3 pv3 = point3.point;
 
-        vec3 strut1 = pv1 - pv2;
-        vec3 strut2 = pv3 - pv2;
-        double strut1l = strut1.length();
-        double strut2l = strut2.length();
+            vec3 strut1 = pv1 - pv2;
+            vec3 strut2 = pv3 - pv2;
+            double strut1l = strut1.length();
+            double strut2l = strut2.length();
 
-        double devlen = abs(log(strut1l / strut2l));
-        lenchgs += devlen * devlen;
+            double devlen = abs(log(strut1l / strut2l));
+            lenchgs += devlen * devlen;
 
-        double normdot = strut1 * strut2 / (strut1l * strut2l);
-        double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
+            double normdot = strut1 * strut2 / (strut1l * strut2l);
+            double k1 = PI - acos(CLAMP(normdot, -1.0, 1.0));
 
-        bending += k1 * k1;
+            bending += k1 * k1;
 
-        double r2 = point2.crossSectionScale;
-        double r3 = point3.crossSectionScale;
-        double rchg = (max(r2,r3) / min(r2, r3) - 1) / strut2l;
-        csschgs += rchg * rchg;
+            double r2 = point2.crossSectionScale;
+            double r3 = point3.crossSectionScale;
+            double rchg = (max(r2,r3) / min(r2, r3) - 1) / strut2l;
+            csschgs += rchg * rchg;
+        }
+
+        return bending + lenchgs + csschgs;
     }
-
-    return bending + lenchgs + csschgs;
+    else {
+        // For the sake of demonstrating the intermediate configurations, we
+        // force the length of the left arm to not be zero, but some positive
+        // value. Of course, this calculated energy will not even be relevant
+        // if we fix the end caps in space.
+        vec3 p2 = torus->getPoint(whicharm, 2).point;
+        vec3 p3 = torus->getPoint(whicharm, 3).point;
+        double len = (p2 - p3).length();
+        // cout << "len: " << len << endl;
+        len = abs(len - 2);
+        return len * len;
+    }
 }
 
 void KBMEnergy::log_iteration(float step_size) {
     float e = calc_energy();
     std::cout << "Iterated. Energy: " << e <<
-               ", step_size = " << step_size << std::endl;
+               ", step_size = " << step_size <<
+               ", twistl = " << torus->getGlobalTwist(KBMTorus::LEFTARM) <<
+               ", twistr = " << torus->getGlobalTwist(KBMTorus::RGHTARM) <<
+               std::endl;
 }
 
 void KBMEnergy::log_energies() {
+    return; // disable this output
     // TODO
     KBMTorus::ArmType whicharm = KBMTorus::RGHTARM;
 	int numPoints = torus->getNumControlPoints(whicharm);
@@ -402,7 +444,7 @@ void KBMEnergy::log_energies() {
 
         if (t == 1)
             cout << " (" << strut1l << ") ";
-        cout << t << "->" << angleDeg << "," << point2.azimuth;
+        cout << t << "->" << angleDeg << "°," << point2.azimuth;
         cout << " (" << strut2l << ", " << rchg << " (" << r2 << "->" << r3 << ")" << ") ";
     }
 
