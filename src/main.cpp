@@ -13,10 +13,14 @@ using namespace boost::filesystem;
 //****************************************************
 class Viewport {
 public:
-    Viewport(): mousePos(0.0,0.0) { orientation = identity3D(); };
+    Viewport(): dx(0), dy(0), mousePos(0.0,0.0) {
+        orientation = identity3D();
+    };
+
 	int w, h; // width and height
 	vec2 mousePos;
     mat4 orientation;
+    float dx, dy;
 };
 
 //****************************************************
@@ -88,7 +92,7 @@ void display() {
 
 
     if (viewMode == VIEW_THIRDPERSON) {
-        glTranslatef(0,-2,-35 - zoom);
+        glTranslatef(0 + viewport.dx,-2 + viewport.dy, -35 - zoom);
         applyMat4(viewport.orientation);
     }
 
@@ -191,6 +195,29 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
              if (coaster)
                  coaster->dumpPoints();
              break;
+	}
+}
+
+//-------------------------------------------------------------------------------
+/// Called to handle "special" keyboard events.
+
+void mySpecialFunc(int key, int x, int y) {
+    if (TwEventSpecialGLUT(key, x, y))
+        return;
+
+	switch (key) {
+        case GLUT_KEY_UP:
+            viewport.dy += 0.5f;
+            break;
+        case GLUT_KEY_DOWN:
+            viewport.dy -= 0.5f;
+            break;
+        case GLUT_KEY_RIGHT:
+            viewport.dx += 0.5f;
+            break;
+        case GLUT_KEY_LEFT:
+            viewport.dx -= 0.5f;
+            break;
 	}
 }
 
@@ -486,12 +513,10 @@ int main(int argc,char** argv) {
 	glutMotionFunc(myActiveMotionFunc);
 	glutPassiveMotionFunc(myPassiveMotionFunc);
     glutMouseFunc(myMouseFunc);
+    glutSpecialFunc(mySpecialFunc);
     frameTimer(0);
 
     atexit(app_terminate);
-
-    //Any event not handled by our code can be handled directly by AntTweakBar
-    glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
 
     glClearColor(0,0,0,0);
 
