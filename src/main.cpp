@@ -33,6 +33,7 @@ SplineCoaster *coaster = NULL;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
 float zoom = 0.0f;
+bool wireframe = false;
 
 TwBar* tbar = NULL;
 
@@ -54,6 +55,15 @@ void setup_anttweakbar();
 void setup_anttweakbar_tracks();
 void find_tracks();
 void load_curr_track();
+
+// Asks OpenGL to switch between wireframe and solid mode. Assumes that the
+// value of the wireframe flag is already the intended value.
+void switchPolygonMode() {
+    if (wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 // A simple helper function to load a mat4 into opengl
 void applyMat4(mat4 &m) {
@@ -170,6 +180,11 @@ void myKeyboardFunc (unsigned char key, int x, int y) {
 			 break;
         case '-':
              coaster->incrGlobalTwist(-10.0);
+             break;
+        case 'W':
+        case 'w':
+             wireframe = !wireframe;
+             switchPolygonMode();
              break;
 	}
 }
@@ -522,6 +537,9 @@ int main(int argc,char** argv) {
 
     // make sure the initial window shape is set
     reshape(viewport.w, viewport.h);
+
+    // make sure the polygon mode is set
+    switchPolygonMode();
 
 
 	//And Go!
