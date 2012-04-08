@@ -23,6 +23,13 @@ extern const double STRUT_REST_LENGTH;
 
 using namespace std;
 
+// a simple container for an RGB color
+struct Color {
+    float r, g, b;
+    Color(float r, float g, float b) : r(r), g(g), b(b) {}
+    Color(const Color &c) : r(c.r), g(c.g), b(c.b) {}
+};
+
 // control point for the sweep defining the track
 struct SplinePoint {
     vec3 point;
@@ -103,6 +110,8 @@ public:
     void setStartFrameRotation(const double rot);
     void setFinalFrameRotation(const double rot);
 
+    void setColors(const Color &track, const Color &runner);
+
     // When closed, a strut is constructed from the last control point back to
     // the first. When not closed, this strut is not constructed.
     void setClosed(bool closed) { this->closed = closed; }
@@ -124,6 +133,9 @@ private:
 
     vec3 nstart;
     vec3 nend  ;
+
+    Color trackColor;
+    Color runnerColor;
 
     bool displayingUpVectors;
 

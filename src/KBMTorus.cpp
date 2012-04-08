@@ -226,6 +226,8 @@ void KBMTorus::create_leftarm() {
     leftarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     leftarm->setClosed(false);
     move_left_end_segments();
+
+    leftarm->setColors(Color(0.75,1,0.75), Color(0,1,0));
 }
 
 void KBMTorus::move_rght_end_segments() {
@@ -393,4 +395,6 @@ void KBMTorus::create_rghtarm() {
     rghtarm = new SplineCoaster(pts, profile, scales, 0.0, 0.0);
     rghtarm->setClosed(false);
     move_rght_end_segments();
+
+    rghtarm->setColors(Color(1,0.5,0.5), Color(1,0,0));
 }

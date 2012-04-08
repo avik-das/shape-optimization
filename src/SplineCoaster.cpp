@@ -12,6 +12,9 @@ const double PI = boost::math::constants::pi<double>();
 
 #define TWIST_JUMP (20.0)
 
+const Color DEFAULT_TRACK_COLOR (0.5,0.5,0.75);
+const Color DEFAULT_RUNNER_COLOR(1.0,0.0,1.00);
+
 namespace {
     // Used to advance the rotation minimizing frame forward
     // formula from [wang et al. 07]
@@ -81,7 +84,7 @@ SplinePoint SplinePoint::sampleBSpline(vector<SplinePoint*>& cps, double t, bool
     return result;
 }
 
-SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), displayingUpVectors(false), hasDL(false), closed(true) {
+SplineCoaster::SplineCoaster(string filename) : globalTwist(0), initialGlobalTwist(0), globalAzimuth(0), trackColor(DEFAULT_TRACK_COLOR), runnerColor(DEFAULT_RUNNER_COLOR), displayingUpVectors(false), hasDL(false), closed(true) {
     ifstream f(filename.c_str());
     if (!f) {
         UCBPrint("SplineCoaster", "Couldn't load file " << filename);
@@ -124,6 +127,8 @@ SplineCoaster::SplineCoaster(vector<vec3> bsplineVecs, vector<vec2> profile,
     globalTwist(globalTwist), initialGlobalTwist(globalTwist),
     globalAzimuth(globalAzimuth),
     profile(profile),
+    trackColor(DEFAULT_TRACK_COLOR),
+    runnerColor(DEFAULT_RUNNER_COLOR),
     displayingUpVectors(true),
     hasDL(false), closed(true) {
 
@@ -361,10 +366,10 @@ void SplineCoaster::renderSweep(vector<SplinePoint*> &polyline) {
             glBegin(GL_QUADS);
             for (int v = 0; v < (int) crossSection.size(); v++) {
                 int vn = (v + 1) % int(crossSection.size());
+                Color color = trackColor;
                 if (v == 0 || v == 1)
-                    glColor3f(1, 0, 1);
-                else
-                    glColor3f(0.5, 0.5, 0.75);
+                    color = runnerColor;
+                glColor3f(color.r, color.g, color.b);
 				vec3 n = (newSlice[v] - oldSlice[v])^(newSlice[vn] - oldSlice[v]);
 				n.normalize();
 				glNormal3dv(&n[0]);
@@ -590,6 +595,10 @@ void SplineCoaster::setFinalFrameRotation(const double rot) {
     nend = rotation3D(s1, rot * 180 / PI) * vec3(-1,0,0);
 }
 
+void SplineCoaster::setColors(const Color &track, const Color &runner) {
+    trackColor = track;
+    runnerColor = runner;
+}
 
 // increase the global twist 
 void SplineCoaster::incrGlobalTwist(double dgt) {
