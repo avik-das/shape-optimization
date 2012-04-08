@@ -2,7 +2,7 @@
 #define ENERGY_HPP
 
 #include <Eigen/Core>
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 #include "SplineCoaster.h"
 

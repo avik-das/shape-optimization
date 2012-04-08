@@ -28,6 +28,7 @@ int frameCount = 0;
 SplineCoaster *coaster = NULL;
 enum {VIEW_FIRSTPERSON, VIEW_THIRDPERSON, VIEW_MAX};
 int viewMode = VIEW_THIRDPERSON;
+float zoom = 0.0f;
 
 TwBar* tbar = NULL;
 
@@ -82,9 +83,24 @@ void display() {
 
 
     if (viewMode == VIEW_THIRDPERSON) {
-        glTranslatef(0,-2,-30);
+        glTranslatef(0,-2,-35 - zoom);
         applyMat4(viewport.orientation);
     }
+
+    glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(10.0, 0.0, 0.0);
+
+        glColor3f(0.0, 1.0, 0.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 10.0, 0.0);
+
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 10.0);
+    glEnd();
+
     if (coaster) {
         coaster->renderWithDisplayList(smooth ? 100 : 1,.3,3,.2,0);
     }
@@ -190,6 +206,26 @@ void myPassiveMotionFunc(int x, int y) {
 
     //Force a redraw of the window.
     glutPostRedisplay();
+}
+
+//-------------------------------------------------------------------------------
+/// Called whenever a mouse button is pressed
+void myMouseFunc(int button, int state, int x, int y) {
+    if (TwEventMouseButtonGLUT(button, state, x, y))
+        return;
+
+    // mouse wheel event
+    if (button == 3 || button == 4) {
+        if (state == GLUT_UP)
+            return; // disregard redundant GLUT_UP events
+
+        if (button == 3)
+            zoom += 0.5f;
+        else
+            zoom -= 0.5f;
+
+        glutPostRedisplay();
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -342,7 +378,7 @@ void find_tracks() {
     for (directory_iterator itr(dir); itr != end_itr; itr++) {
         if (is_directory(itr->status())) { continue; }
 
-        string name = itr->path().filename();
+        string name = itr->path().filename().string();
 
         if (name.rfind(".trk") == name.size() - 4)
             tracks.push_back (name);
@@ -424,7 +460,7 @@ int main(int argc,char** argv) {
     atexit(app_terminate);
 
     //Any event not handled by our code can be handled directly by AntTweakBar
-    glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
+    glutMouseFunc(myMouseFunc);
     glutSpecialFunc((GLUTspecialfun)TwEventSpecialGLUT);
 
     glClearColor(0,0,0,0);
