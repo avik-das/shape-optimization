@@ -68,6 +68,10 @@ void switchPolygonMode() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    if (coaster) { coaster->clearDisplayList(); }
+    if (kbmtorus) { kbmtorus->clearDisplayList(); }
+    glutPostRedisplay();
 }
 
 // A simple helper function to load a mat4 into opengl
@@ -120,7 +124,16 @@ void display() {
         glVertex3f(0.0, 0.0, 10.0);
     glEnd();
 
-    int samples_per_pt = smooth ? 100 : 1;
+    int samples_per_pt;
+    if (smooth)
+        samples_per_pt = 100;
+    else {
+        if (wireframe)
+            samples_per_pt = 5;
+        else
+            samples_per_pt = 1;
+    }
+
     if (coaster) {
         coaster->renderWithDisplayList(samples_per_pt);
     }
