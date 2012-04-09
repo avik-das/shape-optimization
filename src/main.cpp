@@ -63,6 +63,9 @@ void switchPolygonMode() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    if (coaster) { coaster->clearDisplayList(); }
+    glutPostRedisplay();
 }
 
 // A simple helper function to load a mat4 into opengl
@@ -115,8 +118,18 @@ void display() {
         glVertex3f(0.0, 0.0, 10.0);
     glEnd();
 
+    int samples_per_pt;
+    if (smooth)
+        samples_per_pt = 100;
+    else {
+        if (wireframe)
+            samples_per_pt = 5;
+        else
+            samples_per_pt = 1;
+    }
+
     if (coaster) {
-        coaster->renderWithDisplayList(smooth ? 100 : 1,.3,3,.2,0);
+        coaster->renderWithDisplayList(samples_per_pt,.3,3,.2,0);
     }
 
     //Draw the AntTweakBar
