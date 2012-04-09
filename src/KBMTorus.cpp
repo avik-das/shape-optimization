@@ -74,7 +74,7 @@ int KBMTorus::getNumMovableControlPoints(ArmType whicharm) {
 
 void KBMTorus::compensateTwist() {
     leftarm->compensateTwist();
-    rghtarm->setStartFrameRotation(PI + leftarm->getGlobalTwist());
+    rghtarm->setStartFrameRotation(leftarm->getGlobalTwist() * PI / 180 - PI);
     rghtarm->compensateTwist();
 }
 

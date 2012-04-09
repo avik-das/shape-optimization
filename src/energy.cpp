@@ -335,13 +335,13 @@ float KBMEnergy::calc_energy() {
     // may choose other values for the sake of, say, creating an aesthetically
     // pleasing physical model.
     double twistpnr;
-    twistpnr = torus->getGlobalTwist(KBMTorus::RGHTARM) - 5*PI/4;
+    twistpnr = torus->getGlobalTwist(KBMTorus::RGHTARM) - 270;
     twistpnr = twistpnr * twistpnr;
 
     twistpn += twistpnl;
     twistpn += twistpnr;
 
-    twistpn *= 100; // TODO: needs to be variable
+    twistpn *= 1; // TODO: needs to be variable
     energy += twistpn;
 
     return energy;

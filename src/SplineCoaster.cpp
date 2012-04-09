@@ -551,7 +551,7 @@ void SplineCoaster::renderUpVectors() {
         // cout << twist << endl;
     }
 
-    myGlobalTwist = myGlobalTwist;
+    myGlobalTwist = myGlobalTwist * 180 / PI;
     // cout << "myGlobalTwist: " << myGlobalTwist << endl;
 
     // In addition to the artificial normal at the end of the curve, we also
@@ -783,7 +783,7 @@ void SplineCoaster::compensateTwist() {
 
             myGlobalTwist += twist;
         }
-        globalTwist = myGlobalTwist;
+        globalTwist = myGlobalTwist * 180 / PI;
     }
 }
 
