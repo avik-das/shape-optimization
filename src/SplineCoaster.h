@@ -123,6 +123,8 @@ public:
     void compensateTwist();
     // --- get the current global twist
     double getGlobalTwist();
+    // --- set the current global twist
+    void setGlobalTwist(double gt);
 
 private:
     vector<SplinePoint*> bsplinePts; // control points for the bspline

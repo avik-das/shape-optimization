@@ -37,7 +37,12 @@ KBMTorus::~KBMTorus() {
 
 void KBMTorus::render(int samplesPerPt) {
     leftarm->render(samplesPerPt);
+
+    double twistl = leftarm->getGlobalTwist();
+    double twistr = rghtarm->getGlobalTwist();
+    rghtarm->setGlobalTwist(-(360 - twistl - twistr));
     rghtarm->render(samplesPerPt);
+    rghtarm->setGlobalTwist(twistr);
 }
 
 int KBMTorus::getNumControlPoints() {
@@ -161,13 +166,13 @@ void KBMTorus::changeTorposZ(double dtorposz) {
 void KBMTorus::move_left_end_segments() {
     leftarm->setPoint(0,
             torposx, -torposy + sin(tortilt) * 2, -torposz - cos(tortilt) * 2,
-            0.2, 0);
+            0.7, 0);
     leftarm->setPoint(1,
             torposx, -torposy, -torposz,
-            0.2, 0);
+            0.7, 0);
     leftarm->setPoint(2,
             torposx, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2,
-            0.2, 0);
+            0.7, 0);
 
     leftarm->setPoint(3,
             -torposx, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2,
@@ -227,19 +232,19 @@ void KBMTorus::create_leftarm() {
     leftarm->setClosed(false);
     move_left_end_segments();
 
-    leftarm->setColors(Color(0.75,1,0.75), Color(0,1,0));
+    leftarm->setColors(Color(0.75,1,0.75), Color(0,0,0));
 }
 
 void KBMTorus::move_rght_end_segments() {
     rghtarm->setPoint(0,
             -torposx, torposy - sin(tortilt) * 2, torposz + cos(tortilt) * 2,
-            0.2, 0);
+            0.7, 0);
     rghtarm->setPoint(1,
             -torposx, torposy, torposz,
-            0.2, 0);
+            0.7, 0);
     rghtarm->setPoint(2,
             -torposx, torposy + sin(tortilt) * 2, torposz - cos(tortilt) * 2,
-            0.2, 0);
+            0.7, 0);
 
     rghtarm->setPoint(12,
             torposx, -torposy - sin(tortilt) * 2, -torposz + cos(tortilt) * 2,
@@ -396,5 +401,5 @@ void KBMTorus::create_rghtarm() {
     rghtarm->setClosed(false);
     move_rght_end_segments();
 
-    rghtarm->setColors(Color(1,0.5,0.5), Color(1,0,0));
+    rghtarm->setColors(Color(1,0.5,0.5), Color(0,0,0));
 }

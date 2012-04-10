@@ -569,7 +569,7 @@ void SplineCoaster::renderUpVectors() {
     vec3 p1 = getPoint(numCPs-3).point;
     vec3 p2 = getPoint(numCPs-2).point;
     vec3 s1 = (p2 - p1).normalize();
-    vec3 projnend = rotation3D(s1, myGlobalTwist * 180 / PI) * nend;
+    vec3 projnend = rotation3D(s1, myGlobalTwist) * nend;
 
     double css2 = getPoint(numCPs-2).crossSectionScale;
 
@@ -789,4 +789,8 @@ void SplineCoaster::compensateTwist() {
 
 double SplineCoaster::getGlobalTwist() {
     return globalTwist;
+}
+
+void SplineCoaster::setGlobalTwist(double gt) {
+    globalTwist = gt;
 }
