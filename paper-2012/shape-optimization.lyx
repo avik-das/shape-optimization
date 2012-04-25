@@ -1,0 +1,491 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Bending and Torsion Minimization of Toroidal Loops
+\end_layout
+
+\begin_layout Author
+Avik Das, Victor Huang
+\begin_inset Newline newline
+\end_inset
+
+ Adviser: Carlo Séquin
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset Newline newline
+\end_inset
+
+ 
+\emph on
+CS Division, University of California, Berkeley
+\end_layout
+
+\begin_layout Abstract
+We focus on a special optimization problem of parameterized surfaces of
+ genus one.
+ In particular we trade off the penalty functions for bending a toroidal
+ path and for applying a twist to it and aim to find local minima of this
+ cost function.
+ This analysis forms a key element in demonstrating the different regular
+ homotopy classes of tori.
+ A generalization of this surface optimization, which considers curvature
+ as well as any shearing of its parameter grid, may be used to find the
+ most optimal direct path from an arbitrary closed manifold of genus one
+ into one of the four basic representatives of four regular homotopy classes
+ of tori.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+
+\emph on
+key words
+\emph default
+: torus, bending energy, twisting energy, gradient descent, regular homotopy.
+ 
+\end_layout
+
+\begin_layout Section
+Problem Statement and Background
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Itemize
+Regular homotopy classes of tori
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+crossover move
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Want to find transitions between them automatically
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+penalize bending and twist
+\end_layout
+
+\begin_layout Itemize
+general enough to show inversion of torus?
+\end_layout
+
+\end_deeper
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hass and Hughes show that an orientable 2-manifold of genus one immersed
+ in 
+\begin_inset Formula $\mathbb{R}^{3}$
+\end_inset
+
+ has four regular homotopy classes
+\begin_inset CommandInset citation
+LatexCommand cite
+key "hass85"
+
+\end_inset
+
+ and Séquin constructs representatives for each class
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sequin11"
+
+\end_inset
+
+.
+ Any torus immersed in 
+\begin_inset Formula $\mathbb{R}^{3}$
+\end_inset
+
+ can be smoothly deformed into another torus in the same regular homotopy
+ class without introducing any tears, creases or pinch-off points with infinite
+ curvature.
+ A surface may, however, pass through itself, as this does not introduce
+ these problems.
+ The converse holds: no regular homotopy exists between objects in different
+ regular homotopy classes.
+ In particular, to show that a particular object belongs to a certain regular
+ homotopy class, it suffices to demonstrate a regular homotopy from that
+ object into some object known to belong to the same class.
+ However, finding such a transformation may be difficult, and ideally, some
+ automated system would be able to construct the regular homotopy given
+ only the start and end configurations.
+\end_layout
+
+\begin_layout Standard
+Séquin demonstrates a number of regular homotopy moves, particularly the
+ figure-8 cross-over move
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sequin11"
+
+\end_inset
+
+.
+ In this move, a figure-8 (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:figure-8"
+
+\end_inset
+
+a) can be unfolded into a circle--from an O8 to an OO in paper's terminology--bu
+t this introduces a torsion of 
+\begin_inset Formula $\pm360\text{°}$
+\end_inset
+
+ (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:figure-8"
+
+\end_inset
+
+c).
+ Another application of the move can deform the basic representative of
+ the OO class, essentially circle with zero torsion (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:crossover"
+
+\end_inset
+
+a), into a figure-8 with 
+\begin_inset Formula $\pm360\text{°}$
+\end_inset
+
+ of torsion (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:crossover"
+
+\end_inset
+
+b), and back into a circle (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:crossover"
+
+\end_inset
+
+c).
+ In the ending configuration, we find the overall torsion has changed by
+ exactly 
+\begin_inset Formula $\pm720\text{°}$
+\end_inset
+
+.
+ All these objects are in the same regular homotopy class, so torsion can
+ be considered modulo 
+\begin_inset Formula $720\text{°}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figure-8-start.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figure-8-mid.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figure-8-end.png
+	lyxscale 50
+	width 2in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:figure-8"
+
+\end_inset
+
+A figure-8 can be unfolded into a circle using the cross-over move: (a)
+ Figure-8 starting configuration with zero torsion; (b) Figure-8 unfolding;
+ (c) Circular ending configartion with 
+\begin_inset Formula $360\text{°}$
+\end_inset
+
+ of torsion.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename crossover-start.png
+	lyxscale 50
+	height 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename crossover-mid.png
+	lyxscale 50
+	height 1.5in
+	rotateAngle 90
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename crossover-end.png
+	lyxscale 50
+	height 1.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:crossover"
+
+\end_inset
+
+The full cross-over move adds 
+\begin_inset Formula $\pm720\text{°}$
+\end_inset
+
+ of torsion: (a) Circular start configuration with zero torsion; (b) Figure-8
+ with 
+\begin_inset Formula $360\text{°}$
+\end_inset
+
+ of torsion; (c) Circular end configuration with 
+\begin_inset Formula $720\text{°}$
+\end_inset
+
+ of torsion.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To visualize regular homotopies of tori without specifying any intermediate
+ configurations, we aim construct penalty functions, i.e.
+ energy functionals, defined on a torus and a system that smoothly deforms
+ the torus so as to minimize the energy.
+ We choose a structured representation of the tori consisting of relatively
+ few independent parameters, allowing optimization to progress at interactive
+ speeds.
+ The penalty functions then operate on this representation, penalizing both
+ the bending and the twisting.
+ By adjusting the relative weights for these two terms, we can choose to
+ optain either circular loops with some possible non-zero torsion or some
+ true 3D space curve with minimized torsion.
+\end_layout
+
+\begin_layout Section
+Torus Representation and Energy Functionals
+\end_layout
+
+\begin_layout Subsection
+Representation
+\end_layout
+
+\begin_layout Standard
+The sweep path of a torus is rendered as a closed B-spline, regularly sampled
+ in parameter space with a user-definable number of segments.
+ All calculations of energy and all optimization moves are carried out on
+ the control polygon.
+ This dramatically reduces the degrees of freedom in the system and the
+ scale of the derivative computations in the optimization process.
+ An edge between two subsequent control vertices is called a 
+\emph on
+strut
+\emph default
+, with the 
+\begin_inset Formula $i$
+\end_inset
+
+th strut denoted as the vector 
+\begin_inset Formula $S_{i}$
+\end_inset
+
+ in the following calculations.
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "references"
+options "plain"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
