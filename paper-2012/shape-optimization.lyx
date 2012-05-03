@@ -68,7 +68,7 @@ Bending and Torsion Minimization of Toroidal Loops
 \end_layout
 
 \begin_layout Author
-Avik Das, Victor Huang
+Avik Das
 \begin_inset Newline newline
 \end_inset
 
@@ -521,6 +521,213 @@ E_{B}=\sum_{i}\left(\arccos\left(\frac{S_{i-1}\cdot S_{i}}{\left\Vert S_{i-1}\ri
 
 \begin_layout Subsection
 Twist Energy
+\end_layout
+
+\begin_layout Standard
+Since we are interested not just in the pure geometrical shape of a toroid
+ under investigation, but also in the deformation of a parameter grid embedded
+ in its surface, we have to add a third term to our cost function corresponding
+ to the twist energy.
+ This is a measure of the deviation of a given state of the toroid from
+ the geometry produced by a pure rotation minimizing frame (RMF)
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bishop75"
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "klok86"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The framework used for the generation and optimization of these toroidal
+ shapes uses by default an RMF along the control polygon.
+ Despite the fact that both the starting and ending cross-sections are sampled
+ at the same point on the curve, the incremental forward projection of the
+ RMF, calculated as per Wang et al.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang97"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "wang08"
+
+\end_inset
+
+, may result in a mismatch between the two cross-sections, as seen in Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rmf-twist"
+
+\end_inset
+
+a.
+ The normal vectors to the curve within the two cross-sections are compared
+ to each other, and the angle between these two vectors measures the mismatch
+ between the two coordinate frames.
+ The framework can then apply an additional global twist to the whole curve,
+ so that the beginning and ending coordinate frames line up and the longitudinal
+ parameter lines in the toroid surface properly join with themselves after
+ one pass around the loop, as seen in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rmf-twist"
+
+\end_inset
+
+b.
+ This additional twist is distributed evenly among all line segments of
+ the sweep path; thus with a global twist of 
+\begin_inset Formula $t$
+\end_inset
+
+ and with 
+\begin_inset Formula $n$
+\end_inset
+
+ sampled cross-sections, the local twist along each of the 
+\begin_inset Formula $n$
+\end_inset
+
+ line segments is 
+\begin_inset Formula $\frac{i}{n}\cdot t$
+\end_inset
+
+.
+ After a match of the two end-frames has been established, the user can
+ add additional global twist in increments of +/- 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+, which keeps all longitudinal parameter lines properly connected to themselves.
+\end_layout
+
+\begin_layout Standard
+The simplest way to define a twist penalty is to use the square of this
+ total twist, comprising the component needed to establish the matching
+ coordinate frames as well as any additional twist added by the user.
+ 
+\begin_inset Formula 
+\[
+E_{T}=\text{Built-in curve torsion}+\text{user-added twist}.
+\]
+
+\end_inset
+
+ Once this toroidal end-around connectivity has been initialized, it is
+ important that it be maintained throughout the whole optimization process.
+ Thus the global twist is updated incrementally after each change to the
+ curve shape, so that the two end frames keep their alignment.
+ This prevents the toroid from suddenly experiencing jumps in twist of +/-
+ 
+\begin_inset Formula $360^{\circ}$
+\end_inset
+
+, as the framework looks for a minimal amount of global twist to keep the
+ two coordinate frames aligned.
+\end_layout
+
+\begin_layout Standard
+However, this simple calculation of a twist penalty may not be quite good
+ enough.
+ Even though for many optimization sequences studied, this functional was
+ good enough to guide the toroid evolution to the expected final state,
+ there were some cases where this optimization process passed through some
+ highly convoluted shapes.
+ In a continuation of this project we will thus have to consider a more
+ refined assessment of the twistiness of the whole toroid--one that does
+ not allow heavily twisted segments with opposite signs in their overall
+ torsion to cancel out.
+ We thus need to find a way to calculate the twist along each segment independen
+tly by monitoring how much the normal vector in the Frenet frame (the natural
+ intrinsic coordinate system based on local curvature) changes from one
+ joint to the next.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Shadowbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+Here is what you stated when we were discussing this paper last year.
+ Given that we haven't implemented this, did you want to include it at all?
+\end_layout
+
+\begin_layout Plain Layout
+[[I have used the occasion of this re-writing pass to think deeply about
+ this issue.
+ Here is my current thinking.
+ Please bring your thoughts to the table.
+ And then finally this needs to be verified by an experimentally.]]
+\end_layout
+
+\begin_layout Plain Layout
+However, this is a somewhat tricky issue.
+ Just considering the rotation angle from one frame to the next may lead
+ to a hyper-sensitive, discontinuous functional.
+ When a control point in a planar curve moves slightly so as to introduce
+ two inflection points, the Frenet frame suddenly flips through 
+\begin_inset Formula $180^{\circ}$
+\end_inset
+
+ at these inflection points, which would add a huge penalty to the cost
+ function and may trigger instabilities in the optimization process.
+ But we really do not want to introduce any hurdles for almost straight
+ curve segment sequences with a possible inflection point in it.
+ Thus any frame rotation around the tangent direction must be seen in the
+ context of curve bending; and this rotational cost component should be
+ weighted by the bending cost.
+ Thus the local twist cost can pass gracefully through a value of zero as
+ two subsequent curve segments pass through a collinear configuration.
+ Thus a refined form of the twist cost component may amount to: 
+\begin_inset Formula 
+\[
+E_{3}=\sum_{i}\left(\frac{S_{i-1}\cdot S_{i}\times S_{i+1}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert \cdot\left\Vert S_{i-1}\right\Vert }\right)^{2}
+\]
+
+\end_inset
+
+ Another way of looking at this cost component is to see it as a penalty
+ for non-planarity of 3 subsequent curve segments.
+ And perhaps this is the best way of expressing local twistiness; because
+ creating a helical path is one way of absorbing some built-in twist without
+ incurring a twist penalty for it.
+ However the energy component 
+\begin_inset Formula $E_{3}$
+\end_inset
+
+ would discourage such a diversion of a curve into a 3D configuration (see
+ discussion in subsection "Undesirable Behavior").
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1545,11 +1752,39 @@ Here is a test case that should allow us to analyze how well this new measure
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Shadowbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+
+\series bold
+This is related to the discussion of a refined twist penalty above.
+ I ran this optimization (I got a simple circle with no twist), and the
+ results look good, but did you want to include it given that we don't have
+ an alternate functional to compare to?
+\end_layout
+
+\begin_layout Plain Layout
 [[ Control point of "anti-helices": (2 -1 0.0) (3 0 0.1) (2 1 0.2) (1 0 0.3)
  (2 -1 0.4) (3 0 0.5) (2 1 0.6) (1 0 0.7) (2 -1 0.8) (3 0 0.9) (2 1 1.0) (-2 1
  1.0) (-3 0 0.9) (-2 -1 0.8) (-1 0 0.7) (-2 1 0.6) (-3 0 0.5) (-2 -1 0.4) (-1 0
  0.3) (-2 1 0.2) (-3 0 0.1) (-2 -1 0.0) --- I am eager to see what happens to
  this one with old and new functionals ! ]]
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -1797,10 +2032,31 @@ Starting from this configuration, the only way to initiate an eversion process
 \end_inset
 
  in the red arm, ensuring the total twist across both arms will not change.
- We also remove any control points in the green arm that do not lie near
- the endpoints.
- These two changes forces the green arm to straighten, and the optimization
- ends at Figure 
+\end_layout
+
+\begin_layout Standard
+The energy landscape given this functional contains many local minima.
+ To coax the optimization toward our desired result, we separate the eversion
+ into a number of discrete steps, alterning the energy functional slightly
+ to promote evolution toward a particular intermediate configuration.
+ We start by removing any control points in the green arm that do not lie
+ near the endpoints and adding a few more to the red arm.
+\end_layout
+
+\begin_layout Standard
+Any twist in the green arm is penalized.
+ The twist in the red arm is set to 
+\begin_inset Formula $360\text{°},$
+\end_inset
+
+ and the twist due to the forward projection is penalized if it deviates
+ from a certain value.
+ When the value is 
+\begin_inset Formula $0$
+\end_inset
+
+, that is the configuration of the arm is not expected to incur any twist
+ due to the RMF, we obtain Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:kbm-straighten"
@@ -1808,6 +2064,71 @@ reference "fig:kbm-straighten"
 \end_inset
 
 a.
+ Different penalties yield the configurations in Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+b-e, where each figure is obtained by starting at the previous configuration,
+ and penalizing deviation from a natural twist of 
+\begin_inset Formula $90\text{°},$
+\end_inset
+
+ 
+\begin_inset Formula $180\text{°}$
+\end_inset
+
+, 
+\begin_inset Formula $270\text{°}$
+\end_inset
+
+ and 
+\begin_inset Formula $360\text{°}$
+\end_inset
+
+ respectively.
+ Note that Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+e is planar, meaning no twist would be incurred by the RMF.
+ However, the starting point is non-planar, and the accumulation of twist
+ starting at 
+\begin_inset Formula $270\text{°}$
+\end_inset
+
+ ensures that the final configuration has removed all 
+\begin_inset Formula $360\text{°}$
+\end_inset
+
+ via the out-of-plane rotation, just like a planar twisted circle folding
+ into a figure-8.
+\end_layout
+
+\begin_layout Standard
+In Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+b-g, the penalty on the green arm is replaced with one penalizing the squared
+ deviation from length shown in the figures.
+ In Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+f, the desired length is decreased to better visualize the final stages
+ of the eversion.
 \end_layout
 
 \begin_layout Standard
@@ -1954,7 +2275,7 @@ The eversion process.
 \end_inset
 
  of twist while the green arm straightens; (b)-(e) the red arm undergoes
- an out of plane rotation in order to remove the 
+ an out-of-plane rotation in order to remove the 
 \begin_inset Formula $360\text{°}$
 \end_inset
 
@@ -1972,15 +2293,31 @@ The eversion process.
 
 \end_layout
 
+\begin_layout Standard
+The fact that we need to perform the optimization in discrete steps, starting
+ with the result of a previous optimization and alterning the energy functional
+ each time, shows that a combined functional aimed at starting from the
+ symmetric half-way point and ending at a nearly circular configuration
+ will contain local minima that make eversion via optimization difficult
+ to achieve.
+ Instead, an optimization process must be coaxed into going through the
+ intermediate steps specified by the user.
+\end_layout
+
 \begin_layout Section
 Conclusions
 \end_layout
 
 \begin_layout Standard
-[[some concluding remarks ...]] With these experiments we have demonstrated
- that simple CAD models can be constructed with suitable cost functions
- that will evolve toroidal structures to their simplest representative within
- the appropriate regular homotopy class.
+With these experiments we have demonstrated that simple CAD models can be
+ constructed with suitable cost functions that will evolve toroidal structures
+ to their simplest representative within the appropriate regular homotopy
+ class.
+ When applying this process to a partially everted torus represented within
+ our system, the energy landscape contains numerous local minima that prevent
+ an automatic eversion process via an optimization process.
+ This suggests the scope of further research to determine if a suitable
+ energy functional can be obtained, as in the case of the sphere eversion.
 \end_layout
 
 \begin_layout Section
