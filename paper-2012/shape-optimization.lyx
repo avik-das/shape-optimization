@@ -1591,7 +1591,7 @@ status open
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" usebox="none" special="c">
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none" special="c">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1603,11 +1603,19 @@ status open
 \end_inset
 
 
+\begin_inset Graphics
+	filename wiggles-4s.png
+	lyxscale 30
+	height 1.5in
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1616,19 +1624,11 @@ status open
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-TODO: add 
-\begin_inset Quotes eld
-\end_inset
 
-ideal
-\begin_inset Quotes erd
-\end_inset
-
- shape
 \end_layout
 
 \end_inset
