@@ -1010,7 +1010,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/figure-8-no-twist.png
+	filename figure-8-no-twist-0.png
 	lyxscale 50
 	width 2in
 
@@ -1026,7 +1026,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/unfolding-figure-8-1.png
+	filename figure-8-no-twist-1.png
 	lyxscale 50
 	width 2in
 
@@ -1044,7 +1044,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/unfolding-figure-8-2.png
+	filename figure-8-no-twist-2.png
 	lyxscale 50
 	width 2in
 
@@ -1060,7 +1060,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/twisted-circle.png
+	filename figure-8-no-twist-3.png
 	lyxscale 50
 	width 2in
 
@@ -1178,7 +1178,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/alpha-balance-1.png
+	filename alpha-balance-1.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1193,7 +1194,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/alpha-balance-2.png
+	filename alpha-balance-2.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1210,7 +1212,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/alpha-balance-3.png
+	filename alpha-balance-3.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1225,7 +1228,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/alpha-balance-4.png
+	filename alpha-balance-4.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1320,18 +1324,19 @@ status open
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="3" columns="2">
+<lyxtabular version="3" rows="2" columns="3">
 <features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
 <row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/perturbed-1.png
-	lyxscale 50
+	filename perturbed-1.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1346,8 +1351,24 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/perturbed-2.png
-	lyxscale 50
+	filename perturbed-2.png
+	lyxscale 30
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename perturbed-3.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1359,19 +1380,28 @@ status open
 </cell>
 </row>
 <row>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0pt">
+<row>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
- 
 \begin_inset Graphics
-	filename ../paper/perturbed-3.png
-	lyxscale 50
+	filename perturbed-4.png
+	lyxscale 30
 	width 2in
 
 \end_inset
 
- 
+
 \end_layout
 
 \end_inset
@@ -1381,8 +1411,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/perturbed-4.png
-	lyxscale 50
+	filename perturbed-5.png
+	lyxscale 30
 	width 2in
 
 \end_inset
@@ -1393,24 +1423,25 @@ status open
 \end_inset
 </cell>
 </row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename ../paper/perturbed-5.png
-	lyxscale 50
-	width 2in
+</lyxtabular>
 
 \end_inset
 
- 
+
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" usebox="none">
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1546,7 +1577,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/lim-twisted-circle-1.png
+	filename lim-twisted-circle-1.png
 	lyxscale 50
 	width 1.5in
 
@@ -1562,7 +1593,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/lim-twisted-circle-2.png
+	filename lim-twisted-circle-2.png
 	lyxscale 50
 	width 1.5in
 
@@ -1578,7 +1609,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/lim-twisted-circle-3.png
+	filename lim-twisted-circle-3.png
 	lyxscale 50
 	width 1.5in
 
@@ -1595,18 +1626,46 @@ status open
 \begin_inset Text
 
 \begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../paper/lim-twisted-circle-4.png
+	filename lim-twisted-circle-4.png
 	lyxscale 50
 	width 2in
 
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename wiggles-4s.png
 	lyxscale 30
 	height 1.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
 
 \end_inset
 
