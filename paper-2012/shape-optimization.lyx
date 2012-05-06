@@ -242,32 +242,24 @@ status open
 
 \begin_inset Graphics
 	filename figure-8-start.png
-	lyxscale 25
+	lyxscale 75
 	width 2in
 
-\end_inset
-
-
-\begin_inset space \hfill{}
 \end_inset
 
 
 \begin_inset Graphics
 	filename figure-8-mid.png
-	lyxscale 25
-	width 2in
+	lyxscale 75
+	width 2.5in
 
-\end_inset
-
-
-\begin_inset space \hfill{}
 \end_inset
 
 
 \begin_inset Graphics
 	filename figure-8-end.png
-	lyxscale 25
-	width 2in
+	lyxscale 75
+	width 2.25in
 
 \end_inset
 
@@ -744,7 +736,7 @@ status open
 
 \begin_inset Graphics
 	filename rmf-uncompensated.png
-	lyxscale 25
+	lyxscale 75
 	height 1.5in
 
 \end_inset
@@ -756,7 +748,7 @@ status open
 
 \begin_inset Graphics
 	filename rmf-compensated.png
-	lyxscale 25
+	lyxscale 75
 	height 1.5in
 
 \end_inset
@@ -1012,7 +1004,7 @@ status open
 \begin_inset Graphics
 	filename figure-8-no-twist-0.png
 	lyxscale 50
-	width 2in
+	width 2.5in
 
 \end_inset
 
@@ -1028,7 +1020,7 @@ status open
 \begin_inset Graphics
 	filename figure-8-no-twist-1.png
 	lyxscale 50
-	width 2in
+	width 2.5in
 
 \end_inset
 
@@ -1046,7 +1038,7 @@ status open
 \begin_inset Graphics
 	filename figure-8-no-twist-2.png
 	lyxscale 50
-	width 2in
+	width 2.5in
 
 \end_inset
 
@@ -1062,7 +1054,7 @@ status open
 \begin_inset Graphics
 	filename figure-8-no-twist-3.png
 	lyxscale 50
-	width 2in
+	width 2.5in
 
 \end_inset
 
@@ -1179,8 +1171,8 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename alpha-balance-1.png
-	lyxscale 30
-	width 2in
+	lyxscale 75
+	width 2.75in
 
 \end_inset
 
@@ -1195,8 +1187,8 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename alpha-balance-2.png
-	lyxscale 30
-	width 2in
+	lyxscale 75
+	width 2.75in
 
 \end_inset
 
@@ -1213,8 +1205,8 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename alpha-balance-3.png
-	lyxscale 30
-	width 2in
+	lyxscale 75
+	width 2.75in
 
 \end_inset
 
@@ -1229,8 +1221,8 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename alpha-balance-4.png
-	lyxscale 30
-	width 2in
+	lyxscale 75
+	width 2.75in
 
 \end_inset
 
@@ -1336,7 +1328,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-1.png
-	lyxscale 30
+	lyxscale 75
 	width 2in
 
 \end_inset
@@ -1352,7 +1344,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-2.png
-	lyxscale 30
+	lyxscale 75
 	width 2in
 
 \end_inset
@@ -1368,7 +1360,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-3.png
-	lyxscale 30
+	lyxscale 75
 	width 2in
 
 \end_inset
@@ -1396,7 +1388,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-4.png
-	lyxscale 30
+	lyxscale 75
 	width 2in
 
 \end_inset
@@ -1406,13 +1398,13 @@ status open
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename perturbed-5.png
-	lyxscale 30
+	lyxscale 75
 	width 2in
 
 \end_inset
@@ -1654,7 +1646,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename wiggles-4s.png
-	lyxscale 30
+	lyxscale 50
 	height 1.5in
 
 \end_inset
@@ -1770,7 +1762,14 @@ name "fig:energycurves"
 
 \end_inset
 
- Energy Components for Figure 4 by Iteration
+ Energy Components for Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:wiggles"
+
+\end_inset
+
+ by Iteration
 \end_layout
 
 \end_inset
