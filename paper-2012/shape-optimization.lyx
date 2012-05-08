@@ -95,8 +95,8 @@ We focus on an optimization problem on parameterized surfaces of genus one.
  A generalization of this surface optimization, which considers curvature
  as well as any shearing of its parameter grid, may be used to find the
  most optimal direct path from an arbitrary closed manifold of genus one
- into one of the four basic representatives of four regular homotopy classes
- of tori.
+ into one of the four basic representatives of the four regular homotopy
+ classes of tori.
 \begin_inset Newline newline
 \end_inset
 
@@ -144,10 +144,10 @@ key "sequin11"
  can be smoothly deformed into another torus in the same regular homotopy
  class without introducing any tears, creases or pinch-off points with infinite
  curvature.
- A surface may, however, pass through itself, as this does not introduce
+ A surface may, however, pass through itself, as long as it does not introduce
  these problems.
- The converse holds: no regular homotopy exists between objects in different
- regular homotopy classes.
+ The converse holds: no regular homotopy transformation exists between objects
+ in different regular homotopy classes.
 \end_layout
 
 \begin_layout Standard
@@ -176,8 +176,8 @@ reference "fig:figure-8"
 
 \end_inset
 
-a) can be unfolded into a circle--from an O8 to an OO in paper's terminology--bu
-t this introduces a twist of 
+a) can be unfolded into a circle--from a torus of type O8 to one of type
+ OO in the paper's terminology--but this introduces a twist of 
 \begin_inset Formula $\pm360\text{°}$
 \end_inset
 
@@ -208,7 +208,7 @@ reference "fig:crossover"
 
 \end_inset
 
-b), and back into a circle (Figure 
+b), and beyond into another circle (Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:crossover"
@@ -281,9 +281,9 @@ name "fig:figure-8"
 
 \end_inset
 
-A figure-8 can be unfolded into a circle using the cross-over move: (a)
- Figure-8 starting configuration with zero twist; (b) Figure-8 unfolding;
- (c) Circular ending configartion with 
+A figure-8-shaped minimum-rotation sweep being unfolded into a circle using
+ the cross-over move: (a) Figure-8 starting configuration with zero twist;
+ (b) Figure-8 unfolding; (c) Circular ending configartion with 
 \begin_inset Formula $360\text{°}$
 \end_inset
 
@@ -360,7 +360,7 @@ name "fig:crossover"
 
 \end_inset
 
-The full cross-over move adds 
+The full figure-8 cross-over move adds 
 \begin_inset Formula $\pm720\text{°}$
 \end_inset
 
@@ -369,11 +369,11 @@ The full cross-over move adds
 \begin_inset Formula $360\text{°}$
 \end_inset
 
- of torsion; (c) Circular end configuration with 
+ of twist; (c) Circular end configuration with 
 \begin_inset Formula $720\text{°}$
 \end_inset
 
- of torsion.
+ of twist.
 \end_layout
 
 \end_inset
@@ -390,12 +390,12 @@ The full cross-over move adds
 To visualize regular homotopies of tori without specifying any intermediate
  configurations, we aim to construct penalty functions, i.e.
  energy functionals, defined on a torus and a system that smoothly deforms
- the torus so as to minimize the energy.
+ the torus so as to minimize that energy.
  We choose a structured representation of the tori consisting of relatively
- few independent parameters, allowing optimization to progress at interactive
- speeds.
- The penalty functions then operate on this representation, penalizing both
- the bending and the twisting.
+ few independent parameters, allowing the optimization to progress at interactiv
+e speeds.
+ The energy function then considers both the integrated bending and the
+ overall twisting.
  By adjusting the relative weights for these two terms, we can choose to
  obtain either circular loops with some possible non-zero twist or some
  true 3D space curve with minimized twist.
@@ -410,14 +410,28 @@ The sweep path of the toroid is rendered as a closed B-spline, regularly
  sampled in parameter space with a user-defined number of segments.
  The few control points of the B-spline allow the user to define the geometry
  of the starting configuration.
- The end-to-end torsion is then calculated, and some compensating twist
- is introduced to generetae properly align end-frames.
- Any artificially introduced twist is uniformly spread out over the whole
- parameter range of the completely curve.
+ The end-to-end torsion is then calculated using a rotation-minimizng frame
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bishop75"
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "klok86"
+
+\end_inset
+
+, and some compensating twist is introduced to generate properly aligned
+ end-frames.
+ This artificially introduced twist is uniformly spread out over the whole
+ B-spline loop.
 \end_layout
 
 \begin_layout Standard
-The user can also optionally introduce additional twist.
+The user can optionally introduce additional twist.
  In most cases, this twist will be a multiple of 
 \begin_inset Formula $360\text{°}$
 \end_inset
@@ -443,7 +457,7 @@ Representation
 Even though the sweep curve is rendered as a "smooth" B-spline, all calculations
  of energy and all optimization moves are carried out on the control polygon.
  This dramatically reduces the degrees of freedom in the system and the
- scale of the derivative computations in the optimization process.
+ amount of derivative computations in the optimization process.
  An edge between two subsequent control vertices is called a strut, with
  the 
 \begin_inset Formula $i$
@@ -461,9 +475,9 @@ Spring Energy
 \end_layout
 
 \begin_layout Standard
-To keep the curve length roughly the same as originally draw, and to avoid
- tedious recscaling steps, the average length of all the initial struts
- 
+To keep the curve length roughly the same as in the original input, and
+ to avoid tedious recscaling steps, the average length of all the initial
+ struts 
 \begin_inset Formula $\left\Vert S_{i}\right\Vert $
 \end_inset
 
@@ -493,15 +507,15 @@ Common approaches to calculating the bending energy of a
 \begin_inset Formula $2$
 \end_inset
 
--manifold typically consider the curvature of the surface at each point
+-manifold typically consider the mean curvature of the surface at each point
  integrated over the entire surface.
  Since our study concentrates on thin, tube-like structures with a constant
  cross section, we restrict ourselves to considering only the amount of
  bending found in the sweep path itself.
  The bending energy of a smooth curve, calculated as an arc-length integration
- of curvature squared, is not scale-invariant, but due to the length restriction
- imposed by the spring energy, only the angles between consecutive struts
- are considered.
+ of curvature squared, is not scale-invariant.
+ But due to the strut length restriction imposed by the spring energy, only
+ the angles between consecutive struts need to be considered.
  Each control point on the curve contributes the square of its deviation
  from collinearity:
 \begin_inset Formula 
@@ -568,13 +582,12 @@ reference "fig:rmf-twist"
 \end_inset
 
 a.
- The normal vectors to the curve within the two cross-sections are compared
- to each other, and the angle between these two vectors measures the mismatch
- between the two coordinate frames.
- We then apply an additional global twist to the whole curve, so that the
- beginning and ending coordinate frames line up and the longitudinal parameter
- lines in the toroid surface properly join with themselves after one pass
- around the loop, as seen in Figure 
+ The azimuthal rotation angles between the two cross-sections are compared
+ to each other, and the difference in orientation is compensated by applying
+ an additional global twist to the whole curve, so that the beginning and
+ ending coordinate frames line up and the longitudinal parameter lines in
+ the toroid surface properly join with themselves after one pass around
+ the loop, as seen in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:rmf-twist"
@@ -631,7 +644,7 @@ E_{T}=\left(\text{Built-in curve torsion}+\text{user-added twist}\right)^{2}
 \begin_inset Formula $\pm360\text{°}$
 \end_inset
 
- jumps in the twist, as the update looks for a minimal amount of global
+ jumps in the twist, as the update looks for a minimal change in the global
  twist to keep the two coordinate frames aligned.
 \end_layout
 
@@ -755,11 +768,11 @@ name "fig:rmf-twist"
 
 (a) The forward projection used for the rotation minimizing frame causes
  the starting and ending frames to misalign.
- (b) Adding in 
+ (b) Gradually adding in 
 \begin_inset Formula $180\text{°}$
 \end_inset
 
- gradually across the sweep causes the frames to align.
+ of twist across the sweep causes the frames to align.
 \end_layout
 
 \end_inset
@@ -1204,7 +1217,7 @@ status open
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="2">
+<lyxtabular version="3" rows="4" columns="2">
 <features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -1247,10 +1260,32 @@ status open
 \begin_inset Text
 
 \begin_layout Plain Layout
+(a)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(b)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename alpha-balance-3.png
 	lyxscale 75
 	width 2.75in
+	BoundingBox 0bp 0.40000000000000002in 600bp 274bp
+	clip
 
 \end_inset
 
@@ -1267,10 +1302,32 @@ status open
 	filename alpha-balance-4.png
 	lyxscale 75
 	width 2.75in
+	BoundingBox 0bp 0.40000000000000002in 600bp 276bp
+	clip
 
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(c)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(d)
 \end_layout
 
 \end_inset
@@ -1512,7 +1569,8 @@ name "fig:circle2eight"
 \begin_inset Formula $360^{\circ}$
 \end_inset
 
- folds itself into a figure eight.
+ folds itself into a figure eight through a sequence of somewhat counter-intuiti
+ve moves.
  This optimization was performed with 
 \begin_inset Formula $\alpha=0.5$
 \end_inset
