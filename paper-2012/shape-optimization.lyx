@@ -872,8 +872,8 @@ ion of twist is calculating by updating a parameter that is used in the
 \begin_layout Standard
 We employ finite differencing to determine the influence of each primary
  parameter on the overall cost of the resulting configuration.
- Each parameter--in our case, each coordinate component of each control
- point--is varied independently by a small amount, and the resulting change
+ Each parameter -- in our case, each coordinate component of each control
+ point -- is varied independently by a small amount, and the resulting change
  in the energy is calculated.
  Given a sweep curve defined by 
 \begin_inset Formula $n$
@@ -893,7 +893,7 @@ We employ finite differencing to determine the influence of each primary
 \end_inset
 
 , resulting in a new toroid energy 
-\begin_inset Formula $E^{+}$
+\begin_inset Formula $E_{i}^{+}$
 \end_inset
 
 , and subsequently by 
@@ -901,38 +901,17 @@ We employ finite differencing to determine the influence of each primary
 \end_inset
 
 , resulting in a toroid energy 
-\begin_inset Formula $E^{-}$
+\begin_inset Formula $E_{i}^{-}$
 \end_inset
 
 .
- Thus, the impact of the 
-\begin_inset Formula $i$
+ The gradient, that is the direction of greatest decrease in energy, is
+ the vector with components 
+\begin_inset Formula $-\frac{\Delta E_{i}}{\Delta p_{i}}=\frac{E_{i}^{-}-E_{i}^{+}}{2\Delta p_{i}}$
 \end_inset
 
-th component on the energy is 
-\begin_inset Formula 
-\[
-\Delta E_{i}=\begin{cases}
-E^{-}-E^{+} & E^{-}<E^{0}\text{ or }E^{+}<E^{0}\\
-0 & \text{otherwise}
-\end{cases}
-\]
-
-\end_inset
-
- where 
-\begin_inset Formula $E^{0}$
-\end_inset
-
- is the energy before the parameter is varied.
- With this approach the overall energy gradient can be calculated as: 
-\begin_inset Formula $\frac{\Delta E}{2}\cdot\Delta p=\frac{\left\langle \Delta E_{1},\ldots,\Delta E_{3n}\right\rangle }{2}\cdot\Delta p$
-\end_inset
-
-, and this vector will point in the direction of the largest decrease in
- energy, with each parametric components weighted by the magnitude of the
- energy decrease due to that parameter.
- A combined step is then taken in this direction.
+.
+ A small step is then taken along this combined vector.
 \end_layout
 
 \begin_layout Subsection
@@ -950,26 +929,42 @@ tion or a smoothly evolving demonstration movie, additional constraints
 \end_layout
 
 \begin_layout Standard
-For the purposes of this project, both the initial finite-differencing step
- and the initial optimization step size are set at 
-\begin_inset Formula $0.1$
+For the purposes of this project, the initial finite-differencing step is
+ set to 
+\begin_inset Formula $0.04$
 \end_inset
 
 .
- The latter implies than any parameter that would be moved by 
-\begin_inset Formula $1$
+ This implies that each control point is moved by 
+\begin_inset Formula $4\%$
 \end_inset
 
- in the normalized direction of greatest energy decrease is changed by one-tenth
- of that amount.
- Before each iteration step is carried out, it is checked that the intended
+ of the desired rest length of a strut to determine the influence on the
+ total energy.
+\end_layout
+
+\begin_layout Standard
+The initial optimization step size is set to 
+\begin_inset Formula $0.04$
+\end_inset
+
+.
+ This means that the gradient vector is normalized to the rest length of
+ a strut, and each control point is moved by 
+\begin_inset Formula $4\%$
+\end_inset
+
+ of the length dictated by the normalized gradient vector.
+\end_layout
+
+\begin_layout Standard
+Before each iteration step is carried out, it is checked that the intended
  step would indeed result in a reduction in the overall energy function.
  If this is not the case, the iteration step size is cut in half, and subsequent
- iterations attempt to decrease the energy by using this new, reduced step
- size.
+ iterations attempt to decrease the energy by using this reduced step size.
  When the step size drops below a predefined ending step size, empirically
  chosen as 
-\begin_inset Formula $10^{-5}$
+\begin_inset Formula $4\times10^{-6}$
 \end_inset
 
 , the optimization halts, and it is inferred that the toroid has reached
@@ -1399,7 +1394,7 @@ reference "fig:circle2eight"
 \end_inset
 
  with a slight perturbation in one control point is correctly optimized,
- albeit in an undesirable manner.
+ albeit in an unexpected, not very aesthetically pleasing manner.
  The perturbation effectively signals to the optimization that some form
  of folding out of the plane should occur, but the optimization proceeds
  locally before producing the desired planar, untwisted figure-8.
@@ -1628,14 +1623,24 @@ reference "fig:energycurves"
 ), we see that the twist energy is reduced dramatically, by a factor of
  36, while there is only a modest increase in bending energy of about a
  factor of 5.
+\end_layout
+
+\begin_layout Standard
+This solution still leaves us with approximately 
+\begin_inset Formula $60\text{°}$
+\end_inset
+
+ of twist, and the bending energy is a little less than twice the bending
+ energy present in an untwisted figure-8, which is the solution we would
+ expect given the starting point.
  So what is going on here?
 \end_layout
 
 \begin_layout Standard
 Actually, we could synthesize a perfect, twist-free solution with a rectilinear
- cubist control polygon that produces four planar, S-shaped curve that join
- together with four vertical junctions where the Frenet frame makes an instant
- 
+ cubist control polygon that produces four planar, S-shaped curve segments
+ which join together with four vertical junctions where the Frenet frame
+ makes an instant 
 \begin_inset Formula $90^{\circ}$
 \end_inset
 
@@ -1977,8 +1982,8 @@ reference "fig:kbm-halfway"
 
 \end_inset
 
-a, with the goal that it be perturbed slightly and evolved under an energy
- minimizer such as our system.
+a, with the goal that it be perturbed slightly and it would then evolve
+ under an energy minimizer such as our system.
  To achieve the latter, two changes are required: a suitable representation
  for a shape that contains a Klein bottle mouth and a modified energy functional
  that drives the energy minimization toward completing the eversion.
@@ -2023,12 +2028,6 @@ The first change requires the calculation of the twist across two separate
  frame misaligns with the ending frame is the twist along that arm.
  The same starting and ending coordinate frames are used for the second
  arm due to the alignment condition at the mouths.
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-[[I'm not sure if I should mention these terms at all:]]
 \end_layout
 
 \begin_layout Standard
@@ -2295,7 +2294,7 @@ f, the desired length is decreased to better visualize the final stages
 
 \begin_layout Standard
 \begin_inset Float figure
-wide true
+wide false
 sideways false
 status open
 
@@ -2304,15 +2303,10 @@ status open
 \end_inset
 
 
-\begin_inset Tabular
-<lyxtabular version="3" rows="2" columns="3">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2325,10 +2319,25 @@ status open
 
 \end_layout
 
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
 \end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2341,10 +2350,25 @@ status open
 
 \end_layout
 
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
 \end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2357,12 +2381,36 @@ status open
 
 \end_layout
 
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
 \end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2373,12 +2421,24 @@ status open
 \end_inset
 
 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2389,12 +2449,24 @@ status open
 \end_inset
 
 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2407,10 +2479,17 @@ status open
 
 \end_layout
 
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
 \end_inset
-</cell>
-</row>
-</lyxtabular>
+
+
+\end_layout
 
 \end_inset
 
@@ -2447,6 +2526,10 @@ The eversion process.
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Plain Layout
 
 \end_layout
 
