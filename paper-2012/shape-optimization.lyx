@@ -72,7 +72,8 @@ Avik Das
 \begin_inset Newline newline
 \end_inset
 
- Adviser: Carlo Séquin
+ Adviser: Carlo H.
+ Séquin
 \begin_inset Newline newline
 \end_inset
 
@@ -2069,8 +2070,8 @@ key "sequin11"
 \end_inset
 
 .
- To achieve a symmetrical half-way point, the twist in each arm is calculated
- and the deviation from 
+ In a first optimization for minimal twisting of this symmetrical half-way
+ point, the twist in each arm is calculated and the deviation from 
 \begin_inset Formula $180\text{°}$
 \end_inset
 
@@ -2090,7 +2091,7 @@ reference "fig:kbm-halfway"
 
 \end_inset
 
-c, and it can be seen that the stripe twists nearly 
+c, and it can be seen that this RMF stripe twists nearly 
 \begin_inset Formula $180\text{°}$
 \end_inset
 
@@ -2159,10 +2160,17 @@ name "fig:kbm-halfway"
 \end_inset
 
 The symmetrical half-way point for a possible eversion process.
- (a) Séquin's rendering.
+ (a) Séquin's rendering
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sequin11"
+
+\end_inset
+
+.
  Note the twist in each arm; (b) the same configuration represented and
- optimized using our system; (c) the stripe on the green arm in isolation
- as it twists around 
+ optimized for minimal twisting using our system; (c) the stripe on the
+ green arm in isolation as it twists around 
 \begin_inset Formula $180\text{°}$
 \end_inset
 
@@ -2184,8 +2192,8 @@ The symmetrical half-way point for a possible eversion process.
 \end_layout
 
 \begin_layout Standard
-Starting from this configuration, the only way to initiate an eversion process
- is to deliberately break the symmetry.
+Starting from this configuration, the only way to complete the actual eversion
+ process is to deliberately break the symmetry.
  We force all the twist in the green arm to be transferred to the red arm
  by penalizing any twist in the green arm, and penalizing any deviation
  from a twist of 
@@ -2306,7 +2314,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2337,7 +2345,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2368,7 +2376,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2410,7 +2418,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2438,7 +2446,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2466,7 +2474,7 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -2570,7 +2578,8 @@ Acknowledgements
 \end_layout
 
 \begin_layout Standard
-We would like to thank Satish Rao and Umesh Vazirani for providing valuable
+The author would like to thank Victor Huang for participating in the initial
+ stages of the project, Satish Rao and Umesh Vazirani for providing valuable
  insight regarding gradient descent, and Carlo Séquin, without whose advice
  and guidance, this project would not have been possible.
 \end_layout
