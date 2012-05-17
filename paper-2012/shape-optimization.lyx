@@ -1839,7 +1839,11 @@ A planar circle with an initial twist of
 \end_inset
 
  bends inwards to minimize its twist.
- Optimization performed using 
+ Modeled with 
+\begin_inset Formula $16$
+\end_inset
+
+ segments, and optimization performed using 
 \begin_inset Formula $\alpha=0.5$
 \end_inset
 
