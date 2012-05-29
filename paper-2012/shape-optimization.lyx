@@ -632,7 +632,7 @@ The simplest way to define a twist penalty is to use the square of this
  
 \begin_inset Formula 
 \[
-E_{T}=\left(\text{Built-in curve torsion}+\text{user-added twist}\right)^{2}
+E_{T}=\left(\text{Built-in end-to-end azimuthal mismatch}+\text{user-added twist}\right)^{2}
 \]
 
 \end_inset
@@ -1155,234 +1155,6 @@ name "fig:eight2circle"
 \end_layout
 
 \begin_layout Standard
-The result of the optimization of this toroid is highly sensitive to the
- value of 
-\begin_inset Formula $\alpha$
-\end_inset
-
-.
- Empirically, it was determined that for the 16-segment loop 
-\begin_inset Formula $\alpha$
-\end_inset
-
- values below 
-\begin_inset Formula $0.048324$
-\end_inset
-
- resulted in the shape unfolding into a twisted circle, whereas any value
- of 
-\begin_inset Formula $\alpha$
-\end_inset
-
- larger than this particular number resulted in the shape settling back
- into a planar figure-8 with no twist.
-\end_layout
-
-\begin_layout Standard
-Intermediate configurations between a planar, untwisted figure-8 and a planar,
- twisted circle were achievable when the input shape contained fewer control
- points.
- With only 8 control points in the loop and suitable parameter values for
- 
-\begin_inset Formula $\alpha$
-\end_inset
-
-, the toroid shape manages to find a balance between bending energy, which
- is minimized by a circular configuration, and twisting energy, which is
- minimized by the figure-8 loop.
- The results correspond to different intermediate states of unfolding of
- the figure-8 loop, as shown in Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:intermediate_states"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide true
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset space \hfill{}
-\end_inset
-
-
-\begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="2">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename alpha-balance-1.png
-	lyxscale 75
-	width 2.75in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename alpha-balance-2.png
-	lyxscale 75
-	width 2.75in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-(a)
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-(b)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename alpha-balance-3.png
-	lyxscale 75
-	width 2.75in
-	BoundingBox 0bp 0.40000000000000002in 600bp 274bp
-	clip
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename alpha-balance-4.png
-	lyxscale 75
-	width 2.75in
-	BoundingBox 0bp 0.40000000000000002in 600bp 276bp
-	clip
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-(c)
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-(d)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\begin_inset space \hfill{}
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:intermediate_states"
-
-\end_inset
-
- Intermediate states of unfolding in order to balance bending and twisting
- energy for different vaues of 
-\begin_inset Formula $\alpha$
-\end_inset
-
-.
- (a) initial shape: a slightly perturbed figure-8 loop.
- Note the low number of control points; (b) 
-\begin_inset Formula $\alpha=0.1$
-\end_inset
-
-, enough to cause the figure to unfold completely; (c) 
-\begin_inset Formula $\alpha=0.15$
-\end_inset
-
-, resulting in an intermediate state; (d) 
-\begin_inset Formula $\alpha=0.2$
-\end_inset
-
-, enough to prevent any unfolding.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 In Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1585,6 +1357,885 @@ ve moves.
 \end_layout
 
 \begin_layout Subsection
+Effect of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ Values on Optimal State
+\end_layout
+
+\begin_layout Standard
+Because the value of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ determines the relative importance of bending and twisting on the energy
+ functional, it is logical to hypothesize that certain values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ will result in an intermediate state that balances both factors.
+ To test this hypothesis, we start with a partially unfolded figure-8, half-way
+ between an untwisted figure-8 and a twisted planar circle.
+ As seen in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:intermediate"
+
+\end_inset
+
+, sufficiently low values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ cause the unfolding process to proceed further toward a planar circle,
+ while sufficiently high values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ cause the shape to fold back toward a figure-8.
+ As expected, intermediate values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, between 
+\begin_inset Formula $0.09$
+\end_inset
+
+ and 
+\begin_inset Formula $0.12$
+\end_inset
+
+, cause the shape to stabilize near the half-way point, balancing the bending
+ and the twisting.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-start.png
+	lyxscale 75
+	width 2in
+	BoundingBox 0bp 0bp 600bp 600bp
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.0.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.07.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(a)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(b)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(c)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.08.png
+	lyxscale 75
+	width 2in
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.09.png
+	lyxscale 75
+	width 2in
+	BoundingBox 0bp 0bp 600bp 600bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.11.png
+	lyxscale 75
+	width 2in
+	BoundingBox 0bp 0bp 600bp 600bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(d)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(e)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(f)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.12.png
+	lyxscale 75
+	width 2in
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.15.png
+	lyxscale 75
+	width 2in
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename equilibrium-0.20.png
+	lyxscale 75
+	width 2in
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(g)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(h)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(i)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:intermediate"
+
+\end_inset
+
+ Intermediate states of unfolding in order to balance bending and twisting
+ energy for different vaues of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ (a) Initial shape: a half-unfolded figure-8, with two osculating planes
+ opposite to each other at a 
+\begin_inset Formula $90\text{°}$
+\end_inset
+
+ offset.
+ The figure has 
+\begin_inset Formula $16$
+\end_inset
+
+ control points; (b) 
+\begin_inset Formula $\alpha=0$
+\end_inset
+
+, low enough to cause the figure to unfold completely into a circle; (c-d)
+ 
+\begin_inset Formula $\alpha=0.07$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha=0.08$
+\end_inset
+
+ respectively, low enough to cause the figure to unfold most of the way
+ to a circle; (e-g) 
+\begin_inset Formula $\alpha=0.09$
+\end_inset
+
+, 
+\begin_inset Formula $\alpha=0.11$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha=0.12$
+\end_inset
+
+ respectively cause the figure to remain in the intermediate state; (h-i)
+ 
+\begin_inset Formula $\alpha=0.15$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha=0.2$
+\end_inset
+
+ respectively, high enough to cause the figure to fold back nearly to a
+ figure-8.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Having verified the existence of such an intermediate state, we can attempt
+ to achieve the intermediate state starting at either a twisted planar circle
+ or an untwisted figure-8.
+ For the 
+\begin_inset Formula $16$
+\end_inset
+
+-segment figure-8 in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:alpha-sensitivity"
+
+\end_inset
+
+a, however, the result of the optimization is highly sensitive to the value
+ of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ Empirically, it was determined that 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ values below 
+\begin_inset Formula $0.048324$
+\end_inset
+
+ resulted in the shape unfolding into a twisted circle, whereas any value
+ of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ larger than this particular number resulted in the shape settling back
+ into a planar figure-8.
+\end_layout
+
+\begin_layout Standard
+It appears that given this starting point and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ values above the threshold, changes to a single parameter do not decrease
+ the bending enough to allow the gradient descent algorithm to proceed with
+ the unfolding process.
+ Below the threshold, the unfolding can occur, and because the value of
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is well below the range required to achieve the intermediate state, the
+ optimization is driven all the way to a twisted circle.
+ To overcome this, a significantly larger initial perturbation can be introduced
+, as shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:alpha-sensitivity"
+
+\end_inset
+
+b.
+ From this starting point, any value of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ greater than 
+\begin_inset Formula $0.0825$
+\end_inset
+
+ causes the shape to settle back into a figure-8.
+ Slightly lower values, such as 
+\begin_inset Formula $\alpha=0.8$
+\end_inset
+
+, allow the unfolding to proceed, and the value of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is still sufficiently large enough to achieve a state similar to the half-way
+ point, just like the result in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:intermediate"
+
+\end_inset
+
+d.
+\end_layout
+
+\begin_layout Standard
+Finally, the sensitivity to 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is present when starting at a perturbed, twisted planar circle, as in Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:alpha-sensitivity"
+
+\end_inset
+
+c.
+ Values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ below 
+\begin_inset Formula $0.1593$
+\end_inset
+
+ result in the shape settling into a planar circle.
+ This is because changes to a single parameter do not reduce to the twist
+ enough to compensate for the increase in bending when near the starting
+ configuration.
+ Values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ above this value succeed in starting the folding process, and because the
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ value is above the range required for an intermediate state, the folding
+ concludes in a planar figure-8.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-sensitivity-1.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-sensitivity-2.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-sensitivity-3.png
+	lyxscale 75
+	width 2in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(a)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(b)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(c)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:alpha-sensitivity"
+
+\end_inset
+
+Starting points for attempts to achieve an intermediate state.
+ (a) No intermediate state achievable; (b) a larger initial perturbation
+ allows an intermediate to be achieved; (c) no intermediate state is achievable.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Intermediate configurations are achievable when the input shape contain
+ fewer control points.
+ With only 8 control points in the loop and suitable parameter values for
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, the toroid shape manages to achieve an intermediate state, as shown in
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:intermediate_states"
+
+\end_inset
+
+.
+ The same values of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ result in the same ending configurations when starting with a twisted planar
+ circle.
+ In both cases, the low number of control points allow the gradient descent
+ algorithm to discover optimal moves away from the starting state, even
+ when 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is within the range required to achieve an intermediate state.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-1.png
+	lyxscale 75
+	width 2.75in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-2.png
+	lyxscale 75
+	width 2.75in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(a)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(b)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-3.png
+	lyxscale 75
+	width 2.75in
+	BoundingBox 0bp 0.40000000000000002in 600bp 274bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename alpha-balance-4.png
+	lyxscale 75
+	width 2.75in
+	BoundingBox 0bp 0.40000000000000002in 600bp 276bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(c)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+(d)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:intermediate_states"
+
+\end_inset
+
+ Intermediate states of unfolding in order to balance bending and twisting
+ energy for different vaues of 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+ (a) initial shape: a slightly perturbed figure-8 loop.
+ Note the low number of control points; (b) 
+\begin_inset Formula $\alpha=0.1$
+\end_inset
+
+, low enough to cause the figure to unfold completely into a circle; (c)
+ 
+\begin_inset Formula $\alpha=0.15$
+\end_inset
+
+, resulting in an intermediate state; (d) 
+\begin_inset Formula $\alpha=0.2$
+\end_inset
+
+, resulting in an optimal state closer to the figure-8 shape.
+ The results hold even when starting with a twisted planar circle.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
 Unexpected Behavior
 \end_layout
 
@@ -1633,7 +2284,11 @@ This solution still leaves us with approximately
 
  of twist, and the bending energy is a little less than twice the bending
  energy present in an untwisted figure-8, which is the solution we would
- expect given the starting point.
+ expect given the starting point and 
+\begin_inset Formula $\alpha=0.5$
+\end_inset
+
+.
  So what is going on here?
 \end_layout
 
