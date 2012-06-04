@@ -650,77 +650,6 @@ E_{T}=\left(\text{Built-in end-to-end azimuthal mismatch}+\text{user-added twist
 \end_layout
 
 \begin_layout Standard
-However, this simple calculation of a twist penalty may not be quite good
- enough.
- Even though for many optimization sequences studied, this functional was
- good enough to guide the toroid evolution to the expected final state,
- there were some cases where this optimization process passed through some
- highly convoluted shapes.
- In a continuation of this project we will thus have to consider a more
- refined assessment of the twistiness of the whole toroid--one that does
- not allow heavily twisted segments with opposite signs in their overall
- torsion to cancel out.
- We thus need to find a way to calculate the twist along each segment independen
-tly by monitoring how much the normal vector in the Frenet frame (the natural
- intrinsic coordinate system based on local curvature) changes from one
- joint to the next.
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-Here is what you stated when we were discussing this paper last year.
- Given that we haven't implemented this, did you want to include it at all?
-\end_layout
-
-\begin_layout Standard
-[[I have used the occasion of this re-writing pass to think deeply about
- this issue.
- Here is my current thinking.
- Please bring your thoughts to the table.
- And then finally this needs to be verified by an experimentally.]]
-\end_layout
-
-\begin_layout Standard
-However, this is a somewhat tricky issue.
- Just considering the rotation angle from one frame to the next may lead
- to a hyper-sensitive, discontinuous functional.
- When a control point in a planar curve moves slightly so as to introduce
- two inflection points, the Frenet frame suddenly flips through 
-\begin_inset Formula $180^{\circ}$
-\end_inset
-
- at these inflection points, which would add a huge penalty to the cost
- function and may trigger instabilities in the optimization process.
- But we really do not want to introduce any hurdles for almost straight
- curve segment sequences with a possible inflection point in it.
- Thus any frame rotation around the tangent direction must be seen in the
- context of curve bending; and this rotational cost component should be
- weighted by the bending cost.
- Thus the local twist cost can pass gracefully through a value of zero as
- two subsequent curve segments pass through a collinear configuration.
- Thus a refined form of the twist cost component may amount to: 
-\begin_inset Formula 
-\[
-E_{3}=\sum_{i}\left(\frac{S_{i-1}\cdot S_{i}\times S_{i+1}}{\left\Vert S_{i-1}\right\Vert \cdot\left\Vert S_{i}\right\Vert \cdot\left\Vert S_{i-1}\right\Vert }\right)^{2}
-\]
-
-\end_inset
-
- Another way of looking at this cost component is to see it as a penalty
- for non-planarity of 3 subsequent curve segments.
- And perhaps this is the best way of expressing local twistiness; because
- creating a helical path is one way of absorbing some built-in twist without
- incurring a twist penalty for it.
- However the energy component 
-\begin_inset Formula $E_{3}$
-\end_inset
-
- would discourage such a diversion of a curve into a 3D configuration (see
- discussion in subsection "Undesirable Behavior").
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -808,7 +737,7 @@ For the purposes of investigating the effect of penalizing twist, the amount
 , the final energy of the shape is 
 \begin_inset Formula 
 \[
-E=E_{S}+(1-\alpha)\cdot E_{B}+\alpha\cdot E_{T}+(\textnormal{optionally})\beta\cdot E_{3}
+E=E_{S}+(1-\alpha)\cdot E_{B}+\alpha\cdot E_{T}
 \]
 
 \end_inset
@@ -839,12 +768,6 @@ Then the user can play with the parameter
 , which trades off the twist penalty weight against bending costs.
  Adjusting this ratio is the primary way to affect the outcome of the optimizati
 on.
- Experimenting with parameter 
-\begin_inset Formula $\beta$
-\end_inset
-
- in the future should reveal how easy it is to suppress the unwanted formation
- of local helices.
 \end_layout
 
 \begin_layout Section
@@ -2571,13 +2494,60 @@ reference "fig:wiggles"
 
 \begin_layout Standard
 This example demonstrates that the use of the overall twist is not sufficient
+ to prevent local twistedness that may cancel out in the calculation of
+ the overall twist.
+ We have consider introducing another term that would discourage this local
+ twisting.
+ On second thought, we then realized that 
+\begin_inset Quotes eld
+\end_inset
+
+local twistedness
+\begin_inset Quotes erd
+\end_inset
+
+ is not a good concept, at least not until we introduce separate variables
+ for the azimuthal rotation at each control vertex.
+\end_layout
+
+\begin_layout Standard
+In our model, the twist in the azimuth parameter of the toroidal tube is
+ not explicitly considered until an RMF has been run over the entire curve.
+ Whatever end-to-end azimuthal mismatch is detected by our system is assumed
+ to be optimally distributed along the curve, that is the needed azimuth
+ increments are uniformly spread out along the curve.
+ Under this assumption, there can never be any local concentration or non-unifor
+mity of the twistedness.
+\end_layout
+
+\begin_layout Standard
+Consider the specific case of a nearly straight curve, where the RMF maintains
+ a mostly fixed orientation in space.
+ Suppose the control points are disturbed minimally to introduce a slight
+ helical deformation into the curve.
+ This forces the Frenet frame of the curve to rotate strongly, despite the
+ minimal displacements of control points.
+ However, the rotation minimizing frames along the toroidal tube remain
+ mostly unaffected.
+ Thus, there is some twist due to the delical deformation but no reasonable
+ way to derive a twist penalty from the RMF.
+ The curve must remove the deformation using only the bending penalties,
+ which may be a very slow process.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+This example demonstrates that the use of the overall twist is not sufficient
  to prevent local twistiness that may cancel out in the calculation of the
  overall twist.
  Thus we need a more refined measure that captures the twist more locally
  and sums it up in a sign-independent, squared manner.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The problem is, how do we measure such a local twist? A natural way would
  be to determine how much the Frenet frame rotates from one joint to the
  next; however, this may cause problems for a sequence of nearly collinear
@@ -2589,14 +2559,14 @@ ion.
  2.4.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Here is a test case that should allow us to analyze how well this new measure
  resolves this issue of concern: Connect two multi-looped circles (really
  helices) and see whether the optimization will unravel this into a simple
  circle of figure-8 loop.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 
 \series bold
 This is related to the discussion of a refined twist penalty above.
@@ -2605,12 +2575,17 @@ This is related to the discussion of a refined twist penalty above.
  an alternate functional to compare to?
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 [[ Control point of "anti-helices": (2 -1 0.0) (3 0 0.1) (2 1 0.2) (1 0 0.3)
  (2 -1 0.4) (3 0 0.5) (2 1 0.6) (1 0 0.7) (2 -1 0.8) (3 0 0.9) (2 1 1.0) (-2 1
  1.0) (-3 0 0.9) (-2 -1 0.8) (-1 0 0.7) (-2 1 0.6) (-3 0 0.5) (-2 -1 0.4) (-1 0
  0.3) (-2 1 0.2) (-3 0 0.1) (-2 -1 0.0) --- I am eager to see what happens to
  this one with old and new functionals ! ]]
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
