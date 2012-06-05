@@ -2705,12 +2705,17 @@ key "sequin11"
 
 .
  In a first optimization for minimal twisting of this symmetrical half-way
- point, the twist in each arm is calculated and the deviation from 
+ point, each arm is given a twist of 
 \begin_inset Formula $180\text{°}$
 \end_inset
 
- is penalized on each arm separately.
- This yields the configuration in Figure 
+.
+ This forces the arms to take on a configuration in space so that the RMF
+ provides this 
+\begin_inset Formula $180\text{°}$
+\end_inset
+
+ of twist, yielding the configuration in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:kbm-halfway"
@@ -2829,15 +2834,115 @@ key "sequin11"
 Starting from this configuration, the only way to complete the actual eversion
  process is to deliberately break the symmetry.
  We force all the twist in the green arm to be transferred to the red arm
- by penalizing any twist in the green arm, and penalizing any deviation
- from a twist of 
+ by penalizing any twist in the green arm, and giving the red arm a twist
+ of 
 \begin_inset Formula $360\text{°}$
 \end_inset
 
- in the red arm, ensuring the total twist across both arms will not change.
+, ensuring the total twist across both arms will not change.
 \end_layout
 
 \begin_layout Standard
+The energy landscape under this functional contains 
+\begin_inset Quotes eld
+\end_inset
+
+peaks
+\begin_inset Quotes erd
+\end_inset
+
+ -- that is local maxima -- in the neighborhood of half-way point, making
+ it difficult for an optimization process to navigate past the peaks to
+ a lower energy region.
+ To coax the optimization toward our desired result, we separate the eversion
+ into a number of discrete steps, each time imposing a different contrainst
+ to promote evolution toward a particular intermediate configuration.
+\end_layout
+
+\begin_layout Standard
+We start by removing any control points in the green arm that do not lie
+ near the endpoints and adding a few more to the red arm.
+ This allows the red arm to be flexible enough to perform the desired out-of-pla
+ne rotation.
+ Any twist in the green arm is penalized.
+\end_layout
+
+\begin_layout Standard
+First, the red arm is given a twist of 
+\begin_inset Formula $360\text{°}$
+\end_inset
+
+ and the optimization is run, giving Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+a.
+ This configuration is then given a twist of only 
+\begin_inset Formula $270\text{°}$
+\end_inset
+
+, meaning the end caps will line up when red arm takes on a configuration
+ in space so that the RMF contributes 
+\begin_inset Formula $90\text{°}$
+\end_inset
+
+ of end-to-end azimuthal mismatch, yielding Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+b.
+ In this fashion, starting with the configuration obtained by the previous
+ optimization and decreasing the initial twist to 
+\begin_inset Formula $180\text{°}$
+\end_inset
+
+, 
+\begin_inset Formula $90\text{°}$
+\end_inset
+
+ and no twist, the optimization yields Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+c-e respectively.
+ In each case, the green arm is held constant, and in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-straighten"
+
+\end_inset
+
+f, the green arm is shortened to better visualize the final stages of the
+ eversion.
+\end_layout
+
+\begin_layout Standard
+The process of starting at an intermediate configuration and altering the
+ twist constraint imposed on the system essentially tilts the energy landscape,
+ allowing the optimization to proceed in a direction that would have been
+ considered as a direction of increasing energy in the untilted landscape.
+ The fact that we need to perform the optimization in multiple steps shows
+ that a single optimization starting from the symmetric half-way point and
+ ending at a nearly circular configuration is not achievable using the current
+ energy functional.
+ Instead, an optimization process must be coaxed into going through the
+ intermediate steps specified by the user.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 The energy landscape given this functional contains many local minima.
  To coax the optimization toward our desired result, we separate the eversion
  into a number of discrete steps, altering the energy functional slightly
@@ -2846,7 +2951,7 @@ The energy landscape given this functional contains many local minima.
  near the endpoints and adding a few more to the red arm.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Any twist in the green arm is penalized.
  The twist in the red arm is set to 
 \begin_inset Formula $360\text{°},$
@@ -2913,7 +3018,7 @@ e is planar, meaning no twist would be incurred by the RMF.
  into a figure-8.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 In Figures 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2921,7 +3026,7 @@ reference "fig:kbm-straighten"
 
 \end_inset
 
-b-g, the penalty on the green arm is replaced with one penalizing the squared
+b-f, the penalty on the green arm is replaced with one penalizing the squared
  deviation from the length shown in the figures.
  In Figure 
 \begin_inset CommandInset ref
@@ -2932,6 +3037,11 @@ reference "fig:kbm-straighten"
 
 f, the desired length is decreased to better visualize the final stages
  of the eversion.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -2954,7 +3064,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-0.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -2985,7 +3095,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-90.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -3016,7 +3126,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-180.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -3058,7 +3168,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-270.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -3086,7 +3196,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-360.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -3114,7 +3224,7 @@ status collapsed
 \begin_inset Graphics
 	filename kbm-straighten-360-2.png
 	lyxscale 25
-	height 1.5in
+	height 2in
 
 \end_inset
 
@@ -3181,6 +3291,10 @@ The eversion process.
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 The fact that we need to perform the optimization in discrete steps, starting
  with the result of a previous optimization and altering the energy functional
  each time, shows that a combined functional aimed at starting from the
@@ -3189,6 +3303,11 @@ The fact that we need to perform the optimization in discrete steps, starting
  to achieve.
  Instead, an optimization process must be coaxed into going through the
  intermediate steps specified by the user.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -3201,8 +3320,8 @@ With these experiments we have demonstrated that simple CAD models can be
  to their simplest representative within the appropriate regular homotopy
  class.
  When applying this process to a partially everted torus represented within
- our system, the energy landscape contains numerous local minima that prevent
- an automatic eversion process via an optimization process.
+ our system, the energy landscape is not conducive to an automatic eversion
+ via an optimization process.
  This suggests the scope of further research to determine if a suitable
  energy functional can be obtained, as in the case of the sphere eversion.
 \end_layout
