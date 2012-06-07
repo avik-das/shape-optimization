@@ -177,8 +177,8 @@ reference "fig:figure-8"
 
 \end_inset
 
-a) can be unfolded into a circle--from a torus of type O8 to one of type
- OO in the paper's terminology--but this introduces a twist of 
+a) can be unfolded into a circle -- from a torus of type O8 to one of type
+ OO in the paper's terminology -- but this introduces a twist of 
 \begin_inset Formula $\pm360\text{°}$
 \end_inset
 
@@ -906,10 +906,9 @@ The iteration step size has an important influence on the progress of the
 \end_layout
 
 \begin_layout Standard
-One often-used optimization approach is to employ a line search algorithm
- ([[TODO: NEED TO FIND A CITATION]]), in which the direction of the gradient
- is searched in a more refined manner to find an appropriate energy minimum
- on that line.
+A more sophisticated optimization approach may employ a line search algorithm,
+ in which the direction of the gradient is searched in a more refined manner
+ to find an appropriate energy minimum on that line.
  This algorithm was not used for this project.
  A first reason was simplicity and that fact that satisfactory results were
  obtained with a straight-forward gradient-descent algorithm.
@@ -1795,9 +1794,8 @@ c.
 \end_inset
 
  result in the shape settling into a planar circle.
- This is because changes to a single parameter do not reduce to the twist
- enough to compensate for the increase in bending when near the starting
- configuration.
+ This is because changes to a single parameter do not reduce the twist enough
+ to compensate for the increase in bending when near the starting configuration.
  Values of 
 \begin_inset Formula $\alpha$
 \end_inset
@@ -1944,7 +1942,7 @@ Starting points for attempts to achieve an intermediate state.
 \end_layout
 
 \begin_layout Standard
-Intermediate configurations are achievable when the input shape contain
+Intermediate configurations are achievable when the input shape contains
  fewer control points.
  With only 8 control points in the loop and suitable parameter values for
  
@@ -2205,9 +2203,9 @@ This solution still leaves us with approximately
 \begin_inset Formula $60\text{°}$
 \end_inset
 
- of twist, and the bending energy is a little less than twice the bending
- energy present in an untwisted figure-8, which is the solution we would
- expect given the starting point and 
+ of twist, and the bending energy is almost twice the bending energy present
+ in an untwisted figure-8, which is the solution we would expect given the
+ starting point and 
 \begin_inset Formula $\alpha=0.5$
 \end_inset
 
@@ -2493,11 +2491,32 @@ reference "fig:wiggles"
 \end_layout
 
 \begin_layout Standard
-This example demonstrates that the use of the overall twist is not sufficient
- to prevent local twistedness that may cancel out in the calculation of
- the overall twist.
- We have consider introducing another term that would discourage this local
- twisting.
+This example demonstrates that there is a local minimum in which this optimizati
+on run is getting trapped.
+ The perturbation in the initial state depicted in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:wiggles"
+
+\end_inset
+
+a is slightly different from that used in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:alpha-sensitivity"
+
+\end_inset
+
+c, and this can lead to a different outcome altogether! First, we thought
+ that this is a manifestation of 
+\begin_inset Quotes eld
+\end_inset
+
+local twistedness,
+\begin_inset Quotes erd
+\end_inset
+
+ and we started to look for ways to overcome this problem.
  On second thought, we then realized that 
 \begin_inset Quotes eld
 \end_inset
@@ -2642,8 +2661,8 @@ The sweep path used previously cannot represent the torus eversion process
  radii.
  The mouths can then be visualized as half of a torus joining one endpoint
  of the first curve with the corresponding endpoint of the second.
- The mouths are present througout the entire eversion process, so they do
- not affect the energy.
+ The mouths are present as fixed shapes througout the entire eversion process,
+ so they do not affect the energy.
 \end_layout
 
 \begin_layout Subsection
@@ -2698,18 +2717,19 @@ key "sequin11"
 
 \end_inset
 
-, we know that during the eversion process, the total amount of twist across
- both arms is 
-\begin_inset Formula $360\text{°}$
+, we know that in the configuration shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:kbm-halfway"
+
 \end_inset
 
-.
- In a first optimization for minimal twisting of this symmetrical half-way
- point, each arm is given a twist of 
-\begin_inset Formula $180\text{°}$
+a, the amount of twist in each arm is 
+\begin_inset Formula $\pm180\text{°}$
 \end_inset
 
-.
+, and these twist specifications were used as the overall constraints in
+ our simulation.
  This forces the arms to take on a configuration in space so that the RMF
  provides this 
 \begin_inset Formula $180\text{°}$
@@ -2843,20 +2863,12 @@ Starting from this configuration, the only way to complete the actual eversion
 \end_layout
 
 \begin_layout Standard
-The energy landscape under this functional contains 
-\begin_inset Quotes eld
-\end_inset
-
-peaks
-\begin_inset Quotes erd
-\end_inset
-
- -- that is local maxima -- in the neighborhood of half-way point, making
- it difficult for an optimization process to navigate past the peaks to
- a lower energy region.
- To coax the optimization toward our desired result, we separate the eversion
- into a number of discrete steps, each time imposing a different contrainst
- to promote evolution toward a particular intermediate configuration.
+The energy landscape under this functional contains a strong local minimum
+ in the neighborhood of half-way point, making it difficult for an optimization
+ process to escape this valley and move to a lower energy region.
+ To create a time-dependent visualization of our desired result, we separate
+ the eversion into a number of discrete steps, each time imposing a different
+ contrainst to promote evolution toward a particular intermediate configuration.
 \end_layout
 
 \begin_layout Standard
@@ -2934,8 +2946,6 @@ The process of starting at an intermediate configuration and altering the
  that a single optimization starting from the symmetric half-way point and
  ending at a nearly circular configuration is not achievable using the current
  energy functional.
- Instead, an optimization process must be coaxed into going through the
- intermediate steps specified by the user.
 \end_layout
 
 \begin_layout Standard
